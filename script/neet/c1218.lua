@@ -1,0 +1,81 @@
+--霞之谷的前锋(neet)
+local s,id=GetID()
+function s.initial_effect(c)
+	--Link Summon
+	Link.AddProcedure(c,aux.FilterBoolFunctionEx(Card.IsAttribute,ATTRIBUTE_WIND),2,2)
+	c:EnableReviveLimit()
+	local e0=Effect.CreateEffect(c)
+	e0:SetDescription(aux.Stringid(id,0))
+	e0:SetCategory(CATEGORY_TODECK+CATEGORY_TOHAND)
+	e0:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e0:SetProperty(EFFECT_FLAG_DELAY)
+	e0:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e0:SetCondition(function(e) return e:GetHandler():IsSummonType(SUMMON_TYPE_LINK) end)
+	e0:SetTarget(s.target)
+	e0:SetOperation(s.activate)
+	c:RegisterEffect(e0)	   
+	local e2=Effect.CreateEffect(c)
+	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e2:SetRange(LOCATION_MZONE)
+	e2:SetCode(EVENT_TO_HAND)
+	e2:SetCondition(s.condition)
+	e2:SetOperation(s.operation)
+	c:RegisterEffect(e2)
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id,2))
+	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e3:SetCode(EFFECT_DESTROY_REPLACE)
+	e3:SetRange(LOCATION_GRAVE)
+	e3:SetTarget(s.reptg)
+	e3:SetValue(s.repval)
+	e3:SetOperation(s.repop)
+	c:RegisterEffect(e3)
+end
+function s.filter(c)
+	return c:IsSetCard(0x37) and c:IsAbleToHand()
+end
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+	local ct=Duel.GetMatchingGroupCount(Card.IsAbleToDeck,tp,0,LOCATION_ONFIELD,nil)
+	if chk==0 then return ct>0 and Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_ONFIELD,0,1,nil)
+	end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_ONFIELD,0,1,ct,nil)
+	Duel.SendtoHand(g,nil,REASON_EFFECT)
+	local og=Duel.GetOperatedGroup()
+	e:SetLabel(#og)
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,#og,0,0)
+end
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+	local ct=e:GetLabel()
+	local sg=Duel.GetMatchingGroup(Card.IsAbleToDeck,tp,0,LOCATION_ONFIELD,nil)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
+	local g=sg:Select(tp,1,ct,nil)
+	 Duel.SendtoDeck(g,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
+end
+function s.cfilter(c)
+	return c:IsSetCard(0x37) and (c:IsPreviousLocation(LOCATION_ONFIELD) or c:IsPreviousLocation(LOCATION_GRAVE) or c:IsPreviousLocation(LOCATION_REMOVED))and not c:IsReason(REASON_DRAW)
+end
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
+	return eg:IsExists(s.cfilter,1,nil,tp)
+	
+end
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+	local g=eg:Filter(s.cfilter,nil)
+	Duel.Hint(HINT_CARD,0,id)
+	Duel.Damage(1-tp,#g*200,REASON_EFFECT)
+end
+function s.repfilter(c,tp)
+	return c:IsFaceup() and c:IsAttribute(ATTRIBUTE_WIND) and c:IsLocation(LOCATION_MZONE)
+		and c:IsControler(tp) and c:IsReason(REASON_EFFECT+REASON_BATTLE) and not c:IsReason(REASON_REPLACE)
+end
+function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	if chk==0 then return c:IsAbleToRemove() and eg:IsExists(s.repfilter,1,nil,tp) end
+	return Duel.SelectEffectYesNo(tp,c,96)
+end
+function s.repval(e,c)
+	return s.repfilter(c,e:GetHandlerPlayer())
+end
+function s.repop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_EFFECT+REASON_REPLACE)
+end

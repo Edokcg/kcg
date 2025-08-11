@@ -1,0 +1,20 @@
+--CF-MC51 冲锋枪(ZCG)
+function c77238720.initial_effect(c)
+    --coin
+    local e1=Effect.CreateEffect(c)
+    e1:SetCategory(CATEGORY_ATKCHANGE)
+    e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
+    e1:SetCode(EVENT_ATTACK_ANNOUNCE)
+    e1:SetCountLimit(1)	
+    e1:SetOperation(c77238720.atop)
+    c:RegisterEffect(e1)
+end
+function c77238720.atop(e,tp,eg,ep,ev,re,r,rp)
+    local d=Duel.TossDice(tp,1)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
+    e1:SetValue(d*100)
+    e:GetHandler():RegisterEffect(e1)
+end

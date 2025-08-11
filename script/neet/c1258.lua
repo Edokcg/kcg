@@ -1,0 +1,75 @@
+--闪刀姬-旭曦
+local s,id=GetID()
+function s.initial_effect(c)
+	c:SetSPSummonOnce(id)
+	 --xyz summon
+	Xyz.AddProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0x1115),4,2,s.ovfilter,aux.Stringid(id,0))
+	c:EnableReviveLimit()
+	--attack up
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetType(EFFECT_TYPE_IGNITION)
+	e1:SetCountLimit(1)
+	e1:SetRange(LOCATION_MZONE)
+	e1:SetCost(s.cost)
+	e1:SetOperation(s.operation)
+	c:RegisterEffect(e1)
+	--
+	local e3=Effect.CreateEffect(c)
+	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+	e3:SetCode(EVENT_BE_MATERIAL)
+	e3:SetCondition(s.indcon)
+	e3:SetOperation(s.indop)
+	c:RegisterEffect(e3)
+end
+function s.ovfilter(c)
+	return c:IsFaceup() and c:IsAttribute(ATTRIBUTE_FIRE) and  c:IsSetCard(0x1115) and c:IsType(TYPE_LINK)
+end
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
+	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
+end
+
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+		e1:SetCode(EVENT_PRE_BATTLE_DAMAGE)
+		e1:SetTargetRange(LOCATION_MZONE,0)
+		e1:SetCondition(s.damcon)
+		e1:SetOperation(s.damop)
+		e1:SetValue(1)
+		e1:SetReset(RESET_PHASE+PHASE_END)
+		Duel.RegisterEffect(e1,tp)
+	local e2=Effect.CreateEffect(c)
+		e2:SetType(EFFECT_TYPE_SINGLE)
+		e2:SetCode(EFFECT_PIERCE)
+		e2:SetRange(LOCATION_MZONE)
+		e2:SetTargetRange(LOCATION_MZONE,0)
+		e2:SetTarget(aux.TargetBoolFunction(Card.IsSetCard,0x1115))
+		e2:SetReset(RESET_PHASE+PHASE_END)
+		Duel.RegisterEffect(e2,tp)
+end
+function s.damcon(e,tp,eg,ep,ev,re,r,rp)
+	local tc=eg:GetFirst()
+	return ep~=tp and tc:IsSetCard(0x1115) 
+end
+function s.damop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.ChangeBattleDamage(ep,ev*2)
+end
+function s.indcon(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	return r==REASON_LINK and c:GetReasonCard():IsSetCard(0x1115)
+end
+function s.indop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local rc=c:GetReasonCard()
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,1))
+	e1:SetProperty(EFFECT_FLAG_CLIENT_HINT)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
+	e1:SetValue(1)
+	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+	rc:RegisterEffect(e1,true)
+end
