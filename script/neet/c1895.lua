@@ -1,6 +1,9 @@
 --银河时空龙(neet)
 local s,id=GetID()
 function s.initial_effect(c)
+	--xyz summon
+	Xyz.AddProcedure(c,nil,4,2)
+	c:EnableReviveLimit()
 	--atk down
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
@@ -19,7 +22,7 @@ function s.initial_effect(c)
 	e2:SetCost(Cost.DetachFromSelf(1,1,nil))
 	e2:SetTarget(s.target)
 	e2:SetOperation(s.operation)
-	c:RegisterEffect(e2,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e2)
 	--Change levels to 4 or 8
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,1))
