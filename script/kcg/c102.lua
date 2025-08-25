@@ -196,11 +196,12 @@ function s.sumlimit(e,c)
 end
 
 function s.efilter(e,te)
+    local rrealcode=e:GetHandler():GetRealCode()
 	return te:GetHandler()==e:GetHandler()
 end
 
 function s.recon2(e,tp,eg,ep,ev,re,r,rp)
-	return not (re and re:GetHandler()==e:GetOwner())
+	return not (re and re:GetHandler()==e:GetOwner()) and rrealcode<1
 end
 function s.thop2(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

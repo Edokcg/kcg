@@ -2,7 +2,7 @@
 local s,id=GetID()
 function s.initial_effect(c)
 	c:EnableReviveLimit()
-	Fusion.AddProcMix(c,true,true,{281,CARD_DARK_MAGICIAN,CARD_DARK_MAGICIAN_GIRL},aux.FilterBoolFunctionEx(Card.IsRace,RACE_DRAGON|RACE_SPELLCASTER))
+	Fusion.AddProcMix(c,true,true,{CARD_DARK_MAGICIAN,CARD_DARK_MAGICIAN_GIRL},s.ffilter2)
 
 	--After this card is Special Summoned, until the end of your next turn, it is unaffected by other cards' effects
 	local e0=Effect.CreateEffect(c)
@@ -38,7 +38,12 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 s.material_setcode={281,SET_DARK_MAGICIAN,SET_MAGICIAN_GIRL,SET_DARK_MAGICIAN_GIRL}
+s.material={281}
 s.listed_names={281,CARD_DARK_MAGICIAN,CARD_DARK_MAGICIAN_GIRL}
+
+function s.ffilter2(c)
+	return c:IsRace(RACE_DRAGON|RACE_SPELLCASTER) or c:IsCode(281)
+end
 
 function s.regop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -52,28 +57,28 @@ function s.regop(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetValue(function(e,re) return e:GetHandler()~=re:GetOwner() end)
 	e1:SetReset(RESETS_STANDARD_PHASE_END,ct)
 	c:RegisterEffect(e1)
-    local setcode=c:GetOriginalSetCard()
-    if setcode&0xa1~=0 then 
-        c:SetCardData(CARDDATA_SETCODE,setcode&~0xa1) 
-        local e1=Effect.CreateEffect(c)
-        e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-        e1:SetCode(EVENT_PHASE|PHASE_END)
-        e1:SetCountLimit(1)
-        e1:SetCondition(s.spcon)
-        e1:SetOperation(s.spop)
-        e1:SetLabel(ct-1+Duel.GetTurnCount())
-        e1:SetReset(RESETS_STANDARD_PHASE_END|RESET_SELF_TURN,2)
-        Duel.RegisterEffect(e1,tp)
-    end
+    -- local setcode=c:GetOriginalSetCard()
+    -- if setcode&0xa1~=0 then 
+    --     c:SetCardData(CARDDATA_SETCODE,setcode&~0xa1) 
+    --     local e1=Effect.CreateEffect(c)
+    --     e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    --     e1:SetCode(EVENT_PHASE|PHASE_END)
+    --     e1:SetCountLimit(1)
+    --     e1:SetCondition(s.spcon)
+    --     e1:SetOperation(s.spop)
+    --     e1:SetLabel(ct-1+Duel.GetTurnCount())
+    --     e1:SetReset(RESETS_STANDARD_PHASE_END|RESET_SELF_TURN,2)
+    --     Duel.RegisterEffect(e1,tp)
+    -- end
 end
-function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetTurnCount()==e:GetLabel() and Duel.IsTurnPlayer(tp)
-end
-function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	local setcode=c:GetOriginalSetCard()
-    c:SetCardData(CARDDATA_SETCODE,setcode|0xa1)
-end
+-- function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+-- 	return Duel.GetTurnCount()==e:GetLabel() and Duel.IsTurnPlayer(tp)
+-- end
+-- function s.spop(e,tp,eg,ep,ev,re,r,rp)
+-- 	local c=e:GetHandler()
+-- 	local setcode=c:GetOriginalSetCard()
+--     c:SetCardData(CARDDATA_SETCODE,setcode|0xa1)
+-- end
 
 function s.atktg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local ct=Duel.GetMatchingGroupCount(aux.FaceupFilter(Card.IsSpell),tp,LOCATION_GRAVE|LOCATION_REMOVED,LOCATION_GRAVE|LOCATION_REMOVED,nil)

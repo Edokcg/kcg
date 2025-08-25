@@ -21,7 +21,8 @@ end
 s.listed_names={CARD_ASSAULT_MODE}
 
 function s.recon2(e,tp,eg,ep,ev,re,r,rp)
-	return not (re and re:GetHandler():IsCode(CARD_ASSAULT_MODE, 88332693))
+    local rrealcode=e:GetHandler():GetRealCode()
+	return not (re and re:GetHandler():IsCode(CARD_ASSAULT_MODE, 88332693)) and rrealcode<1
 end
 function s.thop2(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -157,7 +158,11 @@ function s.thop2(e,tp,eg,ep,ev,re,r,rp)
 	e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e4:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_CLIENT_HINT)
 	e4:SetCode(EVENT_DESTROYED)
-	e4:SetLabelObject(tc)
+	if rrealcode>0 then 
+        e4:SetLabel(rrealalias)
+    else
+        e4:SetLabel(acode)
+    end
 	e4:SetCondition(s.spcon)
 	e4:SetTarget(s.sptg)
 	e4:SetOperation(s.spop)
@@ -168,9 +173,8 @@ function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsPreviousLocation(LOCATION_ONFIELD)
 end
 function s.spfilter(c,e,tp)
-	local tc=e:GetLabelObject()
-	if not tc then return false end
-	return c:IsCode(tc:GetCode()) and c:IsCanBeSpecialSummoned(e,0,tp,true,false)
+	local code=e:GetLabel()
+	return c:IsCode(code) and c:IsCanBeSpecialSummoned(e,0,tp,true,false)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.spfilter(chkc,e,tp) end

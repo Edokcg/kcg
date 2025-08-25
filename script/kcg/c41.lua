@@ -28,7 +28,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 s.toss_coin=true
-s.listed_names={71625222}
+s.listed_names={281,71625222}
 s.material={281,71625222}
 
 function s.ffilter2(c)

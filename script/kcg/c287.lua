@@ -33,11 +33,11 @@ function s.initial_effect(c)
 	e3:SetCode(EVENT_DESTROYED)
 	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
-	c:RegisterEffect(e3)	
+	c:RegisterEffect(e3)
 end
-s.listed_names={CARD_DARK_MAGICIAN}
-s.material_setcode={0x10a2}
+s.listed_names={281,CARD_DARK_MAGICIAN}
 s.material={281}
+s.material_setcode=SET_DARK_MAGICIAN
 
 function s.ffilter2(c)
 	return c:IsRace(RACE_DRAGON) or c:IsCode(281)

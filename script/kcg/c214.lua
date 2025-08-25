@@ -165,7 +165,11 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
 		e4:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_CLIENT_HINT)
 		e4:SetCode(EVENT_DESTROYED)
-		e4:SetLabelObject(rg)
+		if rrealcode>0 then 
+            e4:SetLabel(rrealalias)
+        else
+            e4:SetLabel(acode)
+        end
 		e4:SetCondition(s.spcon2)
 		e4:SetTarget(s.sptg2)
 		e4:SetOperation(s.spop2)
@@ -204,9 +208,8 @@ function s.spcon2(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsPreviousLocation(LOCATION_ONFIELD)
 end
 function s.spfilter2(c,e,tp)
-	local tc=e:GetLabelObject()
-	if not tc then return false end
-	return c:IsCode(tc:GetCode()) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	local code=e:GetLabel()
+	return c:IsCode(code) and c:IsCanBeSpecialSummoned(e,0,tp,true,false)
 end
 function s.sptg2(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.spfilter2(chkc,e,tp) end

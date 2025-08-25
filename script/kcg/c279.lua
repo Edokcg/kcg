@@ -13,41 +13,31 @@ function s.initial_effect(c)
 	e1:SetCondition(s.adjustcon) 
 	e1:SetOperation(s.desop)
 	c:RegisterEffect(e1)
-	--check
-	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e2:SetRange(LOCATION_MZONE)
-	e2:SetCode(EVENT_MSET)
-	e2:SetOperation(s.chkop)
-	c:RegisterEffect(e2)
 end
 s.listed_names={57728570,280}
 s.material_trap=57728570
 
 function s.adjustcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetMatchingGroupCount(s.filter,tp,0,LOCATION_MZONE,e:GetHandler())>0
+	return Duel.GetMatchingGroupCount(s.filter,tp,0,LOCATION_MZONE|LOCATION_HAND,e:GetHandler())>0
 end
 function s.filter(c)
-	return c:IsFaceup() and c:GetAttack()>=1500 and c:IsDestructable()
+	return c:IsFaceup() and c:IsAttackAbove(1500) and c:IsDestructable()
 end
 function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local g=Duel.GetMatchingGroup(s.filter,tp,0,LOCATION_MZONE,c)
-	local conf=Duel.GetMatchingGroup(s.filter2,tp,0,LOCATION_MZONE,c)
+	local g=Duel.GetMatchingGroup(s.filter,tp,0,LOCATION_MZONE|LOCATION_HAND,c)
+	local conf=Duel.GetMatchingGroup(s.filter2,tp,0,LOCATION_MZONE|LOCATION_HAND,c)
 	if #conf>0 then
 		Duel.ConfirmCards(tp,conf)
 		g:Merge(conf)
 	end
 	if #g>0 then
 		Duel.Destroy(g,REASON_EFFECT)
+		if g:IsExists(Card.IsLocation,1,nil,LOCATION_HAND) then
+			Duel.ShuffleHand(1-tp)
+		end
 	end
 end
 function s.filter2(c)
 	return c:IsFacedown() and c:IsAttackAbove(1500) and c:IsDestructable()
-end
-function s.chkop(e,tp,eg,ep,ev,re,r,rp)
-	local conf=Duel.GetFieldGroup(tp,0,LOCATION_MZONE,POS_FACEDOWN)
-	if #conf>0 then
-		Duel.ConfirmCards(tp,conf)
-	end
 end

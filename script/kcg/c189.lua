@@ -93,11 +93,11 @@ function s.zero(tc,tep)
 			etc:CreateEffectRelation(te)
 			etc=gg:GetNext()
 		end
-	end						
+	end
 	if operation then operation(te,tep,eg,ep,ev,re,r,rp) end
-	tc:ReleaseEffectRelation(te)					
+	tc:ReleaseEffectRelation(te)
 	if gg then  
-		local etc=gg:GetFirst()												 
+		local etc=gg:GetFirst()
 		while etc do
 			etc:ReleaseEffectRelation(te)
 			etc=gg:GetNext()

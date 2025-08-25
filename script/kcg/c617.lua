@@ -35,7 +35,7 @@ function s.initial_effect(c)
 	e2:SetValue(s.mtval)
 	c:RegisterEffect(e2)
 end
-s.listed_names={CARD_GAIA_CHAMPION}
+s.listed_names={281,28279543,CARD_GAIA_CHAMPION}
 s.material={281,28279543}
 
 function s.ffilter2(c)

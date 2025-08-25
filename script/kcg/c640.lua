@@ -39,7 +39,7 @@ function s.initial_effect(c)
 	e3:SetOperation(s.spop)
 	c:RegisterEffect(e3)
 end
-s.listed_names={CARD_CHIMERA_MYTHICAL_BEAST}
+s.listed_names={281,CARD_CHIMERA_MYTHICAL_BEAST}
 s.material={281}
 
 function s.ffilter2(c)

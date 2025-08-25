@@ -4,7 +4,12 @@ function s.initial_effect(c)
 	--Fusion Summon
 	c:EnableReviveLimit()
     -- Fusion.AddProcMix(c,true,true,CARD_BLUEEYES_W_DRAGON,s.ffilter2)
-
+	
+	local e3=Effect.CreateEffect(c)
+	e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e3:SetType(EFFECT_TYPE_SINGLE)
+	e3:SetCode(EFFECT_CANNOT_DISABLE)
+	c:RegisterEffect(e3)
 	-- --Change name
 	-- local e0=Effect.CreateEffect(c)
 	-- e0:SetType(EFFECT_TYPE_SINGLE)

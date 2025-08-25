@@ -34,7 +34,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 s.listed_series={0xbd}
-s.listed_names={49328340}
+s.listed_names={281,49328340}
 s.material_setcode=0xbd
 s.material={281}
 

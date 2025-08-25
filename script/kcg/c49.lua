@@ -60,8 +60,16 @@ function s.initial_effect(c)
 	e6:SetCondition(s.discon)
 	e6:SetOperation(function(_,_,_,_,ev) Duel.NegateEffect(ev) end)
 	c:RegisterEffect(e6)
+	--damage
+	local e7=Effect.CreateEffect(c)
+	e7:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e7:SetCode(EVENT_DAMAGE)
+	e7:SetRange(LOCATION_MZONE)
+	e7:SetCondition(s.damcon)
+	e7:SetOperation(s.damop)
+	c:RegisterEffect(e7)
 end
-s.listed_names={64631466}
+s.listed_names={281,64631466}
 s.material={281,64631466}
 
 function s.ffilter2(c)
@@ -94,10 +102,22 @@ function s.eqval(ec,c,tp)
 end
 function s.equipop(c,e,tp,tc)
 	c:EquipByEffectAndLimitRegister(e,tp,tc,id)
+	--substitute
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_EQUIP)
+	e1:SetCode(EFFECT_DESTROY_SUBSTITUTE)
+	e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE+EFFECT_FLAG_IGNORE_IMMUNE)
+	e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+	e1:SetValue(s.repval)
+	tc:RegisterEffect(e1)
+end
+function s.repval(e,re,r,rp)
+	return r&REASON_BATTLE~=0
 end
 function s.eqgfilter(c)
 	return c:IsFaceup() and c:GetFlagEffect(id)>0
 end
+
 function s.atkval(e,c)
 	local g=c:GetEquipGroup():Match(s.eqgfilter,nil):Match(function(c) return c:GetTextAttack()>0 end,nil)
 	return g:GetSum(Card.GetTextAttack)
@@ -106,6 +126,7 @@ function s.defval(e,c)
 	local g=c:GetEquipGroup():Match(s.eqgfilter,nil):Match(function(c) return c:GetTextDefense()>0 end,nil)
 	return g:GetSum(Card.GetTextDefense)
 end
+
 function s.distg(e,c)
 	local eqg=e:GetHandler():GetEquipGroup():Match(s.eqgfilter,nil)
 	return eqg:IsExists(Card.IsOriginalCodeRule,1,nil,c:GetOriginalCodeRule())
@@ -113,4 +134,14 @@ end
 function s.discon(e,tp,eg,ep,ev,re,r,rp)
 	local eqg=e:GetHandler():GetEquipGroup():Match(s.eqgfilter,nil)
 	return re:IsMonsterEffect() and eqg:IsExists(Card.IsOriginalCodeRule,1,nil,re:GetHandler():GetOriginalCodeRule())
+end
+
+function s.damcon(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local g=c:GetEquipGroup():Filter(s.eqgfilter,nil)
+	return #g>0 and ep==tp and r&REASON_BATTLE~=0
+		and (Duel.GetAttacker()==e:GetHandler() or Duel.GetAttackTarget()==e:GetHandler())
+end
+function s.damop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Damage(1-tp,ev,REASON_EFFECT)
 end

@@ -57,14 +57,14 @@ function s.zero(tc,tep)
 			etc:CreateEffectRelation(te)
 			etc=gg:GetNext()
 		end
-	end						
+	end
 	if operation then 
 		local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
 		Duel.Damage(p,d,REASON_EFFECT)
 	end
-	tc:ReleaseEffectRelation(te)					
+	tc:ReleaseEffectRelation(te)
 	if gg then  
-		local etc=gg:GetFirst()												 
+		local etc=gg:GetFirst()
 		while etc do
 			etc:ReleaseEffectRelation(te)
 			etc=gg:GetNext()

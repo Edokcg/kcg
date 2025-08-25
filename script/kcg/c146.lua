@@ -112,20 +112,6 @@ function c146.fromhandop(e,tp,eg,ep,ev,re,r,rp)
 		if g:GetCount()~=0 then Duel.Destroy(g,REASON_RULE) end
 		Duel.BreakEffect() end
 		Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,true)
-		--if tc:IsLocation(LOCATION_SZONE) and tc:IsFaceup() then
-		--local te=tc:GetActivateEffect()
-		--local tep=tc:GetControler()
-	  --local condition=te:GetCondition()
-	  --local cost=te:GetCost()
-	  --local target=te:GetTarget()
-	  --local operation=te:GetOperation()
-	  --e:SetProperty(te:GetProperty())
-	  --tc:CreateEffectRelation(te) 
-	  --if cost then cost(te,tep,eg,ep,ev,re,r,rp,1) end
-	  --if target then target(te,tep,eg,ep,ev,re,r,rp,1) end
-	  --if operation then operation(te,tep,eg,ep,ev,re,r,rp) end
-	  --tc:ReleaseEffectRelation(te)  
-		--Duel.RaiseEvent(tc,EVENT_CHAIN_SOLVED,tc:GetActivateEffect(),0,tp,tp,Duel.GetCurrentChain()) end
 	end
 end
 

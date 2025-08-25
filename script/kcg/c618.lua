@@ -4,14 +4,14 @@ local s,id=GetID()
 function s.initial_effect(c)
 	--fusion material
 	c:EnableReviveLimit()
-	Fusion.AddProcMix(c,true,true,78193831,s.ffilter2)
+	Fusion.AddProcMix(c,true,true,CARD_BUSTER_BLADER,s.ffilter2)
     --Change name
 	local e0=Effect.CreateEffect(c)
 	e0:SetType(EFFECT_TYPE_SINGLE)
 	e0:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
 	e0:SetCode(EFFECT_CHANGE_CODE)
 	e0:SetRange(LOCATION_MZONE+LOCATION_GRAVE)
-	e0:SetValue(78193831)
+	e0:SetValue(CARD_BUSTER_BLADER)
 	c:RegisterEffect(e0)
 	--cannot direct attack
 	local e1=Effect.CreateEffect(c)
@@ -60,8 +60,9 @@ function s.initial_effect(c)
 	e7:SetCode(EFFECT_PIERCE)
 	c:RegisterEffect(e7)
 end
-s.material_setcode=0xd7
-s.material={281,78193831}
+s.listed_names={281,CARD_BUSTER_BLADER}
+s.material={281}
+s.material_setcode=SET_BUSTER_BLADER
 
 function s.ffilter2(c)
 	return c:IsRace(RACE_DRAGON) or c:IsCode(281)

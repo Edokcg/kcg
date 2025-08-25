@@ -3,7 +3,7 @@ local s,id=GetID()
 function s.initial_effect(c)
 	--Fusion material
 	c:EnableReviveLimit()
-	Fusion.AddProcMix(c,false,false,aux.FilterBoolFunctionEx(Card.IsSetCard,0x10a2),s.ffilter2)
+	Fusion.AddProcMix(c,false,false,CARD_DARK_MAGICIAN,s.ffilter2)
 
 	--Change name
 	local e1=Effect.CreateEffect(c)
@@ -30,8 +30,9 @@ function s.initial_effect(c)
 	e4:SetValue(aux.tgoval)
 	c:RegisterEffect(e4)
 end
-s.listed_names={CARD_DARK_MAGICIAN}
-s.material={281,CARD_DARK_MAGICIAN}
+s.listed_names={281,CARD_DARK_MAGICIAN}
+s.material={281}
+s.material_setcode=SET_DARK_MAGICIAN
 
 function s.ffilter2(c)
 	return c:IsRace(RACE_DRAGON) or c:IsCode(281)

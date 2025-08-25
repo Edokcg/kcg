@@ -118,7 +118,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
             tc:SetEntityCode(ocode,nil,ss,TYPE_MONSTER+TYPE_EFFECT+TYPE_SPSUMMON,level,nil,nil,rg:GetTextAttack()+500,rg:GetTextDefense()+500,nil,nil,nil,true,213,effcode,213)
             local tec2 = {tc:GetTriggerEffect()}
             local te2count=0
-            for _, te in ipairs(tec2) do
+            for _,te in ipairs(tec2) do
                 if te:GetOwner()==tc then
                     if (bit.band(te:GetType(),EFFECT_TYPE_QUICK_O)~=0 or bit.band(te:GetType(),EFFECT_TYPE_TRIGGER_O)~=0 or bit.band(te:GetType(),EFFECT_TYPE_IGNITION)~=0) and te:GetCondition() and te:GetOperation() then
                         local te2=te:Clone()
@@ -155,7 +155,11 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
         e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
         e4:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_CLIENT_HINT)
         e4:SetCode(EVENT_DESTROYED)
-        e4:SetLabelObject(rg)
+        if rrealcode>0 then 
+            e4:SetLabel(rrealalias)
+        else
+            e4:SetLabel(acode)
+        end
         e4:SetCondition(s.spcon)
         e4:SetTarget(s.sptg)
         e4:SetOperation(s.spop)
@@ -194,9 +198,8 @@ function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsPreviousLocation(LOCATION_ONFIELD)
 end
 function s.spfilter(c,e,tp)
-	local tc=e:GetLabelObject()
-	if not tc then return false end
-	return c:IsCode(tc:GetCode()) and c:IsCanBeSpecialSummoned(e,0,tp,true,false)
+	local code=e:GetLabel()
+	return c:IsCode(code) and c:IsCanBeSpecialSummoned(e,0,tp,true,false)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.spfilter(chkc,e,tp) end

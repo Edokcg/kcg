@@ -29,13 +29,24 @@ function s.initial_effect(c)
 	-- e1:SetValue(aux.FALSE)
 	-- c:RegisterEffect(e1)
 
+	-- local e0=Effect.CreateEffect(c)
+	-- e0:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	-- e0:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
+	-- e0:SetCode(EVENT_ADJUST)
+	-- e0:SetRange(LOCATION_MZONE)
+	-- e0:SetCondition(s.adjustcon) 
+	-- e0:SetOperation(s.adjustop)
+	-- c:RegisterEffect(e0)
+	
+	--remove
 	local e0=Effect.CreateEffect(c)
-	e0:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e0:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
-	e0:SetCode(EVENT_ADJUST)
-	e0:SetRange(LOCATION_MZONE)
-	e0:SetCondition(s.adjustcon) 
-	e0:SetOperation(s.adjustop)
+	e0:SetDescription(aux.Stringid(id,2))
+	e0:SetCategory(CATEGORY_REMOVE)
+	e0:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e0:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e0:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e0:SetTarget(s.rmtg)
+	e0:SetOperation(s.rmop)
 	c:RegisterEffect(e0)
 
 	  --Absorb Monster effects
@@ -96,17 +107,34 @@ function s.initial_effect(c)
 	c:RegisterEffect(e9)
 end
 
-function s.adjustcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetMatchingGroupCount(s.adfilter,tp,0,LOCATION_ONFIELD,nil)>0
+-- function s.adjustcon(e,tp,eg,ep,ev,re,r,rp)
+-- 	return Duel.GetMatchingGroupCount(s.adfilter,tp,0,LOCATION_ONFIELD,nil)>0
+-- end
+-- function s.adfilter(c)
+--     return c:IsFaceup() and c:IsSetCard(0x900) and c:IsType(TYPE_FIELD)
+-- end
+-- function s.adjustop(e,tp,eg,ep,ev,re,r,rp)
+-- 	local c=e:GetHandler()
+-- 	local g=Duel.GetMatchingGroup(s.adfilter,tp,0,LOCATION_ONFIELD,nil)
+-- 	if #g>0 then
+-- 		Duel.Destroy(g,REASON_RULE+REASON_EFFECT)
+-- 	end
+-- end
+
+function s.rmfilter(c)
+	return c:IsSpellTrap() and c:IsFaceup()
 end
-function s.adfilter(c)
-    return c:IsFaceup() and c:IsSetCard(0x900) and c:IsType(TYPE_FIELD)
+function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsOnField() and s.rmfilter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(s.rmfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+	local g=Duel.SelectTarget(tp,s.rmfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,1,0,0)
 end
-function s.adjustop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	local g=Duel.GetMatchingGroup(s.adfilter,tp,0,LOCATION_ONFIELD,nil)
-	if #g>0 then
-		Duel.Destroy(g,REASON_RULE+REASON_EFFECT)
+function s.rmop(e,tp,eg,ep,ev,re,r,rp)
+	local tc=Duel.GetFirstTarget()
+	if tc:IsRelateToEffect(e) and tc:IsFaceup() then
+		Duel.Remove(tc,POS_FACEUP,REASON_RULE+REASON_EFFECT)
 	end
 end
 
@@ -131,7 +159,7 @@ function s.cop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetCode(EFFECT_CHANGE_CODE)
 		e1:SetValue(tc:GetCode())
 		e1:SetReset(reset_flag)
-		c:RegisterEffect(e1)		
+		c:RegisterEffect(e1)
 		c:CopyEffect(code, reset_flag, 1)
 	end
 end 

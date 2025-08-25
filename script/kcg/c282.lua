@@ -45,8 +45,9 @@ s.list = {
 
 function s.filter(c, e, tp)
     return (c:IsControler(tp) or c:IsFaceup()) and c:IsType(TYPE_MONSTER)
-    and c:IsCanBeFusionMaterial() and not c:IsImmuneToEffect(e) and not c:IsSetCard(0xa1) and c:IsAbleToGrave()
+    and c:IsCanBeFusionMaterial() and not c:IsImmuneToEffect(e) and c:IsAbleToGrave()
     and Duel.IsExistingMatchingCard(Card.IsFaceup,tp,LOCATION_MZONE,LOCATION_MZONE,1,c)
+    and not c:IsSetCard(0xa1) and not c:IsSetCard(0xa0)
 end
 
 function s.target(e, tp, eg, ep, ev, re, r, rp, chk)
@@ -67,8 +68,9 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
     local gc=rg:GetFirst()
     if gc:IsFacedown() then Duel.ConfirmCards(tp, gc) end
     local ttcode=0
-    local code=gc:GetCode()
-    local tcode=s.list[code]
+    local ocode=gc:GetOriginalCode()
+    local acode=gc:GetOriginalAlias()
+    local tcode=s.list[acode]
     if tcode then 
 		ttcode=tcode
 	else
@@ -82,8 +84,6 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
         Duel.SendtoGrave(fg, REASON_EFFECT + REASON_MATERIAL + REASON_FUSION)
         Duel.BreakEffect()
         if tc:IsCode(44) then
-            local code=gc:GetOriginalCode()
-            local acode=gc:GetOriginalAlias()
             local ss={gc:GetOriginalSetCard()}
             local addset=false
             if #ss>3 then
@@ -93,10 +93,14 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
             end
             local rrealcode,orcode,rrealalias=gc:GetRealCode()
             if rrealcode>0 then 
-                code=orcode
+                ocode=orcode
                 acode=orcode
             end
-            tc:SetEntityCode(code,nil,ss,tc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION&~TYPE_NORMAL,tc:GetOriginalLevel(),tc:GetOriginalAttribute(),tc:GetOriginalRace(),tc:GetTextAttack(),tc:GetTextDefense(),0,0,0,false,44,44,44)
+            if rrealcode>0 then
+                tc:SetEntityCode(ocode,nil,ss,(gc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION|TYPE_SPELL|TYPE_EQUIP)&~TYPE_NORMAL&~TYPE_SPSUMMON,tc:GetOriginalLevel(),gc:GetOriginalAttribute(),gc:GetOriginalRace(),gc:GetTextAttack(),gc:GetTextDefense(),0,0,0,false,44,44,44,gc)
+            else
+                tc:SetEntityCode(ocode,nil,ss,(gc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION|TYPE_SPELL|TYPE_EQUIP)&~TYPE_NORMAL&~TYPE_SPSUMMON,tc:GetOriginalLevel(),gc:GetOriginalAttribute(),gc:GetOriginalRace(),gc:GetTextAttack(),gc:GetTextDefense(),0,0,0,false,44,44,44)
+            end
             if addset then
                 local e1=Effect.CreateEffect(tc)
                 e1:SetType(EFFECT_TYPE_SINGLE)
@@ -107,54 +111,39 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
             end
             aux.CopyCardTable(gc,tc,false,"listed_names",id,acode)
 			local ran=0
-			if s.efflist[code]~=nil then
-				ran=s.efflist[code]
+			if s.efflist[acode]~=nil then
+				ran=s.efflist[acode]
 			else
 				ran=Duel.GetRandomNumber(0,1)
-				s.efflist={[code]=ran}
+				s.efflist={[acode]=ran}
 			end
             if not gc:IsOriginalType(TYPE_EFFECT) then
-                local tec2 = {gc:GetFieldEffect()}
-                if tec2 then
-                    local count=0
-                    for _, temp in ipairs(tec2) do
-                        if (bit.band(temp:GetType(), EFFECT_TYPE_FIELD) ~= 0 or bit.band(temp:GetType(), EFFECT_TYPE_SINGLE) ~= 0) then
-                            local te2=temp:Clone()
-                            if te:GetRange() then
-                                te2:SetRange(LOCATION_SZONE)
-                            end
-                            if count == 0 then
-                                if te:GetProperty() then
-                                    te2:SetProperty(EFFECT_FLAG_CLIENT_HINT | te:GetProperty())
-                                else
-                                    te2:SetProperty(EFFECT_FLAG_CLIENT_HINT)
-                                end
-                                te2:SetDescription(aux.Stringid(id,6),true,0,0,0,0,acode) 
-                            end
-                            te2:SetType(EFFECT_TYPE_EQUIP)
-                            tc:RegisterEffect(te2,true)
-                            count=count+1
-                        end
-                    end
-                end
                 if ran==1 then
                     local e2 = Effect.CreateEffect(tc)
-                    e2:SetDescription(aux.Stringid(id,4),true)
-                    e2:SetProperty(EFFECT_FLAG_CLIENT_HINT)
                     e2:SetType(EFFECT_TYPE_EQUIP)
                     e2:SetCode(EFFECT_UPDATE_ATTACK)
                     e2:SetValue(s.value)
                     e2:SetLabelObject(gc)
                     tc:RegisterEffect(e2,true)
+                    local e1=Effect.CreateEffect(tc)
+                    e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
+                    e1:SetDescription(aux.Stringid(id,4),true)
+                    e1:SetType(EFFECT_TYPE_SINGLE)
+                    e1:SetCode(id)
+                    tc:RegisterEffect(e1)
                 else
                     local e2 = Effect.CreateEffect(tc)
-                    e2:SetDescription(aux.Stringid(id,7),true)
-                    e2:SetProperty(EFFECT_FLAG_CLIENT_HINT)
                     e2:SetType(EFFECT_TYPE_EQUIP)
                     e2:SetCode(EFFECT_ATTACK_ALL)
                     e2:SetValue(1)
                     e2:SetLabelObject(gc)
                     tc:RegisterEffect(e2,true)
+                    local e1=Effect.CreateEffect(tc)
+                    e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
+                    e1:SetDescription(aux.Stringid(id,7),true)
+                    e1:SetType(EFFECT_TYPE_SINGLE)
+                    e1:SetCode(id)
+                    tc:RegisterEffect(e1)
                 end
             else
                 if ran==1 then
@@ -178,6 +167,7 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
                             if (bit.band(te:GetType(), EFFECT_TYPE_QUICK_O) ~= 0 or bit.band(te:GetType(), EFFECT_TYPE_TRIGGER_O) ~= 0 or bit.band(te:GetType(), EFFECT_TYPE_IGNITION) ~= 0)
                             and te:GetOperation() then
                                 local te2 = te:Clone()
+                                te2:SetOwner(tc)
                                 te2:SetCountLimit(1)
                                 if te:GetRange() then
                                     te2:SetRange(LOCATION_SZONE)
@@ -194,6 +184,34 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
                     end
                 end
             end
+            local e1=Effect.CreateEffect(tc)
+            e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+            e1:SetType(EFFECT_TYPE_SINGLE)
+            e1:SetCode(EFFECT_CANNOT_DISABLE)
+            tc:RegisterEffect(e1)
+        else
+            local ss={tc:GetOriginalSetCard()}
+            local addset=false
+            if #ss>3 then
+                addset=true
+            else
+                table.insert(ss,0xa1)
+            end
+            tc:SetEntityCode(ttcode,nil,ss,(tc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION|TYPE_SPELL|TYPE_EQUIP)&~TYPE_NORMAL&~TYPE_SPSUMMON,nil,nil,nil,nil,nil,nil,nil,nil,false,ttcode,ttcode,44,false,true)
+            if addset then
+                local e1=Effect.CreateEffect(tc)
+                e1:SetType(EFFECT_TYPE_SINGLE)
+                e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+                e1:SetCode(EFFECT_ADD_SETCODE)
+                e1:SetValue(0xa1)
+                tc:RegisterEffect(e1)
+            end
+            local e1=Effect.CreateEffect(tc)
+            e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
+            e1:SetDescription(aux.Stringid(282,0),true,0,0,0,0,0,true)
+            e1:SetType(EFFECT_TYPE_SINGLE)
+            e1:SetCode(EFFECT_CANNOT_DISABLE)
+            tc:RegisterEffect(e1)
         end
         Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
         local et=Duel.SelectTarget(tp,Card.IsFaceup,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,gc):GetFirst()
@@ -246,7 +264,7 @@ end
 function s.spcon(e,c)
 	if c==nil then return true end
 	local tp=c:GetControler()
-	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(Card.IsDiscardable,tp,LOCATION_HAND,0,1,c)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,c)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISCARD)

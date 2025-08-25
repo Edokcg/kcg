@@ -58,7 +58,7 @@ function s.zero(tc,tep)
 			etc:CreateEffectRelation(te)
 			etc=gg:GetNext()
 		end
-	end						
+	end
 	if operation then 
 		if Duel.IsExistingMatchingCard(s.ofilter,tep,LOCATION_DECK+LOCATION_HAND,0,1,nil) and Duel.SelectYesNo(tep,aux.Stringid(12744567,0)) then
 			Duel.Hint(HINT_SELECTMSG,tep,HINTMSG_XMATERIAL)
@@ -68,9 +68,9 @@ function s.zero(tc,tep)
 			end
 		end
 	end
-	tc:ReleaseEffectRelation(te)					
+	tc:ReleaseEffectRelation(te)
 	if gg then  
-		local etc=gg:GetFirst()												 
+		local etc=gg:GetFirst()
 		while etc do
 			etc:ReleaseEffectRelation(te)
 			etc=gg:GetNext()

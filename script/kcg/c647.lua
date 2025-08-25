@@ -49,8 +49,8 @@ function s.initial_effect(c)
 	e4:SetOperation(s.spop2)
 	c:RegisterEffect(e4)
 end
-s.listed_names={CARD_SHINING_SARCOPHAGUS,CARD_CHIMERA_MYTHICAL_BEAST}
-s.material={281}
+s.listed_names={281,CARD_SHINING_SARCOPHAGUS,CARD_CHIMERA_MYTHICAL_BEAST}
+s.material={281,CARD_CHIMERA_MYTHICAL_BEAST}
 
 function s.goldsarccon(e)
 	return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,CARD_SHINING_SARCOPHAGUS),e:GetHandlerPlayer(),LOCATION_ONFIELD,0,1,nil)

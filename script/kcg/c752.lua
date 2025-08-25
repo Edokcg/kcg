@@ -88,9 +88,9 @@ function s.zero(tc,tep)
 			end
 		end
 	end
-	tc:ReleaseEffectRelation(te)					
+	tc:ReleaseEffectRelation(te)
 	if gg then  
-		local etc=gg:GetFirst()												 
+		local etc=gg:GetFirst()
 		while etc do
 			etc:ReleaseEffectRelation(te)
 			etc=gg:GetNext()

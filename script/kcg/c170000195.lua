@@ -4,6 +4,7 @@ function s.initial_effect(c)
     --fusion material
 	c:EnableReviveLimit()
 	Fusion.AddProcCodeFun(c,71625222,282,1,true,true)
+	aux.AddEquipProcedure(c)
 
 	--Activate
 	local e0=Effect.CreateEffect(c)
@@ -25,31 +26,42 @@ function s.initial_effect(c)
     e1:SetOperation(s.set)
     c:RegisterEffect(e1)
 
-     local e3=Effect.CreateEffect(c)
-     e3:SetType(EFFECT_TYPE_SINGLE)
-     e3:SetCode(EFFECT_EQUIP_LIMIT)
-     e3:SetValue(s.eqlimit)
-     c:RegisterEffect(e3)
+    local e3=Effect.CreateEffect(c)
+    e3:SetType(EFFECT_TYPE_SINGLE)
+    e3:SetCode(EFFECT_EQUIP_LIMIT)
+    e3:SetValue(1)
+    c:RegisterEffect(e3)
+
+	--equip
+	local e5=Effect.CreateEffect(c)
+	e5:SetCategory(CATEGORY_EQUIP)
+	e5:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
+	e5:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e5:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e5:SetTarget(s.target)
+	e5:SetOperation(s.operation)
+	c:RegisterEffect(e5)
 end
 s.listed_names={71625222,282}
 s.roll_dice=true
 s.counter_place_list={0x1087}
 
-function s.filter2(c)
-	return c:IsFaceup() 
-end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:GetLocation()==LOCATION_MZONE and s.filter2(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(s.filter2,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsFaceup() and chkc~=e:GetHandler() end
+	if chk==0 then return true end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
-	Duel.SelectTarget(tp,s.filter2,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_EQUIP,e:GetHandler(),1,0,0)
+	Duel.SelectTarget(tp,Card.IsFaceup,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,e:GetHandler())
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if e:GetHandler():IsRelateToEffect(e) and tc:IsRelateToEffect(e) and tc:IsFaceup() then
-		Duel.Equip(tp,e:GetHandler(),tc)
+	if not tc then return end
+	local c=e:GetHandler()
+	if not c:IsRelateToEffect(e) or c:IsLocation(LOCATION_SZONE) or c:IsFacedown() then return end
+	if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 or tc:IsFacedown() or not tc:IsRelateToEffect(e) then
+		Duel.SendtoGrave(c,REASON_EFFECT)
+		return
 	end
+	Duel.Equip(tp,c,tc)
 end
 
 function s.setcon(e,tp,eg,ep,ev,re,r,rp)
@@ -90,10 +102,6 @@ function s.set(e,tp,eg,ep,ev,re,rp)
         e5:SetReset(RESET_EVENT+RESETS_STANDARD)
         e:GetHandler():RegisterEffect(e5)     
     end
-end
-
-function s.eqlimit(e,c)
-    return c:IsFaceup()
 end
 
 function s.con(e,tp,eg,ep,ev,re,r,rp)
