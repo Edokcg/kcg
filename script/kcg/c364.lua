@@ -4,7 +4,7 @@ local zexal=nil
 function s.initial_effect(c)
 	zexal=c
 	c:EnableReviveLimit()
-	Xyz.AddProcedureX(c,s.mfilter,nil,3,s.ovfilter,aux.Stringid(52653092,0),nil,s.xyzop,false)
+	Xyz.AddProcedureX(c,s.mfilter,nil,3,nil,nil,Xyz.InfiniteMats,s.xyzop,false)
 
     --cannot destroyed
 	local e1=Effect.CreateEffect(c)
@@ -22,7 +22,7 @@ function s.initial_effect(c)
 
 	--spsummon success
 	local e3=Effect.CreateEffect(c)
-	e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)	  
+	e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
 	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e3:SetOperation(s.sucop)
@@ -33,12 +33,12 @@ function s.initial_effect(c)
 	e4:SetType(EFFECT_TYPE_SINGLE)
 	e4:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
 	e4:SetRange(LOCATION_MZONE)
-	e4:SetCode(EFFECT_SET_ATTACK)
+	e4:SetCode(EFFECT_SET_BASE_ATTACK)
 	e4:SetValue(s.atkval)
 	c:RegisterEffect(e4)
 	local e5=e4:Clone()
-	e5:SetCode(EFFECT_SET_DEFENSE)
-	c:RegisterEffect(e5)	
+	e5:SetCode(EFFECT_SET_BASE_DEFENSE)
+	c:RegisterEffect(e5)
 
 	aux.GlobalCheck(s,function()
 		local ge1=Effect.CreateEffect(c)
@@ -51,6 +51,7 @@ function s.initial_effect(c)
 
 	--activate limit
 	local e6=Effect.CreateEffect(c)
+	e6:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 	e6:SetDescription(aux.Stringid(52653092,1))
 	e6:SetType(EFFECT_TYPE_QUICK_O)
 	e6:SetCode(EVENT_FREE_CHAIN)
@@ -63,7 +64,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e6)
 end
 s.xyz_number=0
-s.listed_series = {0x48, 0x95}
+s.listed_series = {0x48}
 
 function s.indes(e,c)
 	return not e:GetHandler():GetBattleTarget():IsSetCard(0x48) 

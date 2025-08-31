@@ -63,8 +63,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 				tc:ResetFlagEffect(708)
 				tc:RegisterFlagEffect(708,RESET_EVENT + 0x1fe0000,EFFECT_FLAG_CLIENT_HINT,1,83,aux.Stringid(825,2))
             else
-                tc:SetEntityCode(code,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
-                tc:SetCardData(CARDDATA_TYPE, tc:GetOriginalType()-TYPE_TOKEN)
+                tc:SetEntityCode(code,nil,nil,tc:GetOriginalType()&~TYPE_TOKEN,nil,nil,nil,nil,nil,nil,nil,nil,true)
 			end
 		elseif tc:IsCode(21208154,62180201,57793869) then
 			--To Graveyard

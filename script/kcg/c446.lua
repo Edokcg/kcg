@@ -16,11 +16,6 @@ function s.initial_effect(c)
 	e0:SetCondition(s.chancon)
 	e0:SetOperation(s.chanop)
 	c:RegisterEffect(e0)
-	local e00=e0:Clone()
-	e00:SetCode(EVENT_TO_DECK)
-	e00:SetCondition(s.chanconr)
-	e00:SetOperation(s.chanopr)
-	c:RegisterEffect(e00)
 
 	--Special Summon this card from the Pendulum Zone
 	local e1=Effect.CreateEffect(c)
@@ -100,19 +95,10 @@ function s.chancon(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.chanop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if not c:IsRitualSummoned() then c:SetCardData(CARDDATA_TYPE, c:GetOriginalType()&~TYPE_RITUAL) end
-	if not c:IsSynchroSummoned() then c:SetCardData(CARDDATA_TYPE, c:GetOriginalType()&~TYPE_SYNCHRO) end
-	if not c:IsXyzSummoned() then c:SetCardData(CARDDATA_TYPE, c:GetOriginalType()&~TYPE_XYZ) end
-	if not c:IsLinkSummoned() then c:SetCardData(CARDDATA_TYPE, c:GetOriginalType()&~TYPE_LINK) end
-end
-
-function s.chanconr(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	return c:IsLocation(LOCATION_EXTRA) and c:IsPosition(POS_FACEDOWN)
-end
-function s.chanopr(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	c:SetCardData(CARDDATA_TYPE, TYPE_EFFECT|TYPE_MONSTER|TYPE_PENDULUM|TYPE_RITUAL|TYPE_FUSION|TYPE_SYNCHRO|TYPE_XYZ|TYPE_LINK)
+	if not c:IsRitualSummoned() then c:SetCardData(CARDDATA_TYPE,c:GetOriginalType()&~TYPE_RITUAL,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD,c) end
+	if not c:IsSynchroSummoned() then c:SetCardData(CARDDATA_TYPE,c:GetOriginalType()&~TYPE_SYNCHRO,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD,c) end
+	if not c:IsXyzSummoned() then c:SetCardData(CARDDATA_TYPE,c:GetOriginalType()&~TYPE_XYZ,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD,c) end
+	if not c:IsLinkSummoned() then c:SetCardData(CARDDATA_TYPE,c:GetOriginalType()&~TYPE_LINK,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD,c) end
 end
 
 function s.cfilter(c,tp)

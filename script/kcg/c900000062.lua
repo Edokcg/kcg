@@ -137,10 +137,10 @@ function s.damcon(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.lvop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:GetLevel()>=8 then c:SetCardData(1, 72443569)
-	elseif c:GetLevel()>=4 then c:SetCardData(1, 41175645)
-	elseif c:GetLevel()>=1 then c:SetCardData(1, 65726770) end
-	c:SetCardData(CARDDATA_LEVEL, math.min(12,c:GetLevel()))
+	if c:GetLevel()>=8 then c:SetCardData(CARDDATA_PICCODE,72443569,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD_DISABLE,c)
+	elseif c:GetLevel()>=4 then c:SetCardData(CARDDATA_PICCODE,41175645,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD_DISABLE,c)
+	elseif c:GetLevel()>=1 then c:SetCardData(CARDDATA_PICCODE,65726770,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD_DISABLE,c) end
+	c:SetCardData(CARDDATA_LEVEL,math.min(12,c:GetLevel()),EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD_DISABLE,c)
 	local ae={c:IsHasEffect(EFFECT_UPDATE_LEVEL)}
 	for _, te in ipairs(ae) do
 		te:Reset()

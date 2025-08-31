@@ -36,7 +36,13 @@ function s.initial_effect(c)
 	e11:SetTarget(s.mtarget2)
 	e11:SetOperation(s.moperation2)
 	c:RegisterEffect(e11)
-
+	
+	local e12=Effect.CreateEffect(c)
+	e12:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
+	e12:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_DAMAGE_CAL+EFFECT_FLAG_DAMAGE_CAL+EFFECT_FLAG_DELAY)
+	e12:SetCode(EVENT_ENTITY_RESET)
+	e12:SetOperation(s.moperation22)
+	c:RegisterEffect(e12)
 	-- local e2=Effect.CreateEffect(c)
 	-- e2:SetType(EFFECT_TYPE_FIELD)
 	-- e2:SetRange(LOCATION_SZONE)
@@ -153,8 +159,15 @@ function s.mtarget2(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.SelectTarget(tp,s.filter3,tp,LOCATION_MZONE,0,1,20,nil)
 end
 function s.moperation2(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
 	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
+	s.cartoonize(e,tp,g)
+end
+function s.moperation22(e,tp,eg,ep,ev,re,r,rp)
+	Duel.SetTargetCard(eg)
+	s.cartoonize(e,tp,eg)
+end
+function s.cartoonize(e,tp,g)
+	local c=e:GetHandler()
 	for tc in aux.Next(g) do
         if c:IsRelateToEffect(e) and tc:IsRelateToEffect(e) and not tc:IsImmuneToEffect(e) then
             local ss={tc:GetOriginalSetCard()}
@@ -168,17 +181,18 @@ function s.moperation2(e,tp,eg,ep,ev,re,r,rp)
             local lv=tc:GetOriginalLevel()
             local code=tc:GetOriginalCode()
             local acode=tc:GetOriginalAlias()
-            local effcode=tc:GetOriginalCode()
             local ttcode=0
-            local tcode=s.list[tc:GetCode()]
+            local piccode=0
+			local tcode=tc:GetCode()
             local rrealcode,orcode,rrealalias=tc:GetRealCode()
 			if rrealcode>0 then 
 				code=orcode
 				acode=orcode
-				effcode=0
+				tcode=rrealalias
 			end
+			if s.list[tcode] then piccode=s.list[tcode] end
 			if rrealcode>0 then
-				tc:SetEntityCode(code,nil,ss,TYPE_MONSTER|TYPE_EFFECT|TYPE_TOON,nil,nil,nil,nil,nil,nil,nil,nil,false,838,effcode,838,tc)
+				tc:SetEntityCode(code,nil,piccode,ss,TYPE_MONSTER|TYPE_EFFECT|TYPE_TOON,nil,nil,nil,nil,nil,nil,nil,nil,EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_OWNER_RELATE,RESET_EVENT+RESETS_STANDARD_DISABLE,c,false,838,0,838,tc)
 				local te1={tc:GetFieldEffect()}
 				local te2={tc:GetTriggerEffect()}
 				for _,te in ipairs(te1) do
@@ -204,62 +218,68 @@ function s.moperation2(e,tp,eg,ep,ev,re,r,rp)
 					end
 				end
 			else
-				tc:SetEntityCode(code,nil,ss,TYPE_MONSTER|TYPE_EFFECT|TYPE_TOON,nil,nil,nil,nil,nil,nil,nil,nil,true,838,effcode,838)
+				tc:SetEntityCode(code,nil,piccode,ss,TYPE_MONSTER|TYPE_EFFECT|TYPE_TOON,nil,nil,nil,nil,nil,nil,nil,nil,EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_OWNER_RELATE,RESET_EVENT+RESETS_STANDARD_DISABLE,c,true,838,0,838)
 			end
+			c:SetCardTarget(tc)
 			if addset then
-				local e1=Effect.CreateEffect(tc)
+				local e1=Effect.CreateEffect(c)
 				e1:SetType(EFFECT_TYPE_SINGLE)
-				e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+				e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_OWNER_RELATE)
 				e1:SetCode(EFFECT_ADD_SETCODE)
 				e1:SetValue(0x62)
-				tc:RegisterEffect(e1)
+				e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
+				tc:RegisterEffect(e1,true)
 			end
 			aux.CopyCardTable(tc,tc,false,"listed_names",15259703)
-            local e4=Effect.CreateEffect(tc)
+            local e4=Effect.CreateEffect(c)
             e4:SetType(EFFECT_TYPE_SINGLE)
             e4:SetDescription(aux.Stringid(838,4),true,0,0,0,0,0,true)
-            e4:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT)
+            e4:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_OWNER_RELATE)
             e4:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
             e4:SetValue(s.indes)
+			e4:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
             local e5=e4:Clone()
             e5:SetProperty(EFFECT_FLAG_UNCOPYABLE)
             e5:SetCode(EFFECT_AVOID_BATTLE_DAMAGE)
-            local e6=Effect.CreateEffect(tc)
+            local e6=Effect.CreateEffect(c)
             e6:SetDescription(aux.Stringid(838,5),true,0,0,0,0,0,true)
             e6:SetType(EFFECT_TYPE_SINGLE)
-            e6:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT)
+            e6:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_OWNER_RELATE)
             e6:SetCondition(s.dircon)
             e6:SetCode(EFFECT_DIRECT_ATTACK)
-            local e7=Effect.CreateEffect(tc)
+			e6:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
+            local e7=Effect.CreateEffect(c)
             e7:SetDescription(aux.Stringid(838,6),true,0,0,0,0,0,true)
-            e7:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT)
+            e7:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_OWNER_RELATE)
             e7:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
             e7:SetRange(LOCATION_MZONE)
             e7:SetCode(EVENT_LEAVE_FIELD)
             e7:SetCondition(s.sdescon)
             e7:SetOperation(s.sdesop)
+			e7:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
             tc:RegisterEffect(e7,true)
             tc:RegisterEffect(e6,true)
             tc:RegisterEffect(e5,true)
             tc:RegisterEffect(e4,true)
             
             if bit.band(type,TYPE_RITUAL)~=0 then
-                local e1=Effect.CreateEffect(tc)
+                local e1=Effect.CreateEffect(c)
                 e1:SetDescription(aux.Stringid(838,0),true,0,0,0,0,0,true)
                 e1:SetType(EFFECT_TYPE_FIELD)
                 e1:SetCode(EFFECT_SPSUMMON_PROC)
-                e1:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT)
+                e1:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_OWNER_RELATE)
                 e1:SetRange(LOCATION_HAND)
                 e1:SetCondition(s.spconr)
                 e1:SetTarget(s.sptgr)
                 e1:SetOperation(s.spopr)
+				e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
                 tc:RegisterEffect(e1,true)
             end
             if bit.band(type,TYPE_NORMAL)~=0 then
-                local e1=Effect.CreateEffect(tc)
+                local e1=Effect.CreateEffect(c)
                 e1:SetType(EFFECT_TYPE_FIELD)
                 e1:SetCode(EFFECT_SPSUMMON_PROC)
-                e1:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT)
+                e1:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_OWNER_RELATE)
                 e1:SetRange(LOCATION_HAND)
                 if lv<5 then
                     e1:SetDescription(aux.Stringid(838,1),true,0,0,0,0,0,true)
@@ -278,11 +298,9 @@ function s.moperation2(e,tp,eg,ep,ev,re,r,rp)
                     e1:SetTarget(s.sptg2)
                     e1:SetOperation(s.spopn)
                 end
+				e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
                 tc:RegisterEffect(e1,true)
             end
-            if tcode then
-				tc:SetCardData(1, tcode)
-			end
         end
     end
 end

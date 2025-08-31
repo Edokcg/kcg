@@ -168,13 +168,6 @@ function s.initial_effect(c)
 	e20:SetRange(LOCATION_FZONE)  
 	e20:SetOperation(s.picop)  
 	c:RegisterEffect(e20)
-	local e21=Effect.CreateEffect(c)  
-	e21:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL+EFFECT_FLAG_CANNOT_DISABLE)
-	e21:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)  
-	e21:SetCode(EVENT_LEAVE_FIELD_P)  
-	e21:SetRange(LOCATION_FZONE)  
-	e21:SetOperation(s.rpicop)  
-	c:RegisterEffect(e21)
 end
 s.listed_series={0x900}
 
@@ -293,9 +286,6 @@ function s.leaveop(e,tp,eg,ep,ev,re,r,rp)
 	ag:Sub(tempg)
 	end
 	Duel.Destroy(ag,REASON_RULE+REASON_EFFECT)
-	if c:IsOriginalCode(id) then
-		c:SetCardData(1, id)
-	end
 end
 
 function s.actg(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -370,25 +360,9 @@ function s.picop(e, tp, eg, ep, ev, re, r, rp, chk)
 	local eqg=Duel.GetMatchingGroup(s.picfilter,tp,LOCATION_SZONE,0,nil)
 	if c:IsOriginalCode(id) then
 		if eqg:IsExists(Card.IsCode,1,c,12) then
-			c:SetCardData(1, 12)
+			c:SetCardData(CARDDATA_PICCODE,12,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD,c)
 		elseif eqg:IsExists(Card.IsCode,1,c,11) then
-			c:SetCardData(1, 11)
-		end
-	end
-end
-function s.rpicop(e, tp, eg, ep, ev, re, r, rp, chk)
-	local c=e:GetHandler()
-	local eqg=Duel.GetMatchingGroup(s.picfilter,tp,LOCATION_SZONE,0,nil)
-	eqg:Sub(eg)
-	if eg:IsExists(s.picfilter,1,nil) and c:IsOriginalCode(id) then
-		if not eqg:IsExists(Card.IsCode,1,c,11) and not eqg:IsExists(Card.IsCode,1,c,12) then
-			c:SetCardData(1, id)
-		end
-		if not eqg:IsExists(Card.IsCode,1,c,11) and eqg:IsExists(Card.IsCode,1,c,12) then
-			c:SetCardData(1, 12)
-		end
-		if not eqg:IsExists(Card.IsCode,1,c,12) and eqg:IsExists(Card.IsCode,1,c,11) then
-			c:SetCardData(1, 11)
+			c:SetCardData(CARDDATA_PICCODE,11,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD,c)
 		end
 	end
 end

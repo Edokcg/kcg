@@ -118,6 +118,8 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp,evol)
                 ocode=orcode
                 acode=orcode
                 effcode=0
+			elseif gc:IsOriginalType(TYPE_NORMAL) then
+                effcode=0
             end
             if rrealcode>0 then
                 if evol==1 then

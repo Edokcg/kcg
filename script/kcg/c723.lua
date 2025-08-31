@@ -64,12 +64,13 @@ function s.initial_effect(c)
 end
 s.xyz_number=0
 s.listed_series = {0x48}
+s.listed_names={65305468}
 
 function s.mfilter(c,xyz,sumtype,tp)
-	return c:IsType(TYPE_XYZ,xyz,sumtype,tp) and not c:IsSetCard(0x48,xyz,sumtype,tp)
+	return c:IsType(TYPE_XYZ,xyz,sumtype,tp)
 end
 function s.xyzcheck(g)
-	local mg=g:Filter(function(c) return not c:IsHasEffect(511001175) end,nil)
+	local mg=g:Filter(function(c) return not c:IsHasEffect(EFFECT_EQUIP_SPELL_XYZ_MAT) end,nil)
 	return mg:GetClassCount(Card.GetRank)==1
 end
 

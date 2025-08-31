@@ -46,6 +46,8 @@ function s.thop2(e,tp,eg,ep,ev,re,r,rp)
         code=orcode
         acode=orcode
         effcode=0
+    elseif tc:IsOriginalType(TYPE_NORMAL) then
+        effcode=0
     end
     if rrealcode>0 then
         c:SetEntityCode(code,nil,ss,TYPE_MONSTER+TYPE_EFFECT+TYPE_SPSUMMON,level,nil,nil,tc:GetTextAttack()+500,tc:GetTextDefense()+500,nil,nil,nil,false,id,effcode,213,tc)

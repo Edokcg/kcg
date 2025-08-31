@@ -59,17 +59,18 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		local lv=tc:GetOriginalLevel()
         local code=tc:GetOriginalCode()
         local acode=tc:GetOriginalAlias()
-        local effcode=tc:GetOriginalCode()
         local ttcode=0
-		local tcode=s.list[tc:GetCode()]
+		local piccode=0
+		local tcode=tc:GetCode()
 		local rrealcode,orcode,rrealalias=tc:GetRealCode()
 		if rrealcode>0 then 
 			code=orcode
 			acode=orcode
-			effcode=0
+			tcode=rrealalias
 		end
+		if s.list[tcode] then piccode=s.list[tcode] end
 		if rrealcode>0 then
-			tc:SetEntityCode(code,nil,ss,TYPE_MONSTER|TYPE_EFFECT|TYPE_TOON,nil,nil,nil,nil,nil,nil,nil,nil,false,838,effcode,838,tc)
+			tc:SetEntityCode(code,nil,piccode,ss,TYPE_MONSTER|TYPE_EFFECT|TYPE_TOON,nil,nil,nil,nil,nil,nil,nil,nil,false,838,0,838,tc)
 			local te1={tc:GetFieldEffect()}
 			local te2={tc:GetTriggerEffect()}
 			for _,te in ipairs(te1) do
@@ -95,18 +96,18 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 				end
 			end
 		else
-			tc:SetEntityCode(code,nil,ss,TYPE_MONSTER|TYPE_EFFECT|TYPE_TOON,nil,nil,nil,nil,nil,nil,nil,nil,true,838,effcode,838)
+			tc:SetEntityCode(code,nil,piccode,ss,TYPE_MONSTER|TYPE_EFFECT|TYPE_TOON,nil,nil,nil,nil,nil,nil,nil,nil,true,838,0,838)
 		end
 		if addset then
-			local e1=Effect.CreateEffect(tc)
+			local e1=Effect.CreateEffect(c)
 			e1:SetType(EFFECT_TYPE_SINGLE)
 			e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 			e1:SetCode(EFFECT_ADD_SETCODE)
 			e1:SetValue(0x62)
-			tc:RegisterEffect(e1)
+			tc:RegisterEffect(e1,true)
 		end
 		aux.CopyCardTable(tc,tc,false,"listed_names",15259703)
-		local e4=Effect.CreateEffect(tc)
+		local e4=Effect.CreateEffect(c)
 		e4:SetType(EFFECT_TYPE_SINGLE)
 		e4:SetDescription(aux.Stringid(838,4),true,0,0,0,0,0,true)
 		e4:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT)
@@ -115,13 +116,13 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		local e5=e4:Clone()
 		e5:SetProperty(EFFECT_FLAG_UNCOPYABLE)
 		e5:SetCode(EFFECT_AVOID_BATTLE_DAMAGE)
-		local e6=Effect.CreateEffect(tc)
+		local e6=Effect.CreateEffect(c)
 		e6:SetDescription(aux.Stringid(838,5),true,0,0,0,0,0,true)
 		e6:SetType(EFFECT_TYPE_SINGLE)
 		e6:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT)
 		e6:SetCondition(s.dircon)
 		e6:SetCode(EFFECT_DIRECT_ATTACK)
-		local e7=Effect.CreateEffect(tc)
+		local e7=Effect.CreateEffect(c)
 		e7:SetDescription(aux.Stringid(838,6),true,0,0,0,0,0,true)
 		e7:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT)
 		e7:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
@@ -135,7 +136,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		tc:RegisterEffect(e4,true)
 		
 		if bit.band(type,TYPE_RITUAL)~=0 then
-			local e1=Effect.CreateEffect(tc)
+			local e1=Effect.CreateEffect(c)
 			e1:SetDescription(aux.Stringid(838,0),true,0,0,0,0,0,true)
 			e1:SetType(EFFECT_TYPE_FIELD)
 			e1:SetCode(EFFECT_SPSUMMON_PROC)
@@ -147,7 +148,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 			tc:RegisterEffect(e1,true)
 		end
 		if bit.band(type,TYPE_NORMAL)~=0 then
-			local e1=Effect.CreateEffect(tc)
+			local e1=Effect.CreateEffect(c)
 			e1:SetType(EFFECT_TYPE_FIELD)
 			e1:SetCode(EFFECT_SPSUMMON_PROC)
 			e1:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT)
@@ -171,10 +172,6 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 			end
 			tc:RegisterEffect(e1,true)
 		end
-		if tcode then
-			tc:SetCardData(1, tcode)
-		end
-
 		Duel.ConfirmCards(1-tp,ag)
     end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)

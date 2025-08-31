@@ -37,27 +37,14 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetCode(EFFECT_SET_DEFENSE)
 	e1:SetValue(g:GetAttack()*3/4)
-	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+	e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
 	c:RegisterEffect(e1)
 	local e2=e1:Clone()
 	e2:SetCode(EFFECT_ADD_ATTRIBUTE)
 	e2:SetValue(g:GetOriginalAttribute())
 	c:RegisterEffect(e2)
-	if g:IsCode(10000000) then c:CopyEffect(42166000,RESET_EVENT+RESETS_STANDARD,1) c:SetCardData(1,42166000) end
-	if g:IsCode(10000020) then c:CopyEffect(1439,RESET_EVENT+RESETS_STANDARD,1) c:SetCardData(1,1439) end
-	if g:IsCode(10000010) then c:CopyEffect(1440,RESET_EVENT+RESETS_STANDARD,1) c:SetCardData(1,1440) end
+	if g:IsCode(10000000) then c:CopyEffect(42166000,RESET_EVENT+RESETS_STANDARD_DISABLE,1) c:SetCardData(CARDDATA_PICCODE,42166000,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD_DISABLE,c) end
+	if g:IsCode(10000020) then c:CopyEffect(1439,RESET_EVENT+RESETS_STANDARD,1) c:SetCardData(CARDDATA_PICCODE,1439,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD_DISABLE,c) end
+	if g:IsCode(10000010) then c:CopyEffect(1440,RESET_EVENT+RESETS_STANDARD,1) c:SetCardData(CARDDATA_PICCODE,1440,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD_DISABLE,c) end
 	Duel.SpecialSummonComplete()
-	if g:IsCode(10000000,10000020,10000010) then
-		local e9 = Effect.CreateEffect(c)
-		e9:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL+EFFECT_FLAG_CANNOT_DISABLE)
-		e9:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
-		e9:SetCode(EVENT_LEAVE_FIELD_P)
-		e9:SetOperation(s.recover2)
-		e9:SetReset(RESET_EVENT+0x1fe0000)
-		c:RegisterEffect(e9, true)
-	end
-end
-function s.recover2(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	c:SetCardData(1,id)
 end

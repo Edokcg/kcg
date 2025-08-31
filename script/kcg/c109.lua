@@ -36,7 +36,7 @@ function s.initial_effect(c)
 	e3:SetOperation(s.regop)
 	c:RegisterEffect(e3)	
 end
-s.listed_series={0x7f,0x48}
+s.listed_series={0x107f,0x48}
 
 function s.filter1(c,e,tp)
 	local pg=aux.GetMustBeMaterialGroup(tp,Group.FromCards(c),tp,nil,nil,REASON_XYZ)

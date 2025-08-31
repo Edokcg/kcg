@@ -76,6 +76,8 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 			ocode=orcode
 			acode=orcode
 			effcode=0
+		elseif rg:IsOriginalType(TYPE_NORMAL) then
+			effcode=0
 		end
         if rrealcode>0 then
             tc:SetEntityCode(ocode,nil,ss,TYPE_MONSTER+TYPE_EFFECT+TYPE_SPSUMMON,level,nil,nil,rg:GetTextAttack()+500,rg:GetTextDefense()+500,nil,nil,nil,false,213,effcode,213,rg)

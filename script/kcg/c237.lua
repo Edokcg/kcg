@@ -160,26 +160,26 @@ end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if not (c:IsFaceup() and c:IsRelateToEffect(e) and c:IsControler(tp) and not c:IsImmuneToEffect(e)) then return end
-	if c:IsOriginalCode(406) then c:SetEntityCode(407,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,false)
-	else c:SetEntityCode(406,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,false) end
-	local e8 = Effect.CreateEffect(c)
-	e8:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE + EFFECT_FLAG_DAMAGE_STEP + EFFECT_FLAG_DAMAGE_CAL)
-	e8:SetType(EFFECT_TYPE_SINGLE + EFFECT_TYPE_CONTINUOUS)
-	e8:SetCode(EVENT_LEAVE_FIELD_P)
-	e8:SetOperation(s.recover)
-	e8:SetReset(RESET_EVENT + 0x1fe0000)
-	c:RegisterEffect(e8, true)
+	if c:IsOriginalCode(406) then c:SetCardData(CARDDATA_PICCODE,407,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD_DISABLE,c)
+	else c:SetCardData(CARDDATA_PICCODE,406,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD_DISABLE,c) end
+	-- local e8 = Effect.CreateEffect(c)
+	-- e8:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE + EFFECT_FLAG_DAMAGE_STEP + EFFECT_FLAG_DAMAGE_CAL)
+	-- e8:SetType(EFFECT_TYPE_SINGLE + EFFECT_TYPE_CONTINUOUS)
+	-- e8:SetCode(EVENT_LEAVE_FIELD_P)
+	-- e8:SetOperation(s.recover)
+	-- e8:SetReset(RESET_EVENT + 0x1fe0000)
+	-- c:RegisterEffect(e8, true)
 	local dg=Duel.GetFirstTarget()
 	if dg:IsControler(1-tp) and dg:IsRelateToEffect(e) then
 		Duel.Destroy(dg,REASON_EFFECT)
 	end
 end
-function s.recover(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	if not c:IsOriginalCode(id) then
-		c:SetEntityCode(id,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
-	end
-end
+-- function s.recover(e,tp,eg,ep,ev,re,r,rp)
+-- 	local c=e:GetHandler()
+-- 	if not c:IsOriginalCode(id) then
+-- 		c:SetEntityCode(id,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
+-- 	end
+-- end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	local ttype,tloc,tplayer=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_TYPE,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_CONTROLER)
 	return ttype&TYPE_MONSTER>0 and tloc&LOCATION_ONFIELD>0 and tplayer==1-tp

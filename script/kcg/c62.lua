@@ -121,42 +121,42 @@ function s.desop2(e,tp,eg,ep,ev,re,r,rp)
 	end
 
 	if code1==0 then return end
-	local e8 = Effect.CreateEffect(c)
-	e8:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL+EFFECT_FLAG_CANNOT_DISABLE)
-	e8:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e8:SetCode(EVENT_LEAVE_FIELD_P)
-	e8:SetRange(LOCATION_MZONE)
-	e8:SetOperation(s.recover)
-	e8:SetReset(RESET_EVENT + 0x1fe0000)
-	e8:SetLabel(code0)
-	c:RegisterEffect(e8, true)
-	local e9 = Effect.CreateEffect(c)
-	e9:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL+EFFECT_FLAG_CANNOT_DISABLE)
-	e9:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
-	e9:SetCode(EVENT_LEAVE_FIELD_P)
-	e9:SetOperation(s.recover2)
-	e9:SetReset(RESET_EVENT+0x1fe0000)
-	c:RegisterEffect(e9, true)
-	c:SetEntityCode(code1,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
+	-- local e8 = Effect.CreateEffect(c)
+	-- e8:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL+EFFECT_FLAG_CANNOT_DISABLE)
+	-- e8:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	-- e8:SetCode(EVENT_LEAVE_FIELD_P)
+	-- e8:SetRange(LOCATION_MZONE)
+	-- e8:SetOperation(s.recover)
+	-- e8:SetReset(RESET_EVENT + 0x1fe0000)
+	-- e8:SetLabel(code0)
+	-- c:RegisterEffect(e8, true)
+	-- local e9 = Effect.CreateEffect(c)
+	-- e9:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL+EFFECT_FLAG_CANNOT_DISABLE)
+	-- e9:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+	-- e9:SetCode(EVENT_LEAVE_FIELD_P)
+	-- e9:SetOperation(s.recover2)
+	-- e9:SetReset(RESET_EVENT+0x1fe0000)
+	-- c:RegisterEffect(e9, true)
+	c:SetEntityCode(code1,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD,c,true)
 	aux.CopyCardTable(code1,c)
 end
-function s.filter2(c,ec,code)
-	return c:GetEquipTarget()==ec and c:IsCode(code)
-end
-function s.recover(e,tp,eg,ep,ev,re,r,rp)
-	local code=e:GetLabel()
-	local c=e:GetHandler()
-	local eqg=c:GetEquipGroup()
-	eqg:Sub(eg)
-	if eg:IsExists(s.filter2,1,nil,c,code) and not eqg:IsExists(Card.IsCode,1,c,code) and not c:IsOriginalCode(id) then
-		c:SetEntityCode(id,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
-		aux.CopyCardTable(id,c)
-	end
-end
-function s.recover2(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	if not c:IsOriginalCode(id) then
-		c:SetEntityCode(id,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
-		aux.CopyCardTable(id,c)
-	end
-end
+-- function s.filter2(c,ec,code)
+-- 	return c:GetEquipTarget()==ec and c:IsCode(code)
+-- end
+-- function s.recover(e,tp,eg,ep,ev,re,r,rp)
+-- 	local code=e:GetLabel()
+-- 	local c=e:GetHandler()
+-- 	local eqg=c:GetEquipGroup()
+-- 	eqg:Sub(eg)
+-- 	if eg:IsExists(s.filter2,1,nil,c,code) and not eqg:IsExists(Card.IsCode,1,c,code) and not c:IsOriginalCode(id) then
+-- 		c:SetEntityCode(id,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
+-- 		aux.CopyCardTable(id,c)
+-- 	end
+-- end
+-- function s.recover2(e,tp,eg,ep,ev,re,r,rp)
+-- 	local c=e:GetHandler()
+-- 	if not c:IsOriginalCode(id) then
+-- 		c:SetEntityCode(id,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
+-- 		aux.CopyCardTable(id,c)
+-- 	end
+-- end

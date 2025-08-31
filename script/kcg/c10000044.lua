@@ -116,20 +116,7 @@ function s.copyop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) and c:IsFaceup() and Duel.GetControl(c,1-tp) then
 		c:RegisterFlagEffect(100000441,RESET_EVENT+0x1ff0000+RESET_PHASE+PHASE_END,0,1)
-		c:SetCardData(1, 60110982)
-		local e9 = Effect.CreateEffect(c)
-		e9:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL+EFFECT_FLAG_CANNOT_DISABLE)
-		e9:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
-		e9:SetCode(EVENT_LEAVE_FIELD_P)
-		e9:SetOperation(s.rpicop)
-		e9:SetReset(RESET_EVENT+0x1fe0000)
-		c:RegisterEffect(e9, true)
-	end
-end
-function s.rpicop(e, tp, eg, ep, ev, re, r, rp, chk)
-	local c=e:GetHandler()
-	if c:IsOriginalCode(id) then
-		c:SetCardData(1, id)
+		c:SetCardData(CARDDATA_PICCODE,60110982,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD_DISABLE+RESET_PHASE+PHASE_END,c)
 	end
 end
 
@@ -142,5 +129,4 @@ function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(Card.IsAbleToRemove,tp,LOCATION_ONFIELD,0,e:GetHandler())
 	Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
 	Duel.GetControl(e:GetHandler(),1-tp)
-	e:GetHandler():SetCardData(1, id)
 end

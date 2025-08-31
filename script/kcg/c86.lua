@@ -38,7 +38,7 @@ if not KField then
 				if tk~=0 then
 					local token=Duel.CreateToken(ttp,tk)
 					if not Duel.MoveToField(token,ttp,ttp,LOCATION_FZONE,POS_FACEUP,true) then return end
-					if token:IsType(TYPE_TOKEN) then token:SetCardData(CARDDATA_TYPE, token:GetType()-TYPE_TOKEN) end
+					token:SetCardData(CARDDATA_TYPE, token:GetType()&~TYPE_TOKEN)
 					local te,eg,ep,ev,re,r,rp=token:CheckActivateEffect(true,true,true)
 					local tep=token:GetControler()
 					local condition=te:GetCondition()

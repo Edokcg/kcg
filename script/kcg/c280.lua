@@ -43,6 +43,7 @@ function s.filter(c,e,tp)
     return Duel.GetLocationCountFromEx(tp,tp,c,TYPE_FUSION)>0 
     and (c:IsControler(tp) or c:IsFaceup()) and c:IsType(TYPE_TRAP)
     and not c:IsImmuneToEffect(e) and c:IsAbleToGrave()
+    and not c:IsSetCard(0xa1) and not c:IsSetCard(0xa0)
 end
 
 function s.target(e, tp, eg, ep, ev, re, r, rp, chk)
@@ -60,9 +61,9 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
     if #rg<1 then return end
     if rg:GetFirst():IsFacedown() then Duel.ConfirmCards(tp,rg:GetFirst()) end
     local ttcode=0
-    local code=rg:GetFirst():GetOriginalAlias()
+    local acode=rg:GetFirst():GetOriginalAlias()
     local ocode=rg:GetFirst():GetOriginalCode()
-    local tcode=s.list[code]
+    local tcode=s.list[acode]
     if tcode then
 		ttcode=tcode
 	else
@@ -86,9 +87,13 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
             local rrealcode,orcode,rrealalias=rg:GetFirst():GetRealCode()
             if rrealcode>0 then 
                 ocode=orcode
-                code=orcode
+                acode=orcode
             end
-            tc:SetEntityCode(ocode,nil,ss,TYPE_MONSTER+TYPE_FUSION+TYPE_EFFECT,8,ATTRIBUTE_LIGHT,RACE_DRAGON,2800,2500,nil,nil,nil,false,43,43,43)
+            if rrealcode>0 then
+                tc:SetEntityCode(ocode,nil,ss,TYPE_MONSTER+TYPE_FUSION+TYPE_EFFECT,8,ATTRIBUTE_LIGHT,RACE_DRAGON,2800,2500,nil,nil,nil,false,43,43,43,rg:GetFirst())
+            else
+                tc:SetEntityCode(ocode,nil,ss,TYPE_MONSTER+TYPE_FUSION+TYPE_EFFECT,8,ATTRIBUTE_LIGHT,RACE_DRAGON,2800,2500,nil,nil,nil,false,43,43,43)
+            end
             if addset then
                 local e1=Effect.CreateEffect(tc)
                 e1:SetType(EFFECT_TYPE_SINGLE)
@@ -97,8 +102,9 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
                 e1:SetValue(0xa1)
                 tc:RegisterEffect(e1)
             end
-            aux.CopyCardTable(rg:GetFirst(),tc,false,"listed_names",id,code)
-            tc.__index.material_trap=code
+            aux.CopyCardTable(rg:GetFirst(),tc,false,"listed_names",id,acode)
+            tc.__index.material_trap=acode
+            local tequip=false
             local tec = {rg:GetFirst():GetTriggerEffect()}
             if tec then
                 for _, te in ipairs(tec) do
@@ -107,6 +113,7 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
                         local cost=te:GetCost()
                         local target=te:GetTarget()
                         local te2 = te:Clone()
+                        te2:SetOwner(tc)
                         te2:SetCost(function(...) return true end)
                         te2:SetCountLimit(1)
                         if te:GetRange() then
@@ -118,6 +125,7 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
                                 te2:SetType(EFFECT_TYPE_IGNITION)
                                 if te:IsHasCategory(CATEGORY_EQUIP) then
                                     equip=true
+                                    tequip=true
                                 end
                             else
                                 te2:SetType(EFFECT_TYPE_QUICK_O)
@@ -143,6 +151,48 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
                     end
                 end
             end
+            if tequip then
+                local tec2 = {rg:GetFirst():GetEquipEffect()}
+                for _, te in ipairs(tec2) do
+                    local te2 = te:Clone()
+                    te2:SetOwner(tc)
+                    tc:RegisterEffect(te2, true)
+                end
+                local e1=Effect.CreateEffect(tc)
+                e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
+                e1:SetDescription(aux.Stringid(43,1),true,0,0,0,0,ocode)
+                e1:SetType(EFFECT_TYPE_SINGLE)
+                e1:SetCode(id)
+                tc:RegisterEffect(e1)
+            end
+            local e1=Effect.CreateEffect(tc)
+            e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+            e1:SetType(EFFECT_TYPE_SINGLE)
+            e1:SetCode(EFFECT_CANNOT_DISABLE)
+            tc:RegisterEffect(e1)
+        else
+            local ss={tc:GetOriginalSetCard()}
+            local addset=false
+            if #ss>3 then
+                addset=true
+            else
+                table.insert(ss,0xa1)
+            end
+            tc:SetEntityCode(ttcode,nil,ss,tc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION,nil,nil,nil,nil,nil,nil,nil,nil,false,ttcode,ttcode,43,false,true)
+            if addset then
+                local e1=Effect.CreateEffect(tc)
+                e1:SetType(EFFECT_TYPE_SINGLE)
+                e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+                e1:SetCode(EFFECT_ADD_SETCODE)
+                e1:SetValue(0xa1)
+                tc:RegisterEffect(e1)
+            end
+            local e1=Effect.CreateEffect(tc)
+            e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
+            e1:SetDescription(aux.Stringid(282,0),true,0,0,0,0,0,true)
+            e1:SetType(EFFECT_TYPE_SINGLE)
+            e1:SetCode(EFFECT_CANNOT_DISABLE)
+            tc:RegisterEffect(e1)
         end
         Duel.SpecialSummon(tc,SUMMON_TYPE_FUSION,tp,tp,true,false,POS_FACEUP)
         tc:CompleteProcedure()
@@ -172,26 +222,26 @@ function s.eqop(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetLabelObject(tc)
 	e1:SetValue(s.eqlimit)
 	c:RegisterEffect(e1)
-	local e8 = Effect.CreateEffect(c)
-	e8:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL+EFFECT_FLAG_CANNOT_DISABLE)
-	e8:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
-	e8:SetCode(EVENT_LEAVE_FIELD_P)
-	e8:SetOperation(s.recover)
-	e8:SetLabel(tc:GetOriginalCode())
-	e8:SetReset(RESET_EVENT + 0x1fe0000)
-	c:RegisterEffect(e8, true)
-	local e9 = Effect.CreateEffect(c)
-	e9:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL+EFFECT_FLAG_CANNOT_DISABLE)
-	e9:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e9:SetCode(EVENT_LEAVE_FIELD_P)
-	e9:SetRange(LOCATION_SZONE)
-	e9:SetOperation(s.recover2)
-	e9:SetLabel(tc:GetOriginalCode())
-	e9:SetReset(RESET_EVENT+0x1fe0000)
-	c:RegisterEffect(e9, true)
+	-- local e8 = Effect.CreateEffect(c)
+	-- e8:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL+EFFECT_FLAG_CANNOT_DISABLE)
+	-- e8:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+	-- e8:SetCode(EVENT_LEAVE_FIELD_P)
+	-- e8:SetOperation(s.recover)
+	-- e8:SetLabel(tc:GetOriginalCode())
+	-- e8:SetReset(RESET_EVENT + 0x1fe0000)
+	-- c:RegisterEffect(e8, true)
+	-- local e9 = Effect.CreateEffect(c)
+	-- e9:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL+EFFECT_FLAG_CANNOT_DISABLE)
+	-- e9:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	-- e9:SetCode(EVENT_LEAVE_FIELD_P)
+	-- e9:SetRange(LOCATION_SZONE)
+	-- e9:SetOperation(s.recover2)
+	-- e9:SetLabel(tc:GetOriginalCode())
+	-- e9:SetReset(RESET_EVENT+0x1fe0000)
+	-- c:RegisterEffect(e9, true)
 	local atk=tc:GetTextAttack()
 	local def=tc:GetTextDefense()
-	tc:SetEntityCode(363,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
+	tc:SetEntityCode(363,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_OWNER_RELATE,RESET_EVENT+RESETS_STANDARD_DISABLE,c,true)
 	--atkup
 	local e2=Effect.CreateEffect(c)
 	e2:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_CANNOT_DISABLE)
@@ -249,88 +299,11 @@ function s.recover2(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
-function s.con(e, tp, eg, ep, ev, re, r, rp)
-    local tc = e:GetLabelObject()
-    local tec = {tc:GetTriggerEffect()}
-    local actchk = 0
-    if not tec then return false end
-    for _, te in ipairs(tec) do
-        local chk, aeg, aep, aev, are, ar, arp = Duel.CheckEvent(te:GetCode(), true)
-        if (chk or te:GetCode()~=EVENT_FREE_CHAIN or bit.band(te:GetType(), EFFECT_TYPE_IGNITION) ~= 0)
-        and (bit.band(te:GetType(), EFFECT_TYPE_QUICK_O) ~= 0 or bit.band(te:GetType(), EFFECT_TYPE_TRIGGER_O) ~= 0 or bit.band(te:GetType(), EFFECT_TYPE_ACTIVATE) ~= 0)
-        and (te:GetTarget() == nil or te:GetTarget()(te, tp, aeg, aep, aev, are, ar, arp, 0)) 
-        and te:GetOperation() ~= nil  then
-            actchk = 1
-            break
-        end
-    end
-    return actchk == 1
-end
-function s.ignition(e, tp, eg, ep, ev, re, r, rp)
-    local tc = e:GetLabelObject()
-    local tec = {tc:GetTriggerEffect()}
-    if not tec then return end
-    local te = nil
-    local acd = {}
-    local ac = {}
-    for _, temp in ipairs(tec) do
-        local chk, aeg, aep, aev, are, ar, arp = Duel.CheckEvent(temp:GetCode(), true)
-        if (chk or bit.band(temp:GetCode(),EVENT_FREE_CHAIN)~=0 or bit.band(temp:GetType(), EFFECT_TYPE_IGNITION)~=0)
-        and (bit.band(temp:GetType(),EFFECT_TYPE_QUICK_O)~=0 or bit.band(temp:GetType(),EFFECT_TYPE_TRIGGER_O)~=0 or bit.band(temp:GetType(),EFFECT_TYPE_ACTIVATE)~=0)
-        and (temp:GetTarget() == nil or temp:GetTarget()(temp, tp, aeg, aep, aev, are, ar, arp, 0)) 
-        and temp:GetOperation() ~= nil  then
-            table.insert(ac, temp)
-            table.insert(acd, temp:GetDescription())
-        end
-    end
-    if #ac <= 0 then return end
-    Duel.BreakEffect()
-    -- Duel.Hint(HINT_CARD, 0, tc:GetCode())
-    if #ac == 1 then
-        te = ac[1]
-    elseif #ac > 1 then
-        Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_EFFECT)
-        op = Duel.SelectOption(tp, table.unpack(acd))
-        op = op + 1
-        te = ac[op]
-    end
-    if not te then
-        return
-    end
-    local tg = te:GetTarget()
-    local op = te:GetOperation()
-    if tg then
-        tg(te, tp, Group.CreateGroup(), PLAYER_NONE, 0, e, REASON_EFFECT, PLAYER_NONE, 1)
-    end
-    Duel.BreakEffect()
-    tc:CreateEffectRelation(te)
-    Duel.BreakEffect()
-    local g = Duel.GetChainInfo(0, CHAININFO_TARGET_CARDS)
-    if g then
-        local etc = g:GetFirst()
-        while etc do
-            etc:CreateEffectRelation(te)
-            etc = g:GetNext()
-        end
-    end
-    if op then
-        op(te, tp, Group.CreateGroup(), PLAYER_NONE, 0, e, REASON_EFFECT, PLAYER_NONE, 1)
-    end
-    tc:ReleaseEffectRelation(te)
-    if etc then
-        etc = g:GetFirst()
-        while etc do
-            etc:ReleaseEffectRelation(te)
-            etc = g:GetNext()
-        end
-    end
-end
-
 
 function s.spcon(e,c)
 	if c==nil then return true end
 	local tp=c:GetControler()
-	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(Card.IsDiscardable,tp,LOCATION_HAND,0,1,c)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,c)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISCARD)

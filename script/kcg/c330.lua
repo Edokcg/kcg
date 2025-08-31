@@ -24,6 +24,8 @@ function s.efop(e,tp,eg,ep,ev,re,r,rp)
         if rrealcode>0 then 
             ocode=orcode
             effcode=0
+        elseif eqc:IsOriginalType(TYPE_NORMAL) then
+            effcode=0
         end
         if rrealcode>0 then
             tc2:SetEntityCode(ocode,nil,eqc:GetOriginalSetCard(),eqc:GetOriginalType()|TYPE_TOKEN|TYPE_EFFECT&~TYPE_NORMAL,nil,nil,nil,nil,nil,nil,nil,nil,false,347,effcode,347,eqc)

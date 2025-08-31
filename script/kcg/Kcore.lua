@@ -1,4 +1,6 @@
-
+CARDDATA_PICCODE		=1
+EFFECT_SET_ENTITY = 2032
+EVENT_ENTITY_RESET = 2033
 OPCODE_ISLEVEL      =0x4000009100000000
 OPCODE_ISLEVELLARGER      =0x4000009200000000
 OPCODE_ISLEVELSMALLER      =0x4000009300000000
@@ -761,7 +763,7 @@ end
 
 --Ra
 function aux.phoenix(c,form,id)
-    --form=0:, 1:anime, 2:manga, 3:real god
+    --form=0:choose, 1:anime, 2:manga, 3:real god
 	local e1=aux.AddNormalSummonProcedure(c,true,false,3,3,SUMMON_TYPE_TRIBUTE,aux.Stringid(10000080,0))
 	local e2=aux.AddNormalSetProcedure(c,true,false,3,3,SUMMON_TYPE_TRIBUTE,aux.Stringid(10000080,0))
 	local e3=Effect.CreateEffect(c)
@@ -812,6 +814,37 @@ function aux.phoenix(c,form,id)
         e7:SetOperation(aux.retop)
     end
     c:RegisterEffect(e7)
+
+    --egg attack limit
+    local e21 = Effect.CreateEffect(c)
+    e21:SetType(EFFECT_TYPE_SINGLE)
+    e21:SetCode(EFFECT_CANNOT_ATTACK)
+    e21:SetCondition(aux.retcon2)
+    c:RegisterEffect(e21)
+    local e22 = e21:Clone()
+    e22:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+    e22:SetRange(LOCATION_MZONE)
+    e22:SetCode(EFFECT_CANNOT_TRIGGER)
+    c:RegisterEffect(e22)
+    local e23 = e21:Clone()
+    e23:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+    e23:SetCode(EFFECT_CANNOT_CHANGE_POSITION)
+    e23:SetRange(LOCATION_MZONE)
+    c:RegisterEffect(e23)
+
+    --egg cannot be target
+    local e24 = Effect.CreateEffect(c)
+    e24:SetType(EFFECT_TYPE_SINGLE)
+    e24:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+    e24:SetCode(EFFECT_IGNORE_BATTLE_TARGET)
+    e24:SetRange(LOCATION_MZONE)
+    e24:SetCondition(aux.retcon2)
+    e24:SetValue(aux.imval2)
+    c:RegisterEffect(e24)
+    local e25 = e24:Clone()
+    e25:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
+    e25:SetValue(aux.tgoval)
+    c:RegisterEffect(e25)
     
     if form~=0 then
         -- Unstoppable Attack
@@ -822,37 +855,6 @@ function aux.phoenix(c,form,id)
         e19:SetRange(LOCATION_MZONE)
         e19:SetCondition(aux.retcon3)
         c:RegisterEffect(e19)
-
-        --egg attack limit
-        local e21 = Effect.CreateEffect(c)
-        e21:SetType(EFFECT_TYPE_SINGLE)
-        e21:SetCode(EFFECT_CANNOT_ATTACK)
-        e21:SetCondition(aux.retcon2)
-        c:RegisterEffect(e21)
-        local e22 = e21:Clone()
-        e22:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-        e22:SetRange(LOCATION_MZONE)
-        e22:SetCode(EFFECT_CANNOT_TRIGGER)
-        c:RegisterEffect(e22)
-        local e23 = e21:Clone()
-        e23:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-        e23:SetCode(EFFECT_CANNOT_CHANGE_POSITION)
-        e23:SetRange(LOCATION_MZONE)
-        c:RegisterEffect(e23)
-
-        --egg cannot be target
-        local e24 = Effect.CreateEffect(c)
-        e24:SetType(EFFECT_TYPE_SINGLE)
-        e24:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-        e24:SetCode(EFFECT_IGNORE_BATTLE_TARGET)
-        e24:SetRange(LOCATION_MZONE)
-        e24:SetCondition(aux.retcon2)
-        e24:SetValue(aux.imval2)
-        c:RegisterEffect(e24)
-        local e25 = e24:Clone()
-        e25:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
-        e25:SetValue(aux.tgoval)
-        c:RegisterEffect(e25)
     
         local e28 = Effect.CreateEffect(c)
         e28:SetType(EFFECT_TYPE_SINGLE)
@@ -896,7 +898,7 @@ function aux.phoenix(c,form,id)
         e32:SetCost(aux.descost)
         e32:SetTarget(aux.destg)
         e32:SetOperation(aux.desop)
-        c:RegisterEffect(e32)	
+        c:RegisterEffect(e32)
         
         local e33 = Effect.CreateEffect(c)
         e33:SetDescription(aux.Stringid(708, 0))
@@ -936,7 +938,7 @@ function aux.atkop(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetValue(Original_ATK)
-	e1:SetReset(RESET_EVENT + 0x1fe0000)
+	e1:SetReset(RESET_EVENT + RESETS_STANDARD_DISABLE)
 	c:RegisterEffect(e1)
 	local e2 = e1:Clone()
 	e2:SetCode(EFFECT_SET_DEFENSE)
@@ -1004,8 +1006,10 @@ function aux.retop0(e,tp,eg,ep,ev,re,r,rp)
     local opt=Duel.SelectOption(1-ttp,aux.Stringid(825,0),aux.Stringid(825,1))
     if opt==0 then
         c:SetEntityCode(708,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
+        aux.recover(c)
     else
         c:SetEntityCode(824,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
+        aux.recover(c)
     end
 	c:ResetEffect(EFFECT_CANNOT_CHANGE_CONTROL, RESET_CODE)
 	Duel.GetControl(c, 1-ttp)
@@ -1016,9 +1020,6 @@ function aux.retop0(e,tp,eg,ep,ev,re,r,rp)
 	e100:SetCode(EFFECT_CANNOT_CHANGE_CONTROL)
 	e100:SetValue(aux.retcon3)
 	c:RegisterEffect(e100)
-	if aux.isegg(c) then
-		c:SetEntityCode(e:GetLabel(),nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
-	end
 end
 function aux.retop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetOwner()
@@ -1044,6 +1045,7 @@ function aux.retop(e,tp,eg,ep,ev,re,r,rp)
 	c:RegisterEffect(e100)
 	if aux.isegg(c) then
 		c:SetEntityCode(e:GetLabel(),nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
+        aux.recover(c)
 	end
 end
 function aux.retcon3(e,tp,eg,ep,ev,re,r,rp)
@@ -1079,9 +1081,9 @@ function aux.ssumsuc(e,tp,eg,ep,ev,re,r,rp)
     local opt=Duel.SelectOption(e:GetHandlerPlayer(),aux.Stringid(821,0),aux.Stringid(821,1))
 	if opt==0 then 
         Duel.SetChainLimitTillChainEnd(aux.FALSE)
-		e:GetHandler():SetEntityCode(709,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true) 
+		e:GetHandler():SetEntityCode(709,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
 	else 
-		e:GetHandler():SetEntityCode(822,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true) 
+		e:GetHandler():SetEntityCode(822,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
 	end
 end
 function aux.osumsuc(e,tp,eg,ep,ev,re,r,rp)
@@ -1130,8 +1132,10 @@ function aux.rsumsuc(e, tp, eg, ep, ev, re, r, rp)
             if opt==0 then 
                 Duel.SetChainLimitTillChainEnd(aux.FALSE)
                 c:SetEntityCode(708,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
+                aux.recover(c)
             else 
                 c:SetEntityCode(824,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
+                aux.recover(c)
             end
         end
         if not Duel.IsEnvironment(496,ttp) and c:IsSummonType(SUMMON_TYPE_SPECIAL) then
@@ -1160,9 +1164,11 @@ function aux.rsumsuc(e, tp, eg, ep, ev, re, r, rp)
                 local opt=Duel.SelectOption(ttp,aux.Stringid(825,0),aux.Stringid(825,1))
                 if opt==0 then
                     Duel.SetChainLimitTillChainEnd(aux.FALSE)
-                    c:SetEntityCode(708,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true) 
+                    c:SetEntityCode(708,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
+                    aux.recover(c)
                 else 
-                    c:SetEntityCode(824,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true) 
+                    c:SetEntityCode(824,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
+                    aux.recover(c)
                 end
             elseif aux.isegg(c) then
                 local id=10000048
@@ -1170,6 +1176,7 @@ function aux.rsumsuc(e, tp, eg, ep, ev, re, r, rp)
                 if form==2 then id=824 end
                 if form==3 then id=83 end
                 c:SetEntityCode(id,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
+                aux.recover(c)
             end
             if not Duel.IsEnvironment(496,ttp) and c:IsSummonType(SUMMON_TYPE_SPECIAL) then
                 aux.sumsuc3(c, ttp)
@@ -1198,7 +1205,7 @@ function aux.sumsuc3(c,tp)
 		e6:SetCost(aux.descost)
 		e6:SetTarget(aux.destg)
 		e6:SetOperation(aux.desop)
-		e6:SetReset(RESET_EVENT + 0x1fe0000)
+		e6:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
 		c:RegisterEffect(e6)
 	else
 		aux.otkop3(c, tp)
@@ -1235,7 +1242,7 @@ function aux.otkop3(c, tp)
 		e1:SetRange(LOCATION_MZONE)
 		e1:SetCode(EFFECT_UPDATE_ATTACK)
 		e1:SetValue(val)
-		e1:SetReset(RESET_EVENT + 0x1fe0000)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
 		c:RegisterEffect(e1)
 		local e2 = e1:Clone()
 		e2:SetCode(EFFECT_UPDATE_DEFENSE)
@@ -1324,7 +1331,7 @@ function aux.chop(e,tp,eg,ep,ev,re,r,rp)
         e80:SetValue(function(e, te2)
             return te2 == re
         end)
-        e80:SetReset(RESET_EVENT + 0x1fe0000)
+        e80:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
         c:RegisterEffect(e80)
         local g=Duel.GetChainInfo(ev,CHAININFO_TARGET_CARDS)
 		local e4=Effect.CreateEffect(c)
@@ -1346,7 +1353,7 @@ function aux.reop2(e, tp, eg, ep, ev, re, r, rp)
     local c = e:GetHandler()
     local ae = {c:GetCardEffect()}
     for _, te in ipairs(ae) do
-        if te:GetOwner() ~= e:GetOwner()  then
+        if te:GetOwner() ~= e:GetOwner() then
             if te:GetType() == EFFECT_TYPE_FIELD then
                 local e80 = Effect.CreateEffect(c)
                 e80:SetType(EFFECT_TYPE_SINGLE)
@@ -1356,7 +1363,7 @@ function aux.reop2(e, tp, eg, ep, ev, re, r, rp)
                 e80:SetValue(function(e, te2)
                     return te2 == te
                 end)
-                e80:SetReset(RESET_EVENT + 0x1fe0000)
+                e80:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
                 c:RegisterEffect(e80)
             elseif (te:GetType()==EFFECT_TYPE_SINGLE or te:GetType()==EFFECT_TYPE_EQUIP or te:GetType()==EFFECT_TYPE_GRANT or te:GetType()==EFFECT_TYPE_XMATERIAL)
             and not te:IsHasProperty(EFFECT_FLAG_IGNORE_IMMUNE) 
@@ -1475,7 +1482,7 @@ function aux.otkop2(e, tp, eg, ep, ev, re, r, rp)
 		e1:SetRange(LOCATION_MZONE)
 		e1:SetCode(EFFECT_UPDATE_ATTACK)
 		e1:SetValue(tatk)
-		e1:SetReset(RESET_EVENT + 0x1fe0000)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
 		c:RegisterEffect(e1)
 		local e2 = e1:Clone()
 		e2:SetCode(EFFECT_UPDATE_DEFENSE)
@@ -1510,7 +1517,7 @@ function aux.otkop(e, tp, eg, ep, ev, re, r, rp)
 		e1:SetRange(LOCATION_MZONE)
 		e1:SetCode(EFFECT_UPDATE_ATTACK)
 		e1:SetValue(e:GetLabel())
-		e1:SetReset(RESET_EVENT + 0x1fe0000)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
 		c:RegisterEffect(e1)
 		local e2 = e1:Clone()
 		e2:SetCode(EFFECT_UPDATE_DEFENSE)
@@ -1525,7 +1532,7 @@ function aux.toegg(c)
 	e1:SetCode(708)
 	e1:SetValue(1)
 	c:RegisterEffect(e1, true)
-	c:SetEntityCode(10000048,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,false)
+	c:SetCardData(CARDDATA_PICCODE,10000048)
 end
 function aux.isegg(c)
 	local ae={c:IsHasEffect(708)}
@@ -1538,7 +1545,7 @@ function aux.isegg(c)
             end
         end
 	end
-	return chk and c:GetOriginalCode() == 10000048
+	return chk
 end
 
 function aux.isotk(c)
@@ -1552,7 +1559,7 @@ function aux.isotk(c)
             end
         end
 	end
-	return chk and c:GetOriginalCode() == 10000047 and c:IsType(TYPE_FUSION) and c:GetFlagEffectLabel(708)
+	return chk and c:IsType(TYPE_FUSION)
 end
 function aux.tootk(c)
 	local code=c:GetOriginalCode()
@@ -1560,22 +1567,22 @@ function aux.tootk(c)
 	if code==708 then cid=0 end
 	if code==824 then cid=1 end
 	if code==83 then cid=2 end
-	c:SetEntityCode(10000047,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,false)
-	c:RegisterFlagEffect(708,RESET_EVENT + 0x1fe0000,EFFECT_FLAG_CLIENT_HINT,1,code,aux.Stringid(825,cid))
+	c:SetCardData(CARDDATA_PICCODE,10000047,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD_DISABLE,c)
+	--c:RegisterFlagEffect(708,RESET_EVENT+RESETS_STANDARD_DISABLE,EFFECT_FLAG_CLIENT_HINT,1,code,aux.Stringid(825,cid))
 	local e1 = Effect.CreateEffect(c)
 	e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE + EFFECT_FLAG_CANNOT_DISABLE)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetCode(708)
 	e1:SetValue(3)
-	e1:SetReset(RESET_EVENT + 0x1fe0000)
+	e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
 	c:RegisterEffect(e1, true)
-	local e8 = Effect.CreateEffect(c)
-	e8:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE + EFFECT_FLAG_DAMAGE_STEP + EFFECT_FLAG_DAMAGE_CAL)
-	e8:SetType(EFFECT_TYPE_SINGLE + EFFECT_TYPE_CONTINUOUS)
-	e8:SetCode(EVENT_LEAVE_FIELD_P)
-	e8:SetOperation(aux.recover)
-	e8:SetReset(RESET_EVENT + 0x1fe0000)
-	c:RegisterEffect(e8, true)
+	-- local e8 = Effect.CreateEffect(c)
+	-- e8:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE + EFFECT_FLAG_DAMAGE_STEP + EFFECT_FLAG_DAMAGE_CAL)
+	-- e8:SetType(EFFECT_TYPE_SINGLE + EFFECT_TYPE_CONTINUOUS)
+	-- e8:SetCode(EVENT_LEAVE_FIELD_P)
+	-- e8:SetOperation(aux.recover)
+	-- e8:SetReset(RESET_EVENT + 0x1fe0000)
+	-- c:RegisterEffect(e8, true)
 	local e4 = Effect.CreateEffect(c)
 	e4:SetProperty(EFFECT_FLAG_DAMAGE_STEP + EFFECT_FLAG_DAMAGE_CAL)
 	e4:SetType(EFFECT_TYPE_FIELD + EFFECT_TYPE_CONTINUOUS)
@@ -1583,7 +1590,7 @@ function aux.tootk(c)
 	e4:SetRange(LOCATION_MZONE)
 	e4:SetCondition(aux.lpcon)
 	e4:SetOperation(aux.lpop)
-	e4:SetReset(RESET_EVENT + 0x1fe0000)
+	e4:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
 	c:RegisterEffect(e4)
 	local e5 = Effect.CreateEffect(c)
 	e5:SetProperty(EFFECT_FLAG_DAMAGE_STEP + EFFECT_FLAG_DAMAGE_CAL)
@@ -1593,7 +1600,7 @@ function aux.tootk(c)
 	e5:SetLabelObject(e4)
 	e5:SetCondition(aux.lpcon2)
 	e5:SetOperation(aux.lpop2)
-	e5:SetReset(RESET_EVENT + 0x1fe0000)
+	e5:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
 	c:RegisterEffect(e5)
 end
 
@@ -1615,7 +1622,7 @@ function aux.lpop(e, tp, eg, ep, ev, re, r, rp)
 		e1:SetRange(LOCATION_MZONE)
 		e1:SetCode(EFFECT_UPDATE_ATTACK)
 		e1:SetValue(lp - 1)
-		e1:SetReset(RESET_EVENT + 0x1fe0000)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
 		c:RegisterEffect(e1)
 		local e2 = e1:Clone()
 		e2:SetCode(EFFECT_UPDATE_DEFENSE)
@@ -1640,7 +1647,7 @@ function aux.lpop2(e, tp, eg, ep, ev, re, r, rp)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_SET_ATTACK_FINAL)
 		e1:SetValue(0)
-		e1:SetReset(RESET_EVENT + 0x1fe0000)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
 		c:RegisterEffect(e1, true)
 		local e2 = e1:Clone()
 		e2:SetCode(EFFECT_SET_DEFENSE_FINAL)
@@ -1658,22 +1665,22 @@ function aux.tophoenix(c)
 	if code==708 then cid=0 end
 	if code==824 then cid=1 end
 	if code==83 then cid=2 end
-	c:SetEntityCode(10000049,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,false)
-	c:RegisterFlagEffect(708,RESET_EVENT + 0x1fe0000,EFFECT_FLAG_CLIENT_HINT,1,code,aux.Stringid(825,cid))
+	c:SetCardData(CARDDATA_PICCODE,10000049,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD_DISABLE,c)
+	--c:RegisterFlagEffect(708,RESET_EVENT+RESETS_STANDARD_DISABLE,EFFECT_FLAG_CLIENT_HINT,1,code,aux.Stringid(825,cid))
 	local e1 = Effect.CreateEffect(c)
 	e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE + EFFECT_FLAG_CANNOT_DISABLE)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetCode(708)
 	e1:SetValue(2)
-	e1:SetReset(RESET_EVENT + 0x1fe0000)
+	e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
 	c:RegisterEffect(e1, true)
-	local e8 = Effect.CreateEffect(c)
-	e8:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE + EFFECT_FLAG_DAMAGE_STEP + EFFECT_FLAG_DAMAGE_CAL)
-	e8:SetType(EFFECT_TYPE_SINGLE + EFFECT_TYPE_CONTINUOUS)
-	e8:SetCode(EVENT_LEAVE_FIELD_P)
-	e8:SetOperation(aux.recover)
-	e8:SetReset(RESET_EVENT + 0x1fe0000)
-	c:RegisterEffect(e8, true)
+	-- local e8 = Effect.CreateEffect(c)
+	-- e8:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE + EFFECT_FLAG_DAMAGE_STEP + EFFECT_FLAG_DAMAGE_CAL)
+	-- e8:SetType(EFFECT_TYPE_SINGLE + EFFECT_TYPE_CONTINUOUS)
+	-- e8:SetCode(EVENT_LEAVE_FIELD_P)
+	-- e8:SetOperation(aux.recover)
+	-- e8:SetReset(RESET_EVENT + 0x1fe0000)
+	-- c:RegisterEffect(e8, true)
 end
 function aux.isphoenix(c)
 	local ae={c:IsHasEffect(708)}
@@ -1686,14 +1693,10 @@ function aux.isphoenix(c)
             end
         end
 	end
-	return chk and c:GetOriginalCode() == 10000049 and c:GetFlagEffectLabel(708)
+	return chk
 end
-function aux.recover(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetOwner()
-	local ocode=c:GetFlagEffectLabel(708)
-	if (aux.isphoenix(c) or aux.isotk(c)) and ocode and (ocode == 708 or ocode == 824 or ocode == 83) then
-		c:SetEntityCode(ocode,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
-		c:ResetFlagEffect(708)
+function aux.recover(c)
+	if aux.isegg(c) then
         local ae={c:IsHasEffect(708)}
         if ae then
             for _, te in ipairs(ae) do
@@ -1701,6 +1704,25 @@ function aux.recover(e,tp,eg,ep,ev,re,r,rp)
             end
         end
 	end
+	local ocode=c:GetFlagEffectLabel(708)
+	if (aux.isphoenix(c) or aux.isotk(c)) and ocode and (ocode == 708 or ocode == 824 or ocode == 83) then
+		--c:SetEntityCode(ocode,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
+		--c:ResetFlagEffect(708)
+        local ae={c:IsHasEffect(708)}
+        if ae then
+            for _, te in ipairs(ae) do
+                te:Reset()
+            end
+        end
+	end
+    local ae={c:IsHasEffect(EFFECT_SET_ENTITY)}
+    if ae then
+        for _, te in ipairs(ae) do
+            if te:GetOwner()==c then
+                te:Reset()
+            end
+        end
+    end
 end
 
 ---------------------------------------------------------------------------------------------------------------
@@ -1789,7 +1811,7 @@ function aux.odesop(e, tp, eg, ep, ev, re, r, rp)
     e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
     e1:SetCode(EFFECT_DIRECT_ATTACK)
     e1:SetRange(LOCATION_MZONE)
-    e1:SetReset(RESET_EVENT + 0x1fe0000 + RESET_PHASE + PHASE_END)
+    e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE + RESET_PHASE + PHASE_END)
     c:RegisterEffect(e1)
 end
 
@@ -1824,7 +1846,7 @@ function aux.oatkop(e, tp, eg, ep, ev, re, r, rp)
     local e1 = Effect.CreateEffect(c)
     e1:SetType(EFFECT_TYPE_SINGLE)
     e1:SetCode(EFFECT_INF_ATTACK)
-    e1:SetReset(RESET_EVENT + 0x1fe0000 + RESET_PHASE + PHASE_END)
+    e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE+RESET_PHASE+PHASE_END)
     c:RegisterEffect(e1)
     Duel.Hint(HINT_ANIME, tp, aux.Stringid(828, 1))
 end
@@ -1942,18 +1964,22 @@ function Auxiliary.addtobigtable(table1,bigtable,bigtable2,k)
     end
     if not has_listed_table then bigtable2[k]=table1 end
 end
-function Auxiliary.CopyCardTable(c, tc, merge, list, ...)
+function Auxiliary.CopyCardTable(c,tc,merge,list,...)
     if type(c)~="number" and type(c)~="Card" then error("Parameter 1 should be \"number\" or \"Card\"",2) end
     local card_names={...}
     local listed_names_chk=false
     if #card_names>0 then listed_names_chk=true end
     local otcode=tc:GetOriginalCode()
+    if not _G["c" .. otcode] then otcode=tc:GetOriginalAlias() end
+    if not _G["c" .. otcode] then return end
     local ocode=0
     if type(c)~="number" then
         ocode=c:GetOriginalCode()
+        if not _G["c" .. ocode] then ocode=c:GetOriginalAlias() end
     else
         ocode=c
     end
+    if not _G["c" .. ocode] then _G["c" .. ocode]={} end
     for k,tab in pairs(_G["c" .. ocode]) do --check every c table
         if listed_names_chk and k==list then --if c table has table list
             has_listed_names_table=true
