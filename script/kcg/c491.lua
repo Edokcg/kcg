@@ -46,7 +46,7 @@ function s.initial_effect(c)
 	e3:SetCode(EVENT_PHASE+PHASE_BATTLE_START)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetCountLimit(1)
-	e3:SetCondition(function(_,tp) return Duel.IsTurnPlayer(tp) end)
+	e3:SetCondition(function(_,tp) return Duel.IsTurnPlayer(tp) and Duel.GetLP(tp)<=1000 end)
 	e3:SetCost(Cost.DetachFromSelf(1))
 	e3:SetOperation(s.operation)
 	c:RegisterEffect(e3,false,EFFECT_MARKER_DETACH_XMAT)
@@ -80,8 +80,7 @@ function s.indes(e,c)
 end
  
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	return Duel.GetLP(c:GetControler())>1000
+	return Duel.GetLP(e:GetHandlerPlayer())>=1000
 end
 
 function s.rankop(e,tp,eg,ep,ev,re,r,rp)

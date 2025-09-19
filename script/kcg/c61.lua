@@ -164,5 +164,5 @@ end
 
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return Duel.GetLP(c:GetControler())>1000
+	return Duel.GetLP(e:GetHandlerPlayer())>=1000
 end

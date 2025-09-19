@@ -49,17 +49,17 @@ function s.initial_effect(c)
 	e0:SetOperation(s.rmop)
 	c:RegisterEffect(e0)
 
-	  --Absorb Monster effects
-	  local e2=Effect.CreateEffect(c)
-	  e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	  e2:SetDescription(aux.Stringid(2407234,1))
-	  e2:SetType(EFFECT_TYPE_QUICK_O)
-	  e2:SetCode(EVENT_FREE_CHAIN)
-	  e2:SetRange(LOCATION_MZONE)
-	  e2:SetCountLimit(1)
-	  e2:SetCost(s.ccost)
-	  e2:SetOperation(s.cop)
-	  c:RegisterEffect(e2)
+	--Absorb Monster effects
+	local e2=Effect.CreateEffect(c)
+	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_DAMAGE_STEP)
+	e2:SetDescription(aux.Stringid(2407234,1))
+	e2:SetType(EFFECT_TYPE_QUICK_O)
+	e2:SetCode(EVENT_FREE_CHAIN)
+	e2:SetRange(LOCATION_MZONE)
+	e2:SetCountLimit(1)
+	e2:SetCost(s.ccost)
+	e2:SetOperation(s.cop)
+	c:RegisterEffect(e2)
 
 	--Redirect attack
 	local e3=Effect.CreateEffect(c)
@@ -68,25 +68,23 @@ function s.initial_effect(c)
 	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e3:SetCode(EVENT_BE_BATTLE_TARGET)
 	e3:SetRange(LOCATION_MZONE)
-	--e3:SetCountLimit(1)
 	e3:SetCondition(s.cbcon)
-	--e3:SetTarget(s.cbtg)
 	e3:SetOperation(s.cbop)
 	c:RegisterEffect(e3)
 
 	--Divert and multiply
 	local e4=Effect.CreateEffect(c)
-	e4:SetDescription(aux.Stringid(10000010,0))
+	e4:SetDescription(aux.Stringid(89770167,0))
 	e4:SetCategory(CATEGORY_ATKCHANGE)
-	e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e4:SetCode(EVENT_BE_BATTLE_TARGET)
+	e4:SetType(EFFECT_TYPE_QUICK_O)
+	e4:SetProperty(EFFECT_FLAG_DAMAGE_STEP)
+	e4:SetCode(EVENT_FREE_CHAIN)
+	e4:SetHintTiming(TIMING_DAMAGE_STEP)
 	e4:SetRange(LOCATION_MZONE)
 	e4:SetCountLimit(1)
-	e4:SetCondition(s.pbcon)
-	e4:SetTarget(s.pbtg)
-	e4:SetCost(s.pbcost)
-	e4:SetOperation(s.pbop)
+	e4:SetCondition(s.atcon)
+	e4:SetCost(s.atcost)
+	e4:SetOperation(s.atop)
 	c:RegisterEffect(e4)
 
 	local e100=Effect.CreateEffect(c)
@@ -153,7 +151,7 @@ function s.cop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=e:GetLabelObject()
 	if c:IsRelateToEffect(e) and c:IsFaceup() then
 		local code=tc:GetOriginalCode()
-		local reset_flag=RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END+RESET_SELF_TURN
+		local reset_flag=RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_CHANGE_CODE)
@@ -167,88 +165,134 @@ end
 function s.cbcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local bt=eg:GetFirst()
-	return c~=bt and bt:GetControler()==c:GetControler() 
-	and c:GetFlagEffect(294)==0 
-	and c:GetFlagEffect(725)==0
-end
-function s.cbtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
-	e:GetHandler():RegisterFlagEffect(294,RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END,0,1)
+	return bt:GetControler()==c:GetControler() and Duel.IsExistingMatchingCard(Card.IsCanBeBattleTarget,tp,LOCATION_MZONE,0,1,bt,Duel.GetAttacker())
 end
 function s.cbop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local tg2=Duel.GetAttackTarget()
-	local tg=Duel.GetAttacker()	
-	if not (tg:IsOnField() and not tg:IsStatus(STATUS_ATTACK_CANCELED)) or not tg2:IsOnField() then return end		
-	Duel.ChangeAttackTarget(c)
-end
-
-function s.pbcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler()==Duel.GetAttackTarget() or (eg~=nil and e:GetHandler()==eg:GetFirst())
-end
-function s.cfilter(c)
-	return c:IsType(TYPE_MONSTER) and c:IsAbleToRemoveAsCost()
-end
-function s.pbcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_GRAVE,0,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_GRAVE,0,1,99,nil)
+	local bt=Duel.GetAttackTarget()
+	local tg=Duel.GetAttacker()
+	if not (tg:IsOnField() and not tg:IsStatus(STATUS_ATTACK_CANCELED)) or not bt:IsOnField() then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATTACKTARGET)
+	local g=Duel.SelectMatchingCard(tp,Card.IsCanBeBattleTarget,tp,LOCATION_MZONE,0,1,1,bt,tg)
 	if #g<1 then return end
-	e:SetLabel(g:GetCount())
+	Duel.ChangeAttackTarget(g:GetFirst())
+end
+
+function s.atcon(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.GetCurrentPhase()~=PHASE_DAMAGE or not Duel.IsDamageCalculated()
+end
+function s.costfilter(c)
+	return c:IsMonster() and c:IsAbleToRemoveAsCost()
+end
+function s.atcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.costfilter,tp,LOCATION_DECK,0,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+	local g=Duel.SelectMatchingCard(tp,s.costfilter,tp,LOCATION_DECK,0,1,99,nil)
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
+	e:SetLabel(#g)
 end
-function s.pbtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
-	Duel.SetOperationInfo(0,CATEGORY_ATKCHANGE,e:GetHandler(),1,0,0)
-	e:GetHandler():RegisterFlagEffect(296,RESET_EVENT+0x1fe0000+RESET_CHAIN,0,1)
-end
-function s.pbop(e,tp,eg,ep,ev,re,r,rp)
+function s.atop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	c:ResetFlagEffect(296)
-	if c:IsFacedown() or c:GetAttack()<1 then return end
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE+EFFECT_FLAG_CANNOT_DISABLE)
-	e1:SetRange(LOCATION_MZONE)
-	e1:SetCode(EFFECT_SET_ATTACK)
-	e1:SetValue(c:GetAttack()*e:GetLabel())
-	e1:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
-	c:RegisterEffect(e1)
-
-	if c:GetFlagEffect(295)==0 then
-		local e4=Effect.CreateEffect(c)
-		e4:SetDescription(aux.Stringid(10000010,0))
-		e4:SetCategory(CATEGORY_ATKCHANGE)
-		e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-		e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-		e4:SetCode(EVENT_BE_BATTLE_TARGET)
-		e4:SetRange(LOCATION_MZONE)
-		e4:SetCondition(s.pbcon)
-		e4:SetTarget(s.pbtg)
-		e4:SetLabel(e:GetLabel())
-		e4:SetOperation(s.pbop)
-		e4:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_DAMAGE)
-		c:RegisterEffect(e4) 
-	end
-	c:RegisterFlagEffect(295,RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_DAMAGE,0,1)
-	if c:GetFlagEffect(295)>2 and e:GetLabel()>1 and Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
+	local e3=Effect.CreateEffect(c)
+	e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_DAMAGE_STEP)
+	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+	e3:SetCode(EVENT_BE_BATTLE_TARGET)
+	e3:SetOperation(s.atop2)
+	e3:SetLabel(e:GetLabel())
+	c:RegisterEffect(e3)
+end
+function s.atop2(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:IsFaceup() then
 		local e1=Effect.CreateEffect(c)
-		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+		e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE+EFFECT_FLAG_CANNOT_DISABLE)
+		e1:SetRange(LOCATION_MZONE)
 		e1:SetType(EFFECT_TYPE_SINGLE)
-        e1:SetCode(EFFECT_SET_ATTACK)
-        e1:SetValue(9999999)
-		e1:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
+		e1:SetCode(EFFECT_SET_ATTACK)
+		e1:SetValue(c:GetAttack()*e:GetLabel())
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE+RESET_PHASE+PHASE_END)
 		c:RegisterEffect(e1)
-    end
 
-	if c:GetFlagEffect(294)==0 and Duel.SelectYesNo(tp,aux.Stringid(69937550,1)) then 
-		c:RegisterFlagEffect(725,RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END,0,1)
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-		local g=Duel.SelectMatchingCard(tp,Card.IsFaceup,tp,LOCATION_MZONE,0,1,1,c)
-		local tc=g:GetFirst()
-		if tc then 
-			Duel.HintSelection(g) 
-			Duel.ChangeAttackTarget(tc)
-		 end
+		c:RegisterFlagEffect(295,RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_DAMAGE,0,1)
+		if c:GetFlagEffect(295)>2 and e:GetLabel()>1 and Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
+			local e1=Effect.CreateEffect(c)
+			e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE+EFFECT_FLAG_CANNOT_DISABLE)
+			e1:SetRange(LOCATION_MZONE)
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetCode(EFFECT_SET_ATTACK)
+			e1:SetValue(9999999)
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE+RESET_PHASE+PHASE_END)
+			c:RegisterEffect(e1)
+    	end
 	end
 end
+
+-- function s.pbcon(e,tp,eg,ep,ev,re,r,rp)
+-- 	return e:GetHandler()==Duel.GetAttackTarget() or (eg~=nil and e:GetHandler()==eg:GetFirst())
+-- end
+-- function s.cfilter(c)
+-- 	return c:IsType(TYPE_MONSTER) and c:IsAbleToRemoveAsCost()
+-- end
+-- function s.pbcost(e,tp,eg,ep,ev,re,r,rp,chk)
+-- 	if chk==0 then return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_DECK,0,1,nil) end
+-- 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+-- 	local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_DECK,0,1,99,nil)
+-- 	if #g<1 then return end
+-- 	e:SetLabel(g:GetCount())
+-- 	Duel.Remove(g,POS_FACEUP,REASON_COST)
+-- end
+-- function s.pbtg(e,tp,eg,ep,ev,re,r,rp,chk)
+-- 	if chk==0 then return true end
+-- 	Duel.SetOperationInfo(0,CATEGORY_ATKCHANGE,e:GetHandler(),1,0,0)
+-- 	e:GetHandler():RegisterFlagEffect(296,RESET_EVENT+0x1fe0000+RESET_CHAIN,0,1)
+-- end
+-- function s.pbop(e,tp,eg,ep,ev,re,r,rp)
+-- 	local c=e:GetHandler()
+-- 	c:ResetFlagEffect(296)
+-- 	if c:IsFacedown() or c:GetAttack()<1 then return end
+-- 	local e1=Effect.CreateEffect(c)
+-- 	e1:SetType(EFFECT_TYPE_SINGLE)
+-- 	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE+EFFECT_FLAG_CANNOT_DISABLE)
+-- 	e1:SetRange(LOCATION_MZONE)
+-- 	e1:SetCode(EFFECT_SET_ATTACK)
+-- 	e1:SetValue(c:GetAttack()*e:GetLabel())
+-- 	e1:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
+-- 	c:RegisterEffect(e1)
+
+-- 	if c:GetFlagEffect(295)==0 then
+-- 		local e4=Effect.CreateEffect(c)
+-- 		e4:SetDescription(aux.Stringid(10000010,0))
+-- 		e4:SetCategory(CATEGORY_ATKCHANGE)
+-- 		e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+-- 		e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+-- 		e4:SetCode(EVENT_BE_BATTLE_TARGET)
+-- 		e4:SetRange(LOCATION_MZONE)
+-- 		e4:SetCondition(s.pbcon)
+-- 		e4:SetTarget(s.pbtg)
+-- 		e4:SetLabel(e:GetLabel())
+-- 		e4:SetOperation(s.pbop)
+-- 		e4:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_DAMAGE)
+-- 		c:RegisterEffect(e4) 
+-- 	end
+-- 	c:RegisterFlagEffect(295,RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_DAMAGE,0,1)
+-- 	if c:GetFlagEffect(295)>2 and e:GetLabel()>1 and Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
+-- 		local e1=Effect.CreateEffect(c)
+-- 		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+-- 		e1:SetType(EFFECT_TYPE_SINGLE)
+--         e1:SetCode(EFFECT_SET_ATTACK)
+--         e1:SetValue(9999999)
+-- 		e1:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
+-- 		c:RegisterEffect(e1)
+--     end
+
+-- 	if c:GetFlagEffect(294)==0 and Duel.SelectYesNo(tp,aux.Stringid(69937550,1)) then 
+-- 		c:RegisterFlagEffect(725,RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END,0,1)
+-- 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
+-- 		local g=Duel.SelectMatchingCard(tp,Card.IsFaceup,tp,LOCATION_MZONE,0,1,1,c)
+-- 		local tc=g:GetFirst()
+-- 		if tc then 
+-- 			Duel.HintSelection(g) 
+-- 			Duel.ChangeAttackTarget(tc)
+-- 		 end
+-- 	end
+-- end

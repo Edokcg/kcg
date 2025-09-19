@@ -59,12 +59,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 			if tc:IsCode(10000000) then code=820 end
 			if tc:IsCode(10000010) then code=83 end
 			if tc:IsCode(10000020) then code=823 end
-			if ocode == 10000047 or ocode == 10000049 then
-				tc:ResetFlagEffect(708)
-				tc:RegisterFlagEffect(708,RESET_EVENT + 0x1fe0000,EFFECT_FLAG_CLIENT_HINT,1,83,aux.Stringid(825,2))
-            else
-                tc:SetEntityCode(code,nil,nil,tc:GetOriginalType()&~TYPE_TOKEN,nil,nil,nil,nil,nil,nil,nil,nil,true)
-			end
+			tc:SetEntityCode(code,nil,nil,tc:GetOriginalType()&~TYPE_TOKEN,nil,nil,nil,nil,nil,nil,nil,nil,true)
 		elseif tc:IsCode(21208154,62180201,57793869) then
 			--To Graveyard
 			local e5=Effect.CreateEffect(c)

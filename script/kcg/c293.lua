@@ -49,10 +49,21 @@ function s.initial_effect(c)
 	e0:SetOperation(s.rmop)
 	c:RegisterEffect(e0)
 
+	local e1=Effect.CreateEffect(c)
+    e1:SetDescription(aux.Stringid(id,2))
+    e1:SetType(EFFECT_TYPE_QUICK_O)
+    e1:SetRange(LOCATION_MZONE)
+    e1:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_CANNOT_DISABLE)
+    e1:SetCode(EVENT_FREE_CHAIN)
+    e1:SetTarget(s.tar)
+    e1:SetOperation(s.op2)
+    e1:SetCountLimit(1)
+    c:RegisterEffect(e1)
+
     local e2=Effect.CreateEffect(c)
+    e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_REMOVE)
-	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
-	e2:SetDescription(aux.Stringid(id,1))
+	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_DAMAGE_STEP)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_MZONE)
@@ -77,16 +88,6 @@ function s.initial_effect(c)
 	e9:SetCode(EFFECT_CANNOT_DISABLE_SPSUMMON)
 	e9:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 	c:RegisterEffect(e9)
-
-	--set
-	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(80019195,1))
-	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e3:SetCode(EVENT_BE_BATTLE_TARGET)
-	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e3:SetTarget(s.settg)
-	e3:SetOperation(s.setop)
-	c:RegisterEffect(e3)	
 end
 
 -- function s.adjustcon(e,tp,eg,ep,ev,re,r,rp)
@@ -118,6 +119,40 @@ function s.rmop(e,tp,eg,ep,ev,re,r,rp)
 	if tc:IsRelateToEffect(e) and tc:IsFaceup() then
 		Duel.Remove(tc,POS_FACEUP,REASON_RULE+REASON_EFFECT)
 	end
+end
+
+function s.spfilter1(c,e)
+	local tp=c:GetControler()
+	return c:IsCode(293) and c:IsCanBeFusionMaterial() and c:IsAbleToGrave() and not c:IsImmuneToEffect(e) and c:IsFaceup()
+	and Duel.IsExistingMatchingCard(s.spfilter2,tp,LOCATION_MZONE,0,1,c,e,c)
+end
+function s.spfilter2(c,e,tc1)
+	local tp=c:GetControler()
+	return c:IsCanBeFusionMaterial() and c:IsAbleToGrave() and not c:IsImmuneToEffect(e) and c:IsFaceup()
+	and Duel.GetLocationCountFromEx(tp,tp,Group.FromCards(c,tc1),TYPE_FUSION)>0
+end
+function s.con(e,tp,eg,ep,ev,re,r,rp)
+	return s[0]>0 and s[1]>0
+end
+function s.tar(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.spfilter1,tp,LOCATION_MZONE,0,1,nil,e) end
+end
+function s.op2(e,tp,eg,ep,ev,re,r,rp,c)
+	if Duel.IsExistingMatchingCard(s.spfilter1,tp,LOCATION_MZONE,0,1,nil,e) then
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+	local g1=Duel.SelectMatchingCard(tp,s.spfilter1,tp,LOCATION_MZONE,0,1,1,nil,e)
+	if #g1<1 then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+	local g2=Duel.SelectMatchingCard(tp,s.spfilter2,tp,LOCATION_MZONE,0,1,99,e,g1:GetFirst(),g1:GetFirst())
+	if #g2<1 then return end
+	g1:Merge(g2)
+	local code=296
+	local g4=Duel.CreateToken(tp,code,nil,nil,nil,nil,nil,nil)
+	Duel.SendtoDeck(g4,tp,0,REASON_RULE+REASON_EFFECT)
+	Duel.SendtoGrave(g1,REASON_EFFECT+REASON_MATERIAL+REASON_FUSION)
+	g4:SetMaterial(g1)
+	Duel.SpecialSummon(g4,SUMMON_TYPE_FUSION,tp,tp,true,true,POS_FACEUP)
+	g4:CompleteProcedure() end
 end
 
 function s.filter1(c,tp)

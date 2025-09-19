@@ -12,39 +12,42 @@ function s.initial_effect(c)
 end
 s.listed_series={0x48,0x2048}
 
-function s.filter(c)
-	return c:IsSetCard(0x48) 
+function s.filter(c,e)
+	return c:IsSetCard(0x48)
 	    and ((not c:IsSetCard(0x2048) and c:GetRank()<13) or (c:IsSetCard(0x2048)))
-end	
-function s.filterno0(c,tp)
-	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_GRAVE,0,nil)
+		and not c:IsSetCard(0x2048) and not c:IsImmuneToEffect(e)
+end
+function s.filter2(c)
+	return c:IsSetCard(0x2048)
+end
+function s.filterno0(c,e,tp)
+	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_GRAVE,0,nil,e)
+	local mg2=Duel.GetMatchingGroup(s.filter2,tp,LOCATION_GRAVE,0,nil)
     local effs={}
-	if #mg<1 then return false end
-	for tc in aux.Next(mg) do	
-		if not tc:IsSetCard(0x2048) then
-            local e1=Effect.CreateEffect(c)
-			e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-			e1:SetType(EFFECT_TYPE_SINGLE)
-			e1:SetCode(EFFECT_UPDATE_RANK)
-			e1:SetValue(1)
-			tc:RegisterEffect(e1,true)
-			local e2=e1:Clone()
-			e2:SetCode(EFFECT_ADD_SETCODE)
-			e2:SetValue(0x2048)
-			tc:RegisterEffect(e2,true)
-            table.insert(effs,e1) table.insert(effs,e2)
-		end
+	for tc in aux.Next(mg) do
+		local e1=Effect.CreateEffect(c)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_UPDATE_RANK)
+		e1:SetValue(1)
+		tc:RegisterEffect(e1,true)
+		local e2=e1:Clone()
+		e2:SetCode(EFFECT_ADD_SETCODE)
+		e2:SetValue(0x2048)
+		tc:RegisterEffect(e2,true)
+		table.insert(effs,e1) table.insert(effs,e2)
 	end
-	local res=c.minxyzct and c:IsXyzSummonable(nil,mg,c.minxyzct,c.maxxyzct)
+	mg:Merge(mg2)
+	if #mg<1 then return false end
+	local res=c.minxyzct and c:IsXyzSummonable(nil,mg,c.minxyzct,#mg)
     for _,eff in ipairs(effs) do
         eff:Reset()
     end
 	return res
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_GRAVE,0,nil)
 	if chk==0 then return Duel.GetLocationCountFromEx(tp,tp,nil,TYPE_XYZ)>0
-	   and Duel.IsExistingMatchingCard(s.filterno0,tp,LOCATION_EXTRA,0,1,nil,tp) and #mg>0 end
+	   and Duel.IsExistingMatchingCard(s.filterno0,tp,LOCATION_EXTRA,0,1,nil,e,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 function s.no0(c,xyz,tp)
@@ -52,26 +55,23 @@ function s.no0(c,xyz,tp)
 end	
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_GRAVE,0,nil)
+	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_GRAVE,0,nil,e)
+	local mg2=Duel.GetMatchingGroup(s.filter2,tp,LOCATION_GRAVE,0,nil)
 	local effs={}
-    local sxg=Group.CreateGroup()
 	for tc in aux.Next(mg) do
-		if not tc:IsSetCard(0x2048) then
-			local e1=Effect.CreateEffect(c)
-			e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-			e1:SetType(EFFECT_TYPE_SINGLE)
-			e1:SetCode(EFFECT_UPDATE_RANK)
-			e1:SetValue(1)
-			--e1:SetReset(RESET_CHAIN)
-			tc:RegisterEffect(e1,true)
-			local e2=e1:Clone()
-			e2:SetCode(EFFECT_ADD_SETCODE)
-			e2:SetValue(0x2048)
-			tc:RegisterEffect(e2,true)
-			table.insert(effs,e1) table.insert(effs,e2)
-            sxg:AddCard(tc)
-		end
+		local e1=Effect.CreateEffect(c)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_UPDATE_RANK)
+		e1:SetValue(1)
+		tc:RegisterEffect(e1,true)
+		local e2=e1:Clone()
+		e2:SetCode(EFFECT_ADD_SETCODE)
+		e2:SetValue(0x2048)
+		tc:RegisterEffect(e2,true)
+		table.insert(effs,e1) table.insert(effs,e2)
 	end
+	mg:Merge(mg2)
 	local g=Duel.GetMatchingGroup(Card.IsXyzSummonable,tp,LOCATION_EXTRA,0,nil,nil,mg)
 	if #g<1 then
         for _,eff in ipairs(effs) do
@@ -88,7 +88,7 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
         return 
     end
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-    local xmg=mg:FilterSelect(tp,s.no0,tg.minxyzct,tg.maxxyzct,nil,tg,tp)
+    local xmg=mg:FilterSelect(tp,s.no0,tg.minxyzct,#mg,nil,tg,tp)
     Duel.Overlay(tg,xmg)
     tg:SetMaterial(xmg)
     Duel.SpecialSummon(tg,SUMMON_TYPE_XYZ,tp,tp,false,false,POS_FACEUP)

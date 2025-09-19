@@ -10,7 +10,7 @@ function s.initial_effect(c)
     e8:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
     e8:SetRange(LOCATION_MZONE)
     e8:SetCondition(function(...)
-        return Duel.GetLP(c:GetControler()) > 1000
+        return Duel.GetLP(e:GetHandlerPlayer()) >= 1000
     end)
     c:RegisterEffect(e8, true)
     local e82 = e8:Clone()
