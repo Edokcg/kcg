@@ -189,7 +189,7 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
             end
             local e1=Effect.CreateEffect(tc)
             e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
-            e1:SetDescription(aux.Stringid(282,0),true,0,0,0,0,0,true)
+            e1:SetDescription(aux.Stringid(282,0),true)
             e1:SetType(EFFECT_TYPE_SINGLE)
             e1:SetCode(EFFECT_CANNOT_DISABLE)
             tc:RegisterEffect(e1)

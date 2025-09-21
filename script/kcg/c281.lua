@@ -400,7 +400,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 									end
 								end
 							end
-							e1:SetDescription(aux.Stringid(42,4),true,0,0,0,0,0,true)
+							e1:SetDescription(aux.Stringid(42,4),true)
 							e1:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
 							e1:SetValue(1)
 						elseif effop[i]==0 then
@@ -418,7 +418,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 						end
 					elseif strong_eff_immu2[i] then
 						if effop[i]>1 then
-							e1:SetDescription(aux.Stringid(42,3),true,0,0,0,0,0,true)
+							e1:SetDescription(aux.Stringid(42,3),true)
 							e1:SetCode(EFFECT_IMMUNE_EFFECT)
 							e1:SetValue(s.immval)
 						else
@@ -431,7 +431,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 									end
 								end
 							end
-							e1:SetDescription(aux.Stringid(42,0),true,0,0,0,0,0,true)
+							e1:SetDescription(aux.Stringid(42,0),true)
 							e1:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
 							e1:SetValue(1)
 					    end
@@ -445,7 +445,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 								end
 							end
 						end
-						e1:SetDescription(aux.Stringid(42,2),true,0,0,0,0,0,true)
+						e1:SetDescription(aux.Stringid(42,2),true)
 						e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
 						e1:SetValue(1)
 					end
@@ -503,7 +503,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 		end
 		local e1=Effect.CreateEffect(tc)
 		e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
-		e1:SetDescription(aux.Stringid(282,0),true,0,0,0,0,0,true)
+		e1:SetDescription(aux.Stringid(282,0),true)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_CANNOT_DISABLE)
 		tc:RegisterEffect(e1)

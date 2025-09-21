@@ -13,12 +13,14 @@ function s.initial_effect(c)
 	e1:SetOperation(s.operation)
 	c:RegisterEffect(e1)
 end
-s.listed_names={281,280,282,293,294,295}
+s.listed_series={SET_LEGENDARY_DRAGON}
+s.listed_names={293,294,295}
 
 function s.cost2filter(c,tp)
-	return c:IsRace(RACE_WARRIOR)
+	return c:IsRace(RACE_WARRIOR) and Duel.GetMZoneCount(tp,c)>0
 end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+	e:SetLabel(1)
 	if chk==0 then return Duel.CheckLPCost(tp,1000) and Duel.CheckReleaseGroup(tp,s.cost2filter,1,nil,tp)
 	end
 	Duel.PayLPCost(tp,1000)
@@ -26,34 +28,29 @@ function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local rg=Duel.SelectReleaseGroup(tp,Card.IsRace,1,1,nil,RACE_WARRIOR)
 	Duel.Release(rg,REASON_COST)
 end
-function s.costfilter(c,e,tp,code)
-	return c:IsCode(code) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+function s.costfilter(c,e,tp)
+	return c:IsSetCard(SET_LEGENDARY_DRAGON) and c:IsSpell() and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return not Duel.IsPlayerAffectedByEffect(tp,CARD_BLUEEYES_SPIRIT)
-		and Duel.GetLocationCount(tp,LOCATION_MZONE)>1
-		and Duel.IsExistingMatchingCard(s.costfilter,tp,LOCATION_DECK+LOCATION_HAND+LOCATION_GRAVE,0,1,nil,e,tp,281)
-		and Duel.IsExistingMatchingCard(s.costfilter,tp,LOCATION_DECK+LOCATION_HAND+LOCATION_GRAVE,0,1,nil,e,tp,280)
-		and Duel.IsExistingMatchingCard(s.costfilter,tp,LOCATION_DECK+LOCATION_HAND+LOCATION_GRAVE,0,1,nil,e,tp,282)
+	if chk==0 then
+		if e:GetLabel()==0 and Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return false end
+		e:SetLabel(0)
+		return Duel.IsExistingMatchingCard(s.costfilter,tp,LOCATION_DECK+LOCATION_HAND+LOCATION_GRAVE,0,1,nil,e,tp)
 	end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,3,tp,LOCATION_DECK+LOCATION_HAND+LOCATION_GRAVE)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK+LOCATION_HAND+LOCATION_GRAVE)
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=2 or Duel.IsPlayerAffectedByEffect(tp,CARD_BLUEEYES_SPIRIT) then return end
-	local g1=Duel.GetMatchingGroup(aux.NecroValleyFilter(s.costfilter),tp,LOCATION_DECK+LOCATION_HAND+LOCATION_GRAVE,0,nil,e,tp,281)
-	local g2=Duel.GetMatchingGroup(aux.NecroValleyFilter(s.costfilter),tp,LOCATION_DECK+LOCATION_HAND+LOCATION_GRAVE,0,nil,e,tp,280)
-	local g3=Duel.GetMatchingGroup(aux.NecroValleyFilter(s.costfilter),tp,LOCATION_DECK+LOCATION_HAND+LOCATION_GRAVE,0,nil,e,tp,282)
-	if #g1>0 and #g2>0 and #g3>0 then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local sg1=g1:Select(tp,1,1,nil)
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local sg2=g2:Select(tp,1,1,nil)
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local sg3=g3:Select(tp,1,1,nil)
-		sg1:Merge(sg2)
-		sg1:Merge(sg3)
-		local tc=sg1:GetFirst()
-		for tc in aux.Next(sg1) do
+	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	if ft<=0 then return end
+	if Duel.IsPlayerAffectedByEffect(tp,CARD_BLUEEYES_SPIRIT) then ft=1 end
+	local rmg=Duel.GetMatchingGroup(aux.NecroValleyFilter(s.costfilter),tp,LOCATION_DECK+LOCATION_HAND+LOCATION_GRAVE,0,nil,e,tp)
+	if #rmg==0 then return end
+	local rmct=rmg:GetClassCount(Card.GetCode)
+	local ct=math.min(3,ft,rmct)
+	if ct==0 then return end
+	local g=aux.SelectUnselectGroup(rmg,e,tp,1,ct,aux.dncheck,1,tp,HINTMSG_SPSUMMON)
+	if #g>0 then
+		for tc in aux.Next(g) do
 			Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP)
 			tc:CompleteProcedure()
 		end

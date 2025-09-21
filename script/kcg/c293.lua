@@ -3,12 +3,12 @@ local s,id=GetID()
 function s.initial_effect(c)
 	c:EnableReviveLimit()
 
-	local e00=Effect.CreateEffect(c)
-	e00:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_SET_AVAILABLE)
-	e00:SetType(EFFECT_TYPE_SINGLE)
-	e00:SetCode(EFFECT_NOT_EXTRA)
-	e00:SetValue(1)
-	c:RegisterEffect(e00)
+	-- local e00=Effect.CreateEffect(c)
+	-- e00:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_SET_AVAILABLE)
+	-- e00:SetType(EFFECT_TYPE_SINGLE)
+	-- e00:SetCode(EFFECT_NOT_EXTRA)
+	-- e00:SetValue(1)
+	-- c:RegisterEffect(e00)
 
 	local e001=Effect.CreateEffect(c)
 	e001:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
@@ -22,12 +22,12 @@ function s.initial_effect(c)
 	c:RegisterEffect(e002)
 
 	--cannot special summon
-	-- local e1=Effect.CreateEffect(c)
-	-- e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-	-- e1:SetType(EFFECT_TYPE_SINGLE)
-	-- e1:SetCode(EFFECT_SPSUMMON_CONDITION)
-	-- e1:SetValue(aux.FALSE)
-	-- c:RegisterEffect(e1)
+	local e1=Effect.CreateEffect(c)
+	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetCode(EFFECT_SPSUMMON_CONDITION)
+	e1:SetValue(aux.FALSE)
+	c:RegisterEffect(e1)
 
 	-- local e0=Effect.CreateEffect(c)
 	-- e0:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
@@ -49,16 +49,16 @@ function s.initial_effect(c)
 	e0:SetOperation(s.rmop)
 	c:RegisterEffect(e0)
 
-	local e1=Effect.CreateEffect(c)
-    e1:SetDescription(aux.Stringid(id,2))
-    e1:SetType(EFFECT_TYPE_QUICK_O)
-    e1:SetRange(LOCATION_MZONE)
-    e1:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_CANNOT_DISABLE)
-    e1:SetCode(EVENT_FREE_CHAIN)
-    e1:SetTarget(s.tar)
-    e1:SetOperation(s.op2)
-    e1:SetCountLimit(1)
-    c:RegisterEffect(e1)
+	local e3=Effect.CreateEffect(c)
+    e3:SetDescription(aux.Stringid(id,2))
+    e3:SetType(EFFECT_TYPE_QUICK_O)
+    e3:SetRange(LOCATION_MZONE)
+    e3:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_CANNOT_DISABLE)
+    e3:SetCode(EVENT_FREE_CHAIN)
+    e3:SetTarget(s.tar)
+    e3:SetOperation(s.op2)
+    e3:SetCountLimit(1)
+    c:RegisterEffect(e3)
 
     local e2=Effect.CreateEffect(c)
     e2:SetDescription(aux.Stringid(id,1))
@@ -131,14 +131,10 @@ function s.spfilter2(c,e,tc1)
 	return c:IsCanBeFusionMaterial() and c:IsAbleToGrave() and not c:IsImmuneToEffect(e) and c:IsFaceup()
 	and Duel.GetLocationCountFromEx(tp,tp,Group.FromCards(c,tc1),TYPE_FUSION)>0
 end
-function s.con(e,tp,eg,ep,ev,re,r,rp)
-	return s[0]>0 and s[1]>0
-end
 function s.tar(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.spfilter1,tp,LOCATION_MZONE,0,1,nil,e) end
 end
 function s.op2(e,tp,eg,ep,ev,re,r,rp,c)
-	if Duel.IsExistingMatchingCard(s.spfilter1,tp,LOCATION_MZONE,0,1,nil,e) then
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 	local g1=Duel.SelectMatchingCard(tp,s.spfilter1,tp,LOCATION_MZONE,0,1,1,nil,e)
 	if #g1<1 then return end
@@ -152,7 +148,7 @@ function s.op2(e,tp,eg,ep,ev,re,r,rp,c)
 	Duel.SendtoGrave(g1,REASON_EFFECT+REASON_MATERIAL+REASON_FUSION)
 	g4:SetMaterial(g1)
 	Duel.SpecialSummon(g4,SUMMON_TYPE_FUSION,tp,tp,true,true,POS_FACEUP)
-	g4:CompleteProcedure() end
+	g4:CompleteProcedure()
 end
 
 function s.filter1(c,tp)

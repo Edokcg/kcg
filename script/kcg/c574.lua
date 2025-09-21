@@ -71,23 +71,23 @@ function s.atcon(e)
 	or (tc2~=nil and tc2:IsFaceup() and tc2:IsCode(110000101) and Duel.GetTurnCount()~=tc2:GetTurnID())
 end
 function s.ltarget(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetLabelObject():GetLabel()==0 and Duel.IsExistingMatchingCard(s.usefilter,tp,LOCATION_SZONE+LOCATION_GRAVE,0,1,nil,110000101)
-		and Duel.IsExistingMatchingCard(s.usefilter,tp,LOCATION_SZONE+LOCATION_GRAVE,0,1,nil,110000100)
-		and Duel.IsExistingMatchingCard(s.usefilter,tp,LOCATION_SZONE+LOCATION_GRAVE,0,1,nil,48179391)
+	if chk==0 then return e:GetLabelObject():GetLabel()==0 and Duel.IsExistingMatchingCard(s.usefilter,tp,LOCATION_SZONE+LOCATION_GRAVE,0,1,nil,12)
+		and Duel.IsExistingMatchingCard(s.usefilter,tp,LOCATION_SZONE+LOCATION_GRAVE,0,1,nil,11)
+		and Duel.IsExistingMatchingCard(s.usefilter,tp,LOCATION_SZONE+LOCATION_GRAVE,0,1,nil,10)
 	end
 end
 function s.lactivate(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if not (Duel.IsExistingMatchingCard(s.usefilter,tp,LOCATION_SZONE+LOCATION_GRAVE,0,1,nil,110000101)
-		and Duel.IsExistingMatchingCard(s.usefilter,tp,LOCATION_SZONE+LOCATION_GRAVE,0,1,nil,110000100)
-		and Duel.IsExistingMatchingCard(s.usefilter,tp,LOCATION_SZONE+LOCATION_GRAVE,0,1,nil,48179391)) then return end
+	if not (Duel.IsExistingMatchingCard(s.usefilter,tp,LOCATION_SZONE+LOCATION_GRAVE,0,1,nil,12)
+		and Duel.IsExistingMatchingCard(s.usefilter,tp,LOCATION_SZONE+LOCATION_GRAVE,0,1,nil,11)
+		and Duel.IsExistingMatchingCard(s.usefilter,tp,LOCATION_SZONE+LOCATION_GRAVE,0,1,nil,10)) then return end
 	local otoken=Duel.CreateToken(tp,12201)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local g1=Duel.SelectMatchingCard(tp,s.usefilter,tp,LOCATION_SZONE+LOCATION_GRAVE,0,1,1,nil,48179391):GetFirst()
+	local g1=Duel.SelectMatchingCard(tp,s.usefilter,tp,LOCATION_SZONE+LOCATION_GRAVE,0,1,1,nil,10):GetFirst()
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL) 
-	local g2=Duel.SelectMatchingCard(tp,s.usefilter,tp,LOCATION_SZONE+LOCATION_GRAVE,0,1,1,nil,110000100):GetFirst()
+	local g2=Duel.SelectMatchingCard(tp,s.usefilter,tp,LOCATION_SZONE+LOCATION_GRAVE,0,1,1,nil,11):GetFirst()
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL) 
-	local g3=Duel.SelectMatchingCard(tp,s.usefilter,tp,LOCATION_SZONE+LOCATION_GRAVE,0,1,1,nil,110000101):GetFirst()
+	local g3=Duel.SelectMatchingCard(tp,s.usefilter,tp,LOCATION_SZONE+LOCATION_GRAVE,0,1,1,nil,12):GetFirst()
 	local g=Group.FromCards(g1,g2,g3)
 	if Duel.IsExistingMatchingCard(Card.IsType,tp,LOCATION_FZONE,0,1,nil,TYPE_FIELD) then
 		local otc=Duel.GetFieldCard(tp,LOCATION_SZONE,5)

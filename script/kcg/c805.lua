@@ -11,13 +11,6 @@ function s.initial_effect(c)
     c:RegisterEffect(e001)
 
 	c:EnableReviveLimit()
-
-	local e00=Effect.CreateEffect(c)
-	e00:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_SET_AVAILABLE)
-	e00:SetType(EFFECT_TYPE_SINGLE)
-	e00:SetCode(EFFECT_NOT_EXTRA)
-	e00:SetValue(1)
-	c:RegisterEffect(e00)
     
 	--融合特召限制
 	local e1=Effect.CreateEffect(c)
