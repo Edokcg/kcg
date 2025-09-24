@@ -36,44 +36,33 @@ function s.initial_effect(c)
 	e2:SetOperation(s.aactivate)
 	c:RegisterEffect(e2)
 end
-s.list={[71625222]=41,
-        [CARD_SUMMONED_SKULL]=46,
-        [64631466]=49,
-	    [CARD_DARK_MAGICIAN_GIRL]=286,
-        [CARD_DARK_MAGICIAN]=287,
-        [342673]=500,
-		[6368038]=362,
-		[CARD_BLUEEYES_W_DRAGON]=363,
-		[28279543]=617,
-		[77207191]=640,
-		[5818798]=647,
-		[CARD_BUSTER_BLADER]=618,
-		[1]=500}
+s.list={[71625222]=26273196, --時間魔術師
+        [CARD_SUMMONED_SKULL]=32775808, --惡魔顯現
+        [64631466]=41578483, --納祭之魔
+	    [CARD_DARK_MAGICIAN_GIRL]={43892408,50237654,622},
+        [CARD_DARK_MAGICIAN]={75380687,5829717,41721210,50237654,59400890,73452089,37818794,85059922,98502113,622},
+		[6368038]=2519690, --暗黑騎士 蓋亞
+		[CARD_BLUEEYES_W_DRAGON]=11443677,
+		[28279543]=72064891, --詛咒之龍
+		[77207191]=69601012, --巴風特
+		[5818798]=647, --幻獸王 加澤爾
+		[CARD_BUSTER_BLADER]={86240887,98502113},
+		[CARD_ALBAZ]={3410461,34848821,41373230,87746184},
+		[47297616]=19652159, --光與暗之龍
+		[86120751]=75286621, --召喚師 阿萊斯特
+		[CARD_FLAME_SWORDSMAN]=13722870,
+		[CARD_REDEYES_B_DRAGON]=37818794,
+		[54484652]=85059922} --超戰士 混沌戰士
 
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	local b1=Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_MZONE,0,1,e:GetHandler(),e:GetHandler(),e,tp)
 		and Duel.IsPlayerCanSpecialSummon(tp,SUMMON_TYPE_FUSION,POS_FACEUP,tp,e:GetHandler())
-	local b2=Duel.IsExistingTarget(s.tgfilter,tp,LOCATION_MZONE,0,1,nil,e,tp)
-	if chk==0 then return b1 or b2 end
-	local op=Duel.SelectEffect(tp,
-		{b1,aux.Stringid(44,0)},
-		{b2,aux.Stringid(id,1)})
-	if op==2 then
-		if chkc==0 then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.tgfilter(chkc,e,tp) end
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FMATERIAL)
-		Duel.SelectTarget(tp,s.tgfilter,tp,LOCATION_MZONE,0,1,1,nil,e,tp)
-	end
+	if chk==0 then return b1 end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
-	Duel.SetTargetParam(op)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
-	local op=Duel.GetChainInfo(0,CHAININFO_TARGET_PARAM)
 	local c=e:GetHandler()
-	if op==1 then
-		s.factivate(e,tp,eg,ep,ev,re,r,rp)
-	elseif op==2 then
-		s.activate2(e,tp,eg,ep,ev,re,r,rp)
-	end
+	s.factivate(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.filter(c,fc,e,tp)
@@ -95,13 +84,26 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 	local code=gc:GetCode()
 	local ocode=gc:GetOriginalCode()
     local acode=gc:GetOriginalAlias()
-	if code==CARD_DARK_MAGICIAN then 
-		local opt=Duel.SelectOption(tp,aux.Stringid(500,0),aux.Stringid(500,1))
-		if opt==1 then acode=1 end
-	end
 	local tcode=s.list[acode]
 	if tcode then 
-		ttcode=tcode
+		if type(tcode)=="table" and #tcode>1 then
+			local opt=0
+			if acode==CARD_DARK_MAGICIAN_GIRL then
+				opt=Duel.SelectOption(tp,aux.Stringid(621,14),aux.Stringid(621,8),aux.Stringid(622,5))
+			end
+			if acode==CARD_DARK_MAGICIAN then
+				opt=Duel.SelectOption(tp,aux.Stringid(621,5),aux.Stringid(621,6),aux.Stringid(621,7),aux.Stringid(621,8),aux.Stringid(621,9),aux.Stringid(621,10),aux.Stringid(621,11),aux.Stringid(621,12),aux.Stringid(621,13),aux.Stringid(622,5))
+			end
+			if acode==CARD_BUSTER_BLADER then
+				opt=Duel.SelectOption(tp,aux.Stringid(621,15),aux.Stringid(621,13))
+			end
+			if acode==CARD_ALBAZ then
+				opt=Duel.SelectOption(tp,aux.Stringid(363,1),aux.Stringid(363,2),aux.Stringid(363,3),aux.Stringid(363,4))
+			end
+			ttcode=tcode[opt+1]
+		else 
+			ttcode=tcode
+		end
 	else
 		ttcode=42
 	end
@@ -165,12 +167,6 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
                 end
             else
                 tc:SetEntityCode(ocode,nil,ss,(gc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION)&~TYPE_NORMAL&~TYPE_SPSUMMON,nil,nil,nil,atk+500,nil,nil,nil,nil,true,42,effcode,42)
-				local e1=Effect.CreateEffect(tc)
-                e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
-                e1:SetDescription(aux.Stringid(280,10),true,0,0,0,0,ocode,true)
-                e1:SetType(EFFECT_TYPE_SINGLE)
-                e1:SetCode(id)
-                tc:RegisterEffect(e1)
             end
             if addset then
                 local e1=Effect.CreateEffect(tc)
@@ -501,12 +497,25 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
                 tc:RegisterEffect(e1)
             end
 		end
-		local e1=Effect.CreateEffect(tc)
-		e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
-		e1:SetDescription(aux.Stringid(282,0),true)
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_CANNOT_DISABLE)
-		tc:RegisterEffect(e1)
+		if ttcode~=647 and ttcode~=622 then
+			local e1=Effect.CreateEffect(tc)
+			e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
+			e1:SetDescription(aux.Stringid(282,0),true)
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetCode(EFFECT_CANNOT_DISABLE)
+			tc:RegisterEffect(e1)
+		end
+		if ttcode~=32775808 and ttcode~=2519690 and ttcode~=647 and ttcode~=622 then
+			--Change name
+			local e0=Effect.CreateEffect(tc)
+			e0:SetType(EFFECT_TYPE_SINGLE)
+			e0:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_SINGLE_RANGE)
+			e0:SetDescription(aux.Stringid(363,5),true,0,0,0,0,acode)
+			e0:SetCode(EFFECT_CHANGE_CODE)
+			e0:SetRange(LOCATION_MZONE+LOCATION_GRAVE)
+			e0:SetValue(acode)
+			tc:RegisterEffect(e0)
+		end
 		Duel.SpecialSummon(tc,SUMMON_TYPE_FUSION,tp,tp,true,false,POS_FACEUP)
 		tc:CompleteProcedure()
 	end
@@ -821,8 +830,9 @@ function s.spfilter(c,e,tp,mc)
 		and (#mustg==0 or (#mustg==1 and mustg:IsContains(mc)))
 end
 function s.activate2(e,tp,eg,ep,ev,re,r,rp)
-	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) and tc:IsCanBeFusionMaterial() and not tc:IsImmuneToEffect(e) then
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FMATERIAL)
+	local tc=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_MZONE,0,1,1,nil,e,tp):GetFirst()
+	if tc and tc:IsCanBeFusionMaterial() and not tc:IsImmuneToEffect(e) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local sc=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,tc):GetFirst()
 		if sc then

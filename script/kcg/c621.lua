@@ -14,54 +14,51 @@ function s.initial_effect(c)
 	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
 end
-s.list={[71625222]=41,
-        [CARD_SUMMONED_SKULL]=46,
-        [64631466]=49,
-	    [CARD_DARK_MAGICIAN_GIRL]=286,
-        [CARD_DARK_MAGICIAN]=287,
-        [342673]=500,
-		[6368038]=362,
-		[CARD_BLUEEYES_W_DRAGON]=363,
-		[28279543]=617,
-		[77207191]=640,
-		[5818798]=647,
-		[CARD_BUSTER_BLADER]=618,
-		[1]=500,
-		[2]=622}
+s.listed_names={CARD_DARK_MAGICIAN,CARD_DARK_MAGICIAN_GIRL}
+s.list={[71625222]=26273196, --時間魔術師
+        [CARD_SUMMONED_SKULL]=32775808, --惡魔顯現
+        [64631466]=41578483, --納祭之魔
+	    [CARD_DARK_MAGICIAN_GIRL]={43892408,50237654},
+        [CARD_DARK_MAGICIAN]={75380687,5829717,41721210,50237654,59400890,73452089,37818794,85059922,98502113},
+		[6368038]=2519690, --暗黑騎士 蓋亞
+		[CARD_BLUEEYES_W_DRAGON]=11443677,
+		[28279543]=72064891, --詛咒之龍
+		[77207191]=69601012, --巴風特
+		[5818798]=647, --幻獸王 加澤爾
+		[CARD_BUSTER_BLADER]={86240887,98502113},
+		[CARD_ALBAZ]={3410461,34848821,41373230,87746184},
+		[47297616]=19652159, --光與暗之龍
+		[86120751]=75286621, --召喚師 阿萊斯特
+		[CARD_FLAME_SWORDSMAN]=13722870,
+		[CARD_REDEYES_B_DRAGON]=37818794,
+		[54484652]=85059922} --超戰士 混沌戰士
 
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local b1=Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_MZONE,0,1,e:GetHandler(),e:GetHandler(),e,tp)
 		and Duel.IsPlayerCanSpecialSummon(tp,SUMMON_TYPE_FUSION,POS_FACEUP,tp,e:GetHandler())
-	local b2=Duel.IsExistingTarget(s.tgfilter,tp,LOCATION_MZONE,0,1,nil,e,tp)
-	if chk==0 then return b1 or b2 end
-	local op=Duel.SelectEffect(tp,
-		{b1,aux.Stringid(44,0)},
-		{b2,aux.Stringid(id,1)})
-	if op==2 then
-		if chkc==0 then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.tgfilter(chkc,e,tp) end
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FMATERIAL)
-		Duel.SelectTarget(tp,s.tgfilter,tp,LOCATION_MZONE,0,1,1,nil,e,tp)
-	end
+	if chk==0 then return b1 end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
-	Duel.SetTargetParam(op)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
-	local op=Duel.GetChainInfo(0,CHAININFO_TARGET_PARAM)
 	local c=e:GetHandler()
-	if op==1 then
-		s.factivate(e,tp,eg,ep,ev,re,r,rp,0)
-	elseif op==2 then
-		s.activate2(e,tp,eg,ep,ev,re,r,rp)
-	end
+	s.factivate(e,tp,eg,ep,ev,re,r,rp)
+	--Banish it during the End Phase of the next turn
+	local turn_summoned=Duel.GetTurnCount()
+	aux.DelayedOperation(sc,PHASE_END,id,e,tp,
+		function(sc) Duel.Remove(sc,POS_FACEUP,REASON_EFFECT) end,
+		function() return Duel.GetTurnCount()==turn_summoned+1 end,
+		nil,2,aux.Stringid(id,1)
+	)
 end
 
 function s.filter(c,fc,e,tp)
 	return Duel.GetLocationCountFromEx(tp,tp,fc,TYPE_FUSION|c:GetType())>0 
+	and c:IsCode(CARD_DARK_MAGICIAN,CARD_DARK_MAGICIAN_GIRL)
 	and (c:IsControler(tp) or c:IsFaceup()) and c:IsType(TYPE_MONSTER)
 	and c:IsCanBeFusionMaterial() and (c:IsType(TYPE_XYZ) or c:IsAbleToGrave()) and not c:IsImmuneToEffect(e)
     and not c:IsSetCard(0xa1) and not c:IsSetCard(0xa0)
 end
-function s.factivate(e,tp,eg,ep,ev,re,r,rp,evol)
+function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local ttp=c:GetControler()
 	if not Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_MZONE,0,1,e:GetHandler(),e:GetHandler(),e,tp) or not Duel.IsPlayerCanSpecialSummon(tp,SUMMON_TYPE_FUSION,POS_FACEUP,tp,e:GetHandler()) then return end
@@ -74,21 +71,28 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp,evol)
 	local code=gc:GetCode()
 	local ocode=gc:GetOriginalCode()
     local acode=gc:GetOriginalAlias()
-	if code==CARD_DARK_MAGICIAN then 
-		local opt=Duel.SelectOption(tp,aux.Stringid(500,0),aux.Stringid(500,1),aux.Stringid(500,2))
-		if opt==1 then acode=1 end
-		if opt==2 then acode=2 end
-	end
-	if code==CARD_DARK_MAGICIAN_GIRL then 
-		local opt=Duel.SelectOption(tp,aux.Stringid(500,3),aux.Stringid(500,2))
-		if opt==1 then acode=2 end
-	end
 	local tcode=s.list[acode]
 	if tcode then 
-		ttcode=tcode
+		if type(tcode)=="table" and #tcode>1 then
+			local opt=0
+			if acode==CARD_DARK_MAGICIAN_GIRL then
+				opt=Duel.SelectOption(tp,aux.Stringid(621,14),aux.Stringid(621,8),aux.Stringid(622,5))
+			end
+			if acode==CARD_DARK_MAGICIAN then
+				opt=Duel.SelectOption(tp,aux.Stringid(621,5),aux.Stringid(621,6),aux.Stringid(621,7),aux.Stringid(621,8),aux.Stringid(621,9),aux.Stringid(621,10),aux.Stringid(621,11),aux.Stringid(621,12),aux.Stringid(621,13),aux.Stringid(622,5))
+			end
+			if acode==CARD_BUSTER_BLADER then
+				opt=Duel.SelectOption(tp,aux.Stringid(621,15),aux.Stringid(621,13))
+			end
+			if acode==CARD_ALBAZ then
+				opt=Duel.SelectOption(tp,aux.Stringid(363,1),aux.Stringid(363,2),aux.Stringid(363,3),aux.Stringid(363,4))
+			end
+			ttcode=tcode[opt+1]
+		else 
+			ttcode=tcode
+		end
 	else
-		if evol==1 then ttcode=841
-		else ttcode=42 end
+		ttcode=42
 	end
 	local tc=Duel.CreateToken(tp,ttcode,nil,nil,nil,nil,nil,nil)
 	local fg=rg
@@ -101,7 +105,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp,evol)
 		end
 		Duel.SendtoGrave(fg,REASON_EFFECT+REASON_MATERIAL+REASON_FUSION)
 		Duel.BreakEffect()
-		if tc:IsCode(42,841) then
+		if tc:IsCode(42) then
 			local atk=gc:GetTextAttack()
 			if atk<0 then atk=0 end
 			local ss={gc:GetOriginalSetCard()}
@@ -109,8 +113,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp,evol)
             if #ss>3 then
                 addset=true
             else
-				if evol==1 then table.insert(ss,0x10a1)
-                else table.insert(ss,0xa1) end
+				table.insert(ss,0xa1)
             end
             local effcode=ocode
             local rrealcode,orcode,rrealalias=gc:GetRealCode()
@@ -122,11 +125,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp,evol)
                 effcode=0
             end
             if rrealcode>0 then
-                if evol==1 then
-					tc:SetEntityCode(ocode,nil,ss,(gc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION)&~TYPE_NORMAL&~TYPE_SPSUMMON,nil,nil,nil,atk+500,nil,nil,nil,nil,false,841,effcode,841,gc)
-				else
-                	tc:SetEntityCode(ocode,nil,ss,(gc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION)&~TYPE_NORMAL&~TYPE_SPSUMMON,nil,nil,nil,atk+500,nil,nil,nil,nil,false,42,effcode,42,gc)
-				end
+                tc:SetEntityCode(ocode,nil,ss,(gc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION)&~TYPE_NORMAL&~TYPE_SPSUMMON,nil,nil,nil,atk+500,nil,nil,nil,nil,false,42,effcode,42,gc)
                 local te1={gc:GetFieldEffect()}
                 local te2={gc:GetTriggerEffect()}
                 for _,te in ipairs(te1) do
@@ -154,26 +153,14 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp,evol)
                     end
                 end
             else
-				if evol==1 then
-					tc:SetEntityCode(ocode,nil,ss,(gc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION)&~TYPE_NORMAL&~TYPE_SPSUMMON,nil,nil,nil,atk+500,nil,nil,nil,nil,true,841,effcode,841)
-				else
-                	tc:SetEntityCode(ocode,nil,ss,(gc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION)&~TYPE_NORMAL&~TYPE_SPSUMMON,nil,nil,nil,atk+500,nil,nil,nil,nil,true,42,effcode,42)
-				end
-				local e1=Effect.CreateEffect(tc)
-                e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
-                if evol==1 then e1:SetDescription(aux.Stringid(280,11),true,0,0,0,0,ocode,true)
-				else e1:SetDescription(aux.Stringid(280,10),true,0,0,0,0,ocode,true) end
-                e1:SetType(EFFECT_TYPE_SINGLE)
-                e1:SetCode(id)
-                tc:RegisterEffect(e1)
+				tc:SetEntityCode(ocode,nil,ss,(gc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION)&~TYPE_NORMAL&~TYPE_SPSUMMON,nil,nil,nil,atk+500,nil,nil,nil,nil,true,42,effcode,42)
             end
             if addset then
                 local e1=Effect.CreateEffect(tc)
                 e1:SetType(EFFECT_TYPE_SINGLE)
                 e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
                 e1:SetCode(EFFECT_ADD_SETCODE)
-                if evol==1 then e1:SetValue(0x10a1)
-                else e1:SetValue(0xa1) end
+                e1:SetValue(0xa1)
                 tc:RegisterEffect(e1)
             end
             aux.CopyCardTable(gc,tc,"listed_names",id,acode)
@@ -480,96 +467,42 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp,evol)
 				end
 			end
 		else
-			if ttcode~=622 then
-				local ss={tc:GetOriginalSetCard()}
-				local addset=false
-				if #ss>3 then
-					addset=true
-				else
-					if evol==1 then table.insert(ss,0x10a1)
-					else table.insert(ss,0xa1) end
-				end
-				if evol==1 then
-					tc:SetEntityCode(ttcode,nil,ss,tc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION,nil,nil,nil,nil,nil,nil,nil,nil,false,ttcode,ttcode,841,false,true)
-				else
-					tc:SetEntityCode(ttcode,nil,ss,tc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION,nil,nil,nil,nil,nil,nil,nil,nil,false,ttcode,ttcode,42,false,true)
-				end
-				if addset then
-					local e1=Effect.CreateEffect(tc)
-					e1:SetType(EFFECT_TYPE_SINGLE)
-					e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-					e1:SetCode(EFFECT_ADD_SETCODE)
-					if evol==1 then e1:SetValue(0x10a1)
-					else e1:SetValue(0xa1) end
-					tc:RegisterEffect(e1)
-				end
+			local ss={tc:GetOriginalSetCard()}
+			local addset=false
+			if #ss>3 then
+				addset=true
 			else
-				tc:SetEntityCode(ttcode,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,false,ttcode,ttcode)
-				local e2=Effect.CreateEffect(tc)
-				e2:SetDescription(aux.Stringid(280,0))
-				e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CANNOT_INACTIVATE)
-				e2:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
-				e2:SetType(EFFECT_TYPE_IGNITION)
-				e2:SetRange(LOCATION_MZONE)
-				e2:SetCountLimit(1)
-				e2:SetTarget(s.atarget)
-				e2:SetOperation(s.aactivate)
-				tc:RegisterEffect(e2)
+				table.insert(ss,0xa1)
+			end
+			tc:SetEntityCode(ttcode,nil,ss,tc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION,nil,nil,nil,nil,nil,nil,nil,nil,false,ttcode,ttcode,42,false,true)
+			if addset then
 				local e1=Effect.CreateEffect(tc)
-				e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
-				e1:SetDescription(aux.Stringid(id,2),true)
 				e1:SetType(EFFECT_TYPE_SINGLE)
-				e1:SetCode(id)
+				e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+				e1:SetCode(EFFECT_ADD_SETCODE)
+				e1:SetValue(0xa1)
 				tc:RegisterEffect(e1)
-				local e3=e1:Clone()
-				e3:SetDescription(aux.Stringid(id,3),true)
-				tc:RegisterEffect(e3)
-				local e4=e1:Clone()
-				e4:SetDescription(aux.Stringid(id,4),true)
-				tc:RegisterEffect(e4)
 			end
 		end
-		if evol==1 then
-			--Unaffected by other cards' effects
-			local e5=Effect.CreateEffect(tc)
-			e5:SetDescription(aux.Stringid(622,2))
-			e5:SetType(EFFECT_TYPE_SINGLE)
-			e5:SetProperty(EFFECT_FLAG_CLIENT_HINT)
-			e5:SetCode(EFFECT_IMMUNE_EFFECT)
-			e5:SetValue(function(e,re) return e:GetHandler()~=re:GetOwner() end)
-			tc:RegisterEffect(e5)
-			--Make this card gain 100 ATK for each Spell in the GYs and banishment
-			local e6=Effect.CreateEffect(tc)
-			e6:SetDescription(aux.Stringid(622,3),true)
-			e6:SetProperty(EFFECT_FLAG_CLIENT_HINT)
-			e6:SetCategory(CATEGORY_ATKCHANGE)
-			e6:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-			e6:SetCode(EVENT_PRE_DAMAGE_CALCULATE)
-			e6:SetCountLimit(1)
-			e6:SetTarget(s.atktg)
-			e6:SetOperation(s.atkop)
-			tc:RegisterEffect(e6)
-			--Destroy 1 Spell/Trap on the field
-			local e7=Effect.CreateEffect(tc)
-			e7:SetDescription(aux.Stringid(622,4),true)
-			e7:SetCategory(CATEGORY_DESTROY)
-			e7:SetType(EFFECT_TYPE_QUICK_O)
-			e7:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_CLIENT_HINT)
-			e7:SetCode(EVENT_FREE_CHAIN)
-			e7:SetRange(LOCATION_MZONE)
-			e7:SetHintTiming(0,TIMING_STANDBY_PHASE|TIMING_MAIN_END|TIMINGS_CHECK_MONSTER_E)
-			e7:SetCountLimit(1)
-			e7:SetCondition(function(e,tp) return Duel.IsTurnPlayer(1-tp) end)
-			e7:SetTarget(s.destg)
-			e7:SetOperation(s.desop)
-			tc:RegisterEffect(e7)
+		if ttcode~=647 and ttcode~=622 then
+			local e1=Effect.CreateEffect(tc)
+			e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
+			e1:SetDescription(aux.Stringid(282,0),true)
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetCode(EFFECT_CANNOT_DISABLE)
+			tc:RegisterEffect(e1)
 		end
-		local e1=Effect.CreateEffect(tc)
-		e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
-		e1:SetDescription(aux.Stringid(282,0),true)
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_CANNOT_DISABLE)
-		tc:RegisterEffect(e1)
+		if ttcode~=32775808 and ttcode~=2519690 and ttcode~=647 and ttcode~=622 then
+			--Change name
+			local e0=Effect.CreateEffect(tc)
+			e0:SetType(EFFECT_TYPE_SINGLE)
+			e0:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_SINGLE_RANGE)
+			e0:SetDescription(aux.Stringid(363,5),true,0,0,0,0,acode)
+			e0:SetCode(EFFECT_CHANGE_CODE)
+			e0:SetRange(LOCATION_MZONE+LOCATION_GRAVE)
+			e0:SetValue(acode)
+			tc:RegisterEffect(e0)
+		end
 		Duel.SpecialSummon(tc,SUMMON_TYPE_FUSION,tp,tp,true,false,POS_FACEUP)
 		tc:CompleteProcedure()
 	end
@@ -929,41 +862,5 @@ function s.activate2(e,tp,eg,ep,ev,re,r,rp)
 				sc:CompleteProcedure()
 			end
 		end
-	end
-end
-
-
-function s.atgfilter(c,e,tp)
-	return c:IsFaceup() and c:IsCanBeFusionMaterial() and c:IsAbleToGrave()
-		and Duel.IsExistingMatchingCard(s.aspfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,c)
-end
-function s.aspfilter(c,e,tp,mc)
-	if Duel.GetLocationCountFromEx(tp,tp,mc,c)<=0 then return false end
-	local mustg=aux.GetMustBeMaterialGroup(tp,nil,tp,c,nil,REASON_FUSION)
-	return c:ListsCodeAsMaterial(mc:GetCode()) and c.min_material_count==2 and c.max_material_count==2
-	and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false)
-	and (#mustg==0 or (#mustg==1 and mustg:IsContains(mc)))
-end
-function s.atarget(e,tp,eg,ep,ev,re,r,rp,chk)
-	local b1=Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_MZONE,0,1,e:GetHandler(),e:GetHandler(),e,tp)
-        and Duel.IsPlayerCanSpecialSummon(tp,SUMMON_TYPE_FUSION,POS_FACEUP,tp,e:GetHandler())
-	local b2=Fusion.SummonEffTG(nil,nil)(e,tp,eg,ep,ev,re,r,rp,0)
-	if chk==0 then return b1 or b2 end
-	local op=Duel.SelectEffect(tp,
-		{b1,aux.Stringid(44,0)},
-		{b2,aux.Stringid(id,0)})
-	if op==2 then
-		Fusion.SummonEffTG(nil,nil)(e,tp,eg,ep,ev,re,r,rp,1)
-	end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
-	Duel.SetTargetParam(op)
-end
-function s.aactivate(e,tp,eg,ep,ev,re,r,rp)
-	local op=Duel.GetChainInfo(0,CHAININFO_TARGET_PARAM)
-	local c=e:GetHandler()
-	if op==1 then
-		s.factivate(e,tp,eg,ep,ev,re,r,rp,1)
-	elseif op==2 then
-		Fusion.SummonEffOP(nil,nil)(e,tp,eg,ep,ev,re,r,rp)
 	end
 end

@@ -15,7 +15,7 @@ function s.initial_effect(c)
 	e19:SetCode(EFFECT_SANCT)
 	e19:SetRange(LOCATION_FZONE)
 	e19:SetTargetRange(1,0)
-	c:RegisterEffect(e19)		
+	c:RegisterEffect(e19)
 	
 	--维持代价
 	local e3=Effect.CreateEffect(c)
@@ -46,7 +46,7 @@ function s.initial_effect(c)
 	e5:SetCountLimit(1)
 	e5:SetCondition(s.mtcon2)
 	e5:SetOperation(s.activate)
-	c:RegisterEffect(e5)   
+	c:RegisterEffect(e5)
 	  	
 	local e7=Effect.CreateEffect(c)
 	e7:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
@@ -54,7 +54,7 @@ function s.initial_effect(c)
 	e7:SetCode(EFFECT_DISABLE)
 	e7:SetRange(LOCATION_FZONE)
 	e7:SetCondition(s.condition2)
-	c:RegisterEffect(e7)	
+	c:RegisterEffect(e7)
 
 	--不会被卡的效果破坏、除外、返回手牌和卡组
 	local e6=Effect.CreateEffect(c)
@@ -104,7 +104,7 @@ function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_GRAVE,0,1,nil)
 end
 function s.condition2(e,tp,eg,ep,ev,re,r,rp)
-	return not Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_GRAVE,0,1,nil)
+	return not Duel.IsExistingMatchingCard(s.cfilter,e:GetHandlerPlayer(),LOCATION_GRAVE,0,1,nil)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(Card.IsFaceup,tp,0,LOCATION_MZONE,nil)

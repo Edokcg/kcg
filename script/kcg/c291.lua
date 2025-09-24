@@ -5,7 +5,13 @@ function s.initial_effect(c)
 	c:EnableReviveLimit()
 	Fusion.AddProcCodeFun(c,30860696,282,1,true,true)
 	aux.AddEquipProcedure(c)
-
+	
+	local e00=Effect.CreateEffect(c)
+	e00:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e00:SetType(EFFECT_TYPE_SINGLE)
+	e00:SetCode(EFFECT_CANNOT_DISABLE)
+	c:RegisterEffect(e00)
+	
 	--Activate
 	local e0=Effect.CreateEffect(c)
 	e0:SetDescription(aux.Stringid(876330,0))

@@ -10,10 +10,10 @@ function s.initial_effect(c)
 	e2:SetOperation(s.op)
 	c:RegisterEffect(e2)
 end
-s.listed_series={0x905}
+s.listed_series={0x552}
 
 function s.filter(c)
-	return c:IsSetCard(0x905) and c:IsFaceup()
+	return c:IsSetCard(0x552) and c:IsFaceup()
 end
 function s.tg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingTarget(s.filter,tp,LOCATION_MZONE,0,1,nil) end

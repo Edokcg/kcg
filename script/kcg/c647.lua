@@ -4,7 +4,7 @@ local s,id=GetID()
 function s.initial_effect(c)
 	c:EnableReviveLimit()
 	--Fusion procedure
-	Fusion.AddProcMix(c,true,true,aux.FilterBoolFunctionEx(Card.IsRace,RACE_BEAST),s.ffilter2)
+	Fusion.AddProcMix(c,true,true,aux.FilterBoolFunctionEx(Card.IsRace,RACE_BEAST),aux.FilterBoolFunctionEx(Card.IsRace,RACE_FIEND))
 	--Name is treated as "Chimera the Flying Mythical Beast"
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
@@ -49,8 +49,7 @@ function s.initial_effect(c)
 	e4:SetOperation(s.spop2)
 	c:RegisterEffect(e4)
 end
-s.listed_names={281,CARD_SHINING_SARCOPHAGUS,CARD_CHIMERA_MYTHICAL_BEAST}
-s.material={281,CARD_CHIMERA_MYTHICAL_BEAST}
+s.listed_names={CARD_SHINING_SARCOPHAGUS,CARD_CHIMERA_MYTHICAL_BEAST}
 
 function s.goldsarccon(e)
 	return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,CARD_SHINING_SARCOPHAGUS),e:GetHandlerPlayer(),LOCATION_ONFIELD,0,1,nil)

@@ -3,7 +3,13 @@ local s,id=GetID()
 function s.initial_effect(c)
 	c:EnableReviveLimit()
     Fusion.AddProcMix(c,false,false,280,83555666)
-
+	
+	local e00=Effect.CreateEffect(c)
+	e00:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e00:SetType(EFFECT_TYPE_SINGLE)
+	e00:SetCode(EFFECT_CANNOT_DISABLE)
+	c:RegisterEffect(e00)
+	
 	--destroy & damage
 	local e2=Effect.CreateEffect(c)
 	e2:SetCategory(CATEGORY_DESTROY+CATEGORY_DAMAGE)

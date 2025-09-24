@@ -4,6 +4,12 @@ function s.initial_effect(c)
     c:EnableReviveLimit()
 	Fusion.AddProcMix(c,false,false,57470761,280)
 	
+	local e00=Effect.CreateEffect(c)
+	e00:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e00:SetType(EFFECT_TYPE_SINGLE)
+	e00:SetCode(EFFECT_CANNOT_DISABLE)
+	c:RegisterEffect(e00)
+	
 	--equip
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(14745409,0))

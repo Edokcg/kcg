@@ -317,7 +317,7 @@ function s.adjustcon2(e,tp,eg,ep,ev,re,r,rp)
     and Duel.IsExistingMatchingCard(s.specfilter,e:GetHandlerPlayer(),LOCATION_GRAVE,0,1,nil)
 end
 function s.filter(c)
-	return c:IsFaceup() and (c:IsSetCard(0xa1) or c:IsSetCard(0xa0)and not c:IsSetCard(0x10a1))
+	return c:IsFaceup() and (c:IsSetCard(0xa1) or c:IsSetCard(0xa0))
 end
 function s.adjustop(e,tp,eg,ep,ev,re,r,rp)
 	local dg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_ONFIELD,0,nil)

@@ -192,7 +192,7 @@ function s.cartoonize(e,tp,g)
 			end
 			if s.list[tcode] then piccode=s.list[tcode] end
 			if rrealcode>0 then
-				tc:SetEntityCode(code,nil,piccode,ss,TYPE_MONSTER|TYPE_EFFECT|TYPE_TOON,nil,nil,nil,nil,nil,nil,nil,nil,EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_OWNER_RELATE,RESET_EVENT+RESETS_STANDARD_DISABLE,c,false,838,0,838,tc)
+				tc:SetEntityCode(code,nil,piccode,ss,TYPE_MONSTER|TYPE_EFFECT|TYPE_TOON,nil,nil,nil,nil,nil,nil,nil,nil,EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_OWNER_RELATE,RESET_EVENT+RESETS_STANDARD,c,false,838,0,838,tc)
 				local te1={tc:GetFieldEffect()}
 				local te2={tc:GetTriggerEffect()}
 				for _,te in ipairs(te1) do
@@ -218,7 +218,7 @@ function s.cartoonize(e,tp,g)
 					end
 				end
 			else
-				tc:SetEntityCode(code,nil,piccode,ss,TYPE_MONSTER|TYPE_EFFECT|TYPE_TOON,nil,nil,nil,nil,nil,nil,nil,nil,EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_OWNER_RELATE,RESET_EVENT+RESETS_STANDARD_DISABLE,c,true,838,0,838)
+				tc:SetEntityCode(code,nil,piccode,ss,TYPE_MONSTER|TYPE_EFFECT|TYPE_TOON,nil,nil,nil,nil,nil,nil,nil,nil,EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_OWNER_RELATE,RESET_EVENT+RESETS_STANDARD,c,true,838,0,838)
 			end
 			c:SetCardTarget(tc)
 			if addset then
@@ -227,7 +227,7 @@ function s.cartoonize(e,tp,g)
 				e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_OWNER_RELATE)
 				e1:SetCode(EFFECT_ADD_SETCODE)
 				e1:SetValue(0x62)
-				e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
+				e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 				tc:RegisterEffect(e1,true)
 			end
 			aux.CopyCardTable(tc,tc,false,"listed_names",15259703)
@@ -237,7 +237,7 @@ function s.cartoonize(e,tp,g)
             e4:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_OWNER_RELATE)
             e4:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
             e4:SetValue(s.indes)
-			e4:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
+			e4:SetReset(RESET_EVENT+RESETS_STANDARD)
             local e5=e4:Clone()
             e5:SetProperty(EFFECT_FLAG_UNCOPYABLE)
             e5:SetCode(EFFECT_AVOID_BATTLE_DAMAGE)
@@ -247,7 +247,7 @@ function s.cartoonize(e,tp,g)
             e6:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_OWNER_RELATE)
             e6:SetCondition(s.dircon)
             e6:SetCode(EFFECT_DIRECT_ATTACK)
-			e6:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
+			e6:SetReset(RESET_EVENT+RESETS_STANDARD)
             local e7=Effect.CreateEffect(c)
             e7:SetDescription(aux.Stringid(838,6),true,0,0,0,0,0,true)
             e7:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_OWNER_RELATE)
@@ -256,7 +256,7 @@ function s.cartoonize(e,tp,g)
             e7:SetCode(EVENT_LEAVE_FIELD)
             e7:SetCondition(s.sdescon)
             e7:SetOperation(s.sdesop)
-			e7:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
+			e7:SetReset(RESET_EVENT+RESETS_STANDARD)
             tc:RegisterEffect(e7,true)
             tc:RegisterEffect(e6,true)
             tc:RegisterEffect(e5,true)
@@ -272,7 +272,7 @@ function s.cartoonize(e,tp,g)
                 e1:SetCondition(s.spconr)
                 e1:SetTarget(s.sptgr)
                 e1:SetOperation(s.spopr)
-				e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
+				e1:SetReset(RESET_EVENT+RESETS_STANDARD)
                 tc:RegisterEffect(e1,true)
             end
             if bit.band(type,TYPE_NORMAL)~=0 then
@@ -298,7 +298,7 @@ function s.cartoonize(e,tp,g)
                     e1:SetTarget(s.sptg2)
                     e1:SetOperation(s.spopn)
                 end
-				e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
+				e1:SetReset(RESET_EVENT+RESETS_STANDARD)
                 tc:RegisterEffect(e1,true)
             end
         end

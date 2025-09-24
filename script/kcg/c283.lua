@@ -4,6 +4,12 @@ function s.initial_effect(c)
 	c:EnableReviveLimit()
 	Fusion.AddProcMix(c,false,false,11082056,44095762)
 	
+	local e00=Effect.CreateEffect(c)
+	e00:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e00:SetType(EFFECT_TYPE_SINGLE)
+	e00:SetCode(EFFECT_CANNOT_DISABLE)
+	c:RegisterEffect(e00)
+	
 	--Mirror Force blast!
 	local e1=Effect.CreateEffect(c)
 	e1:SetCategory(CATEGORY_DESTROY)

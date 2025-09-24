@@ -171,28 +171,7 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
             e1:SetCode(EFFECT_CANNOT_DISABLE)
             tc:RegisterEffect(e1)
         else
-            local ss={tc:GetOriginalSetCard()}
-            local addset=false
-            if #ss>3 then
-                addset=true
-            else
-                table.insert(ss,0xa1)
-            end
-            tc:SetEntityCode(ttcode,nil,ss,tc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION,nil,nil,nil,nil,nil,nil,nil,nil,false,ttcode,ttcode,43,false,true)
-            if addset then
-                local e1=Effect.CreateEffect(tc)
-                e1:SetType(EFFECT_TYPE_SINGLE)
-                e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-                e1:SetCode(EFFECT_ADD_SETCODE)
-                e1:SetValue(0xa1)
-                tc:RegisterEffect(e1)
-            end
-            local e1=Effect.CreateEffect(tc)
-            e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
-            e1:SetDescription(aux.Stringid(282,0),true)
-            e1:SetType(EFFECT_TYPE_SINGLE)
-            e1:SetCode(EFFECT_CANNOT_DISABLE)
-            tc:RegisterEffect(e1)
+            tc:SetEntityCode(ttcode,nil,nil,tc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION,nil,nil,nil,nil,nil,nil,nil,nil,false,ttcode,ttcode,43,false,true)
         end
         Duel.SpecialSummon(tc,SUMMON_TYPE_FUSION,tp,tp,true,false,POS_FACEUP)
         tc:CompleteProcedure()
@@ -241,7 +220,7 @@ function s.eqop(e,tp,eg,ep,ev,re,r,rp)
 	-- c:RegisterEffect(e9, true)
 	local atk=tc:GetTextAttack()
 	local def=tc:GetTextDefense()
-	tc:SetEntityCode(363,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_OWNER_RELATE,RESET_EVENT+RESETS_STANDARD_DISABLE,c,true)
+	tc:SetEntityCode(363,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_OWNER_RELATE,RESET_EVENT+RESETS_STANDARD,c,true)
 	--atkup
 	local e2=Effect.CreateEffect(c)
 	e2:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_CANNOT_DISABLE)
