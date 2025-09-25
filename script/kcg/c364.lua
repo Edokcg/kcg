@@ -51,7 +51,6 @@ function s.initial_effect(c)
 
 	--activate limit
 	local e6=Effect.CreateEffect(c)
-	e6:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 	e6:SetDescription(aux.Stringid(52653092,1))
 	e6:SetType(EFFECT_TYPE_QUICK_O)
 	e6:SetCode(EVENT_FREE_CHAIN)
@@ -60,7 +59,7 @@ function s.initial_effect(c)
 	e6:SetCountLimit(1)
 	e6:SetCondition(s.actcon)
 	e6:SetCost(s.actcost)
-	e6:SetOperation(s.sucop)
+	e6:SetOperation(s.actop)
 	c:RegisterEffect(e6)
 end
 s.xyz_number=0
