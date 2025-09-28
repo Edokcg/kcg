@@ -55,9 +55,8 @@ function s.initial_effect(c)
 	e3:SetOperation(s.aactivate)
 	c:RegisterEffect(e3)
 end
-s.material_setcode={281,SET_DARK_MAGICIAN,SET_MAGICIAN_GIRL,SET_DARK_MAGICIAN_GIRL}
-s.material={281}
-s.listed_names={281,CARD_DARK_MAGICIAN,CARD_DARK_MAGICIAN_GIRL}
+s.material={621}
+s.listed_names={621,CARD_DARK_MAGICIAN,CARD_DARK_MAGICIAN_GIRL}
 
 function s.ffilter2(c)
 	return c:IsRace(RACE_DRAGON|RACE_SPELLCASTER) or c:IsCode(281)
@@ -156,7 +155,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
             if #ss>3 then
                 addset=true
             else
-                table.insert(ss,0x905)
+                table.insert(ss,0x10a1)
             end
             local effcode=ocode
             local rrealcode,orcode,rrealalias=gc:GetRealCode()
@@ -181,7 +180,6 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
                             te2:SetProperty(prop&~EFFECT_FLAG_CLIENT_HINT)
                         end
                         tc:RegisterEffect(te2,true)
-						te:Reset()
                     end
                 end
                 for _,te in ipairs(te2) do
@@ -193,7 +191,6 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
                             te2:SetProperty(prop&~EFFECT_FLAG_CLIENT_HINT)
                         end
                         tc:RegisterEffect(te2,true)
-						te:Reset()
                     end
                 end
             else
@@ -204,7 +201,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
                 e1:SetType(EFFECT_TYPE_SINGLE)
                 e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
                 e1:SetCode(EFFECT_ADD_SETCODE)
-                e1:SetValue(0x905)
+                e1:SetValue(0x10a1)
                 tc:RegisterEffect(e1)
             end
             aux.CopyCardTable(gc,tc,"listed_names",id,acode)
@@ -267,6 +264,16 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 					s.efflist[acode][i]={}
 				end
 			end
+			local te1={tc:GetFieldEffect()}
+			local has_indeseff, has_indesbat, has_nottg, has_pierce=false, false, false, false
+			for _,te in ipairs(te1) do
+				if te:GetOwner()==tc then
+					if te:GetCode()==EFFECT_INDESTRUCTABLE_EFFECT then has_indeseff=true end
+					if te:GetCode()==EFFECT_INDESTRUCTABLE_BATTLE then has_indesbat=true end
+					if te:GetCode()==EFFECT_CANNOT_BE_EFFECT_TARGET then has_nottg=true end
+					if te:GetCode()==EFFECT_PIERCE then has_pierce=true end
+				end
+			end
 			for i=1,effno do
 				if hascodetable then
 					strong_eff_att[i],strong_eff_immu1[i],strong_eff_immu2[i],strong_eff_weaken[i],efftype[i],effcode[i],effcond[i],effop[i],effcount,effcounttype=table.unpack(s.efflist[acode][i])
@@ -325,8 +332,8 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 					effop[i]=Duel.GetRandomNumber(0,5)
                     if effop[i]==5 and Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)<3 then effop[i]=4 end
 					if strong_eff_immu1[i] then
-						if effop[i]<4 and gc:IsHasEffect(EFFECT_INDESTRUCTABLE_EFFECT) then
-							if not gc:IsHasEffect(EFFECT_CANNOT_BE_EFFECT_TARGET) then
+						if effop[i]<4 and has_indeseff then
+							if not has_nottg then
 								strong_eff_immu2[i]=true
 								effop[i]=0
                             else
@@ -334,7 +341,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
                             end
 						end
 					end
-					if strong_eff_immu2[i] and effop[i]==0 and gc:IsHasEffect(EFFECT_CANNOT_BE_EFFECT_TARGET) then
+					if strong_eff_immu2[i] and effop[i]==0 and has_nottg then
 						efftype[i]=0
                         local eventno=Duel.GetRandomNumber(1,#effevent)
 						effcode[i]=effevent[eventno]
@@ -418,59 +425,29 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 					prop=prop|EFFECT_FLAG_SINGLE_RANGE
 					if strong_eff_immu1[i] then
 						if effop[i]>0 then
-							if gc:IsHasEffect(EFFECT_INDESTRUCTABLE_EFFECT) then
-								local ae={gc:IsHasEffect(EFFECT_INDESTRUCTABLE_EFFECT)}
-								for _, te in ipairs(ae) do
-									if te:GetOwner()~=tc then 
-										noeffect=true
-										break 
-									end
-								end
+							if has_indeseff then
+								noeffect=true
 							end
 							e1:SetDescription(aux.Stringid(42,4),true)
 							e1:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
 							e1:SetValue(1)
 						elseif effop[i]==0 then
-							if gc:IsHasEffect(EFFECT_PIERCE) then
-								local ae={gc:IsHasEffect(EFFECT_PIERCE)}
-								for _, te in ipairs(ae) do
-									if te:GetOwner()~=tc then 
-										noeffect=true
-										break 
-									end
-								end
+							if has_pierce then
+								noeffect=true
 							end
 							e1:SetDescription(aux.Stringid(42,1),true)
 							e1:SetCode(EFFECT_PIERCE)
 						end
 					elseif strong_eff_immu2[i] then
-						if effop[i]>1 then
-							e1:SetDescription(aux.Stringid(42,3),true)
-							e1:SetCode(EFFECT_IMMUNE_EFFECT)
-							e1:SetValue(s.immval)
-						else
-							if gc:IsHasEffect(EFFECT_CANNOT_BE_EFFECT_TARGET) then
-								local ae={gc:IsHasEffect(EFFECT_CANNOT_BE_EFFECT_TARGET)}
-								for _, te in ipairs(ae) do
-									if te:GetOwner()~=tc then 
-										noeffect=true
-										break 
-									end
-								end
-							end
-							e1:SetDescription(aux.Stringid(42,0),true)
-							e1:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
-							e1:SetValue(1)
-					    end
+						if has_nottg then
+							noeffect=true
+						end
+						e1:SetDescription(aux.Stringid(42,0),true)
+						e1:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
+						e1:SetValue(1)
 					else
-						if gc:IsHasEffect(EFFECT_INDESTRUCTABLE_BATTLE) then
-							local ae={gc:IsHasEffect(EFFECT_INDESTRUCTABLE_BATTLE)}
-							for _, te in ipairs(ae) do
-								if te:GetOwner()~=tc then 
-									noeffect=true
-									break 
-								end
-							end
+						if has_indesbat then
+							noeffect=true
 						end
 						e1:SetDescription(aux.Stringid(42,2),true)
 						e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
@@ -516,7 +493,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
             if #ss>3 then
                 addset=true
             else
-                table.insert(ss,0x905)
+                table.insert(ss,0x10a1)
             end
 			tc:SetEntityCode(ttcode,nil,ss,tc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION,nil,nil,nil,nil,nil,nil,nil,nil,false,ttcode,ttcode,841,false,true)
             if addset then
@@ -524,7 +501,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
                 e1:SetType(EFFECT_TYPE_SINGLE)
                 e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
                 e1:SetCode(EFFECT_ADD_SETCODE)
-                e1:SetValue(0x905)
+                e1:SetValue(0x10a1)
                 tc:RegisterEffect(e1)
             end
 		end

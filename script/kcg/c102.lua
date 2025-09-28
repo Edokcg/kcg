@@ -90,7 +90,6 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
                         te2:SetProperty(prop&~EFFECT_FLAG_CLIENT_HINT)
                     end
                     c:RegisterEffect(te2,true)
-                    te:Reset()
                 end
             end
             for _,te in ipairs(te2) do
@@ -102,7 +101,6 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
                         te2:SetProperty(prop&~EFFECT_FLAG_CLIENT_HINT)
                     end
                     c:RegisterEffect(te2,true)
-                    te:Reset()
                 end
             end
         elseif not aux.sinlist[acode] then
@@ -242,7 +240,6 @@ function s.thop2(e,tp,eg,ep,ev,re,r,rp)
                     te2:SetProperty(prop&~EFFECT_FLAG_CLIENT_HINT)
                 end
                 c:RegisterEffect(te2,true)
-                te:Reset()
             end
         end
         for _,te in ipairs(te2) do
@@ -254,7 +251,6 @@ function s.thop2(e,tp,eg,ep,ev,re,r,rp)
                     te2:SetProperty(prop&~EFFECT_FLAG_CLIENT_HINT)
                 end
                 c:RegisterEffect(te2,true)
-                te:Reset()
             end
         end
     elseif not aux.sinlist[acode] then

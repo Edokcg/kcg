@@ -33,6 +33,18 @@ function s.initial_effect(c)
 	e2:SetOperation(s.damop)
 	c:RegisterEffect(e2)
 	
+	--Protect other Monsters
+	local e3=Effect.CreateEffect(c)
+	e3:SetType(EFFECT_TYPE_FIELD)
+	e3:SetRange(LOCATION_MZONE)
+	e3:SetTargetRange(LOCATION_MZONE,0)
+	e3:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
+	e3:SetCode(EFFECT_CANNOT_BE_BATTLE_TARGET)
+	e3:SetCondition(s.protectcon)
+	e3:SetTarget(s.protecttg)
+	e3:SetValue(1)
+	c:RegisterEffect(e3)
+
 	--表侧守备状态被破坏回合自己伤害为0
 	local e4=Effect.CreateEffect(c)
 	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
@@ -108,6 +120,13 @@ function s.damop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Damage(p,d,REASON_EFFECT)
 end
 -----------------------------------------------------------------------------------------------------------
+function s.protectcon(e)
+	return e:GetHandler():IsDefensePos()
+end
+function s.protecttg(e,c)
+	return c~=e:GetHandler()
+end
+
 function s.nocon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	return c:IsPreviousLocation(LOCATION_ONFIELD) and c:IsPreviousPosition(POS_FACEUP_DEFENSE) and c:IsReason(REASON_DESTROY)

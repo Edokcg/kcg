@@ -79,7 +79,6 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
                             te2:SetProperty(prop&~EFFECT_FLAG_CLIENT_HINT)
                         end
                         c:RegisterEffect(te2,true)
-                        te:Reset()
                     end
                 end
                 for _,te in ipairs(te2) do
@@ -91,7 +90,6 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
                             te2:SetProperty(prop&~EFFECT_FLAG_CLIENT_HINT)
                         end
                         c:RegisterEffect(te2,true)
-                        te:Reset()
                     end
                 end
             else

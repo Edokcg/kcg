@@ -30,6 +30,7 @@ function s.initial_effect(c)
 	e4:SetTargetRange(LOCATION_ONFIELD,LOCATION_ONFIELD)
 	e4:SetCondition(s.incon)
 	e4:SetTarget(s.infilter)
+	e4:SetValue(1)
 	c:RegisterEffect(e4)
 end
 function s.cfilter(c,code)
@@ -38,11 +39,13 @@ end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_SZONE,0,1,nil,id+1)
 		and Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_SZONE,0,1,nil,29762407)
+		and Duel.GetFlagEffect(tp,104)==0
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 
 		and Duel.IsPlayerCanSpecialSummonMonster(tp,104,0,0x21,2500,2000,6,RACE_FAIRY,ATTRIBUTE_EARTH) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,0,0)
+	Duel.RegisterFlagEffect(tp,104,0,0,1)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	if not e:GetHandler():IsRelateToEffect(e) then return end
@@ -55,5 +58,5 @@ function s.incon(e)
 	return Duel.IsExistingMatchingCard(s.cfilter,e:GetHandlerPlayer(),LOCATION_ONFIELD,0,1,nil,id+1)
 end
 function s.infilter(e,c)
-	return c:GetCode()==89194033
+	return c:IsCode(89194033)
 end

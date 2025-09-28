@@ -150,7 +150,6 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
                             te2:SetProperty(prop&~EFFECT_FLAG_CLIENT_HINT)
                         end
                         tc:RegisterEffect(te2,true)
-						te:Reset()
                     end
                 end
                 for _,te in ipairs(te2) do
@@ -162,7 +161,6 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
                             te2:SetProperty(prop&~EFFECT_FLAG_CLIENT_HINT)
                         end
                         tc:RegisterEffect(te2,true)
-						te:Reset()
                     end
                 end
             else
@@ -388,26 +386,14 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 					if strong_eff_immu1[i] then
 						if effop[i]>0 then
 							if gc:IsHasEffect(EFFECT_INDESTRUCTABLE_EFFECT) then
-								local ae={gc:IsHasEffect(EFFECT_INDESTRUCTABLE_EFFECT)}
-								for _, te in ipairs(ae) do
-									if te:GetOwner()~=tc then 
-										noeffect=true
-										break 
-									end
-								end
+								noeffect=true
 							end
 							e1:SetDescription(aux.Stringid(42,4),true)
 							e1:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
 							e1:SetValue(1)
 						elseif effop[i]==0 then
 							if gc:IsHasEffect(EFFECT_PIERCE) then
-								local ae={gc:IsHasEffect(EFFECT_PIERCE)}
-								for _, te in ipairs(ae) do
-									if te:GetOwner()~=tc then 
-										noeffect=true
-										break 
-									end
-								end
+								noeffect=true
 							end
 							e1:SetDescription(aux.Stringid(42,1),true)
 							e1:SetCode(EFFECT_PIERCE)
@@ -419,13 +405,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 							e1:SetValue(s.immval)
 						else
 							if gc:IsHasEffect(EFFECT_CANNOT_BE_EFFECT_TARGET) then
-								local ae={gc:IsHasEffect(EFFECT_CANNOT_BE_EFFECT_TARGET)}
-								for _, te in ipairs(ae) do
-									if te:GetOwner()~=tc then 
-										noeffect=true
-										break 
-									end
-								end
+								noeffect=true
 							end
 							e1:SetDescription(aux.Stringid(42,0),true)
 							e1:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
@@ -433,13 +413,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 					    end
 					else
 						if gc:IsHasEffect(EFFECT_INDESTRUCTABLE_BATTLE) then
-							local ae={gc:IsHasEffect(EFFECT_INDESTRUCTABLE_BATTLE)}
-							for _, te in ipairs(ae) do
-								if te:GetOwner()~=tc then 
-									noeffect=true
-									break 
-								end
-							end
+							noeffect=true
 						end
 						e1:SetDescription(aux.Stringid(42,2),true)
 						e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)

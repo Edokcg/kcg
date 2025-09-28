@@ -92,17 +92,14 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
                         te2:SetProperty(prop&~EFFECT_FLAG_CLIENT_HINT)
                     end
                     tc:RegisterEffect(te2,true)
-                    te:Reset()
-                end
-                if (te:GetRange()&LOCATION_PZONE)~=0 then
-                    te:Reset()
                 end
             end
             local te2count=0
             for _,te in ipairs(te2) do
                 if te:GetOwner()==rg then
                     local te2=te:Clone()
-                    if (bit.band(te:GetType(),EFFECT_TYPE_QUICK_O)~=0 or bit.band(te:GetType(),EFFECT_TYPE_TRIGGER_O)~=0 or bit.band(te:GetType(),EFFECT_TYPE_IGNITION)~=0) and te:GetCondition() and te:GetOperation() then
+                    if (bit.band(te:GetType(),EFFECT_TYPE_QUICK_O)~=0 or bit.band(te:GetType(),EFFECT_TYPE_TRIGGER_O)~=0 or bit.band(te:GetType(),EFFECT_TYPE_IGNITION)~=0) and te:GetCondition() and te:GetOperation()
+                    and ((te:GetRange()&LOCATION_PZONE)==0 and not te:IsHasType(EFFECT_TYPE_ACTIVATE)) then
                         te2:SetCondition(function(...) return true end)
                     end
                     te2:SetOwner(tc)
@@ -111,7 +108,6 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
                         te2:SetProperty(prop&~EFFECT_FLAG_CLIENT_HINT)
                     end
                     tc:RegisterEffect(te2,true)
-                    te:Reset()
                     te2count=1
                 end
             end
@@ -123,18 +119,15 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
                 e1:SetCode(213)
                 tc:RegisterEffect(e1)
             end
-            if (te:GetRange()&LOCATION_PZONE)~=0 or te:IsHasType(EFFECT_TYPE_ACTIVATE) then
-                te:Reset()
-            end
         else
             tc:SetEntityCode(ocode,nil,ss,TYPE_MONSTER+TYPE_EFFECT+TYPE_SPSUMMON,level,nil,nil,rg:GetTextAttack()+500,rg:GetTextDefense()+500,nil,nil,nil,true,213,effcode,213)
             local tec2 = {tc:GetTriggerEffect()}
             local te2count=0
             for _, te in ipairs(tec2) do
                 if te:GetOwner()==tc then
-                    if (bit.band(te:GetType(),EFFECT_TYPE_QUICK_O)~=0 or bit.band(te:GetType(),EFFECT_TYPE_TRIGGER_O)~=0 or bit.band(te:GetType(),EFFECT_TYPE_IGNITION)~=0) and te:GetCondition() and te:GetOperation() then
+                    if (bit.band(te:GetType(),EFFECT_TYPE_QUICK_O)~=0 or bit.band(te:GetType(),EFFECT_TYPE_TRIGGER_O)~=0 or bit.band(te:GetType(),EFFECT_TYPE_IGNITION)~=0) and te:GetCondition() and te:GetOperation()
+                    and ((te:GetRange()&LOCATION_PZONE)==0 and not te:IsHasType(EFFECT_TYPE_ACTIVATE)) then
                         local te2=te:Clone()
-                        te:Reset()
                         te2:SetCondition(function(...) return true end)
                         tc:RegisterEffect(te2,true)
                         te2count=1

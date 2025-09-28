@@ -62,10 +62,6 @@ function s.thop2(e,tp,eg,ep,ev,re,r,rp)
                     te2:SetProperty(prop&~EFFECT_FLAG_CLIENT_HINT)
                 end
                 c:RegisterEffect(te2,true)
-                te:Reset()
-            end
-            if (te:GetRange()&LOCATION_PZONE)~=0 then
-                te:Reset()
             end
         end
         local te2count=0
@@ -81,11 +77,7 @@ function s.thop2(e,tp,eg,ep,ev,re,r,rp)
                     te2:SetProperty(prop&~EFFECT_FLAG_CLIENT_HINT)
                 end
                 c:RegisterEffect(te2,true)
-                te:Reset()
                 te2count=1
-            end
-            if (te:GetRange()&LOCATION_PZONE)~=0 or te:IsHasType(EFFECT_TYPE_ACTIVATE) then
-                te:Reset()
             end
         end
         if te2count>0 then
@@ -137,7 +129,8 @@ function s.thop2(e,tp,eg,ep,ev,re,r,rp)
 	local tec2 = {c:GetTriggerEffect()}
 	if tec2 then
 		for _, temp in ipairs(tec2) do
-			if (bit.band(temp:GetType(),EFFECT_TYPE_QUICK_O)~=0 or bit.band(temp:GetType(),EFFECT_TYPE_TRIGGER_O)~=0 or bit.band(temp:GetType(),EFFECT_TYPE_IGNITION)~=0) and temp:GetCondition() and temp:GetOperation() then
+			if (bit.band(temp:GetType(),EFFECT_TYPE_QUICK_O)~=0 or bit.band(temp:GetType(),EFFECT_TYPE_TRIGGER_O)~=0 or bit.band(temp:GetType(),EFFECT_TYPE_IGNITION)~=0) and temp:GetCondition() and temp:GetOperation()
+            and ((temp:GetRange()&LOCATION_PZONE)==0 and not temp:IsHasType(EFFECT_TYPE_ACTIVATE)) then
 				local te2=temp:Clone()
 				temp:Reset()
 				te2:SetCondition(function(...) return true end)

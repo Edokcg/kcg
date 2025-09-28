@@ -184,15 +184,19 @@ function s.cartoonize(e,tp,g)
             local ttcode=0
             local piccode=0
 			local tcode=tc:GetCode()
+            local effcode=code
             local rrealcode,orcode,rrealalias=tc:GetRealCode()
 			if rrealcode>0 then 
 				code=orcode
 				acode=orcode
 				tcode=rrealalias
-			end
+                effcode=0
+			elseif tc:IsOriginalType(TYPE_NORMAL) then
+                effcode=0
+            end
 			if s.list[tcode] then piccode=s.list[tcode] end
 			if rrealcode>0 then
-				tc:SetEntityCode(code,nil,piccode,ss,TYPE_MONSTER|TYPE_EFFECT|TYPE_TOON,nil,nil,nil,nil,nil,nil,nil,nil,EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_OWNER_RELATE,RESET_EVENT+RESETS_STANDARD,c,false,838,0,838,tc)
+				tc:SetEntityCode(code,nil,piccode,ss,TYPE_MONSTER|TYPE_EFFECT|TYPE_TOON,nil,nil,nil,nil,nil,nil,nil,nil,EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_OWNER_RELATE,RESET_EVENT+RESETS_STANDARD,c,false,838,effcode,838,tc)
 				local te1={tc:GetFieldEffect()}
 				local te2={tc:GetTriggerEffect()}
 				for _,te in ipairs(te1) do
@@ -218,7 +222,7 @@ function s.cartoonize(e,tp,g)
 					end
 				end
 			else
-				tc:SetEntityCode(code,nil,piccode,ss,TYPE_MONSTER|TYPE_EFFECT|TYPE_TOON,nil,nil,nil,nil,nil,nil,nil,nil,EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_OWNER_RELATE,RESET_EVENT+RESETS_STANDARD,c,true,838,0,838)
+				tc:SetEntityCode(code,nil,piccode,ss,TYPE_MONSTER|TYPE_EFFECT|TYPE_TOON,nil,nil,nil,nil,nil,nil,nil,nil,EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_OWNER_RELATE,RESET_EVENT+RESETS_STANDARD,c,true,838,effcode,838)
 			end
 			c:SetCardTarget(tc)
 			if addset then
