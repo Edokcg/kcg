@@ -25,6 +25,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 s.listed_names={29762407}
+
 function s.desfilter(c)
 	return c:IsFaceup() and c:IsCode(29762407)
 end
@@ -39,10 +40,41 @@ function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	if c:IsFacedown() or not c:IsRelateToEffect(e) then return end
 	local bc=c:GetBattleTarget()
     if not bc then return end
+	local te2={c:IsHasEffect(EFFECT_DOUBLE_TRIBUTE)}
+	local double=false
+	for _,ae in ipairs(te2) do
+		if ae:GetOwner()==c then 
+			double=true
+			break 
+		end
+	end
+	local te3={c:IsHasEffect(EFFECT_TRIPLE_TRIBUTE)}
+	local triple=false
+	for _,ae in ipairs(te3) do
+		if ae:GetOwner()==c then 
+			triple=true
+			break 
+		end
+	end
+	local tricount=2
+	if double then tricount=3 end
+	if triple then tricount=4 end
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetCode(EFFECT_UPDATE_ATTACK)
 	e1:SetReset(RESET_EVENT+0x1fe0000)
 	e1:SetValue(bc:GetAttack()/2)
 	c:RegisterEffect(e1)
+	if tricount>1 then
+		local e2=Effect.CreateEffect(c)
+		e2:SetType(EFFECT_TYPE_SINGLE)
+		if tricount==2 then
+			e2:SetCode(EFFECT_DOUBLE_TRIBUTE)
+		elseif tricount==3 then
+			e2:SetCode(EFFECT_TRIPLE_TRIBUTE)
+		end
+		e2:SetValue(1)
+		e2:SetReset(RESET_EVENT+0x1fe0000)
+		c:RegisterEffect(e2)
+	end
 end
