@@ -39,7 +39,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e9) 
 	local e10=e4:Clone()
 	e10:SetCode(EVENT_SPSUMMON_SUCCESS)
-	c:RegisterEffect(e10) 
+	c:RegisterEffect(e10)
 	local e6=e4:Clone()
 	e6:SetCondition(s.sdcon2)
 	e6:SetOperation(s.sdop2)
@@ -81,9 +81,17 @@ s.listed_series = {0x48}
 s.listed_names={CARD_UNKNOWN}
 
 function s.indes(e,c)
-	if e:GetHandler():IsOriginalCode(407) then return true
-	else return not e:GetHandler():GetBattleTarget():IsSetCard(0x48) 
-	  and not e:GetHandler():GetBattleTarget():IsSetCard(0x1048) and not e:GetHandler():GetBattleTarget():IsSetCard(0x2048) end
+	local ae={c:IsHasEffect(237)}
+	local form=0
+	if ae then
+        for _, te in ipairs(ae) do
+            if te:GetValue() and te:GetValue()>form then
+                form=te:GetValue()
+            end
+        end
+	end
+	if form==2 then return true
+	else return not e:GetHandler():GetBattleTarget():IsSetCard(0x48) end
 end
 
 function s.distarget(e,c)
@@ -91,60 +99,64 @@ function s.distarget(e,c)
 end
 
 function s.sdfilter(c,e,tc)
-	return c:IsFaceup() and (c:GetFlagEffect(237)==0 or (c:GetFlagEffect(237)~=0 and c:GetFlagEffectLabel(237)~=tc:GetFieldID()))
-			and not c:IsImmuneToEffect(e) and not c:IsDisabled()
+	return c:IsFaceup()
+		and not c:IsImmuneToEffect(e) and not c:IsDisabled()
 end
 function s.sdcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local g=Duel.GetMatchingGroup(s.sdfilter,tp,LOCATION_MZONE,LOCATION_MZONE,c,e,c)
 	return g:GetCount()>0
 end
-function s.sdop(e,tp,eg,ep,ev,re,r,rp)   
+function s.sdop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	c:RegisterFlagEffect(462,RESET_EVENT+0x1fe0000,0,1)
 	local g=Duel.GetMatchingGroup(s.sdfilter,tp,LOCATION_MZONE,LOCATION_MZONE,c,e,c)
 	if g:GetCount()>0 then 
 		local tc=g:GetFirst()
 		while tc do
 			local e1=Effect.CreateEffect(c)
+			e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_OWNER_RELATE)
 			e1:SetType(EFFECT_TYPE_SINGLE)
 			e1:SetCode(EFFECT_DISABLE)
 			e1:SetCondition(s.dcon)
 			e1:SetReset(RESET_EVENT+0x1fe0000)
 			tc:RegisterEffect(e1)
-			local e2=e1:Clone()
-			e2:SetCode(EFFECT_DISABLE_EFFECT)
-			tc:RegisterEffect(e2)
-			tc:RegisterFlagEffect(237,RESET_EVENT+0x1fe0000,0,1)
-			tc:SetFlagEffectLabel(237, c:GetFieldID())
-			tc=g:GetNext()
-		end
-	end
-end
-function s.sdcon2(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()  
-	local g=Duel.GetMatchingGroup(s.sdfilter2,tp,LOCATION_MZONE,LOCATION_MZONE,c,c)
-	return g:GetCount()>0
-end
-function s.sdfilter2(c,tc)
-	return c:IsFaceup() and c:GetFlagEffect(237)==1 and c:GetFlagEffectLabel(237)==tc:GetFieldID() and c:IsDisabled()
-end
-function s.sdop2(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	local g=Duel.GetMatchingGroup(s.sdfilter2,tp,LOCATION_MZONE,LOCATION_MZONE,c,c)
-	if g:GetCount()>0 then 
-		local tc=g:GetFirst()
-		while tc do
-			c:CopyEffect(tc:GetOriginalCode(),RESET_EVENT+0x1fe0000,1)
-			tc:RegisterFlagEffect(237,RESET_EVENT+0x1fe0000,0,1) 
-			tc:SetFlagEffectLabel(237, c:GetFieldID())
+			if tc:IsStatus(STATUS_DISABLED) then 
+				local e2=e1:Clone()
+				e2:SetCode(EFFECT_DISABLE_EFFECT)
+				tc:RegisterEffect(e2)
+				c:SetCardTarget(tc)
+				c:CopyEffect(tc:GetOriginalCode(),RESET_EVENT+RESETS_STANDARD,1)
+			end
 			tc=g:GetNext()
 		end
 	end
 end
 function s.dcon(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetOwner()  
-	return c:IsLocation(LOCATION_MZONE) and c:IsFaceup() and not c:IsStatus(STATUS_DISABLED) and c:GetFlagEffect(462)~=0
+	local c=e:GetOwner()
+	return not c:IsStatus(STATUS_DISABLED)
+end
+function s.sdfilter2(c)
+	return c:IsFaceup() and not c:IsDisabled() and c:IsLocation(LOCATION_MZONE)
+end
+function s.sdcon2(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local g=c:GetCardTarget()
+	if g:GetCount()<1 then return false end
+	local g2=g:Filter(s.sdfilter2,c)
+	return g2:GetCount()>0
+end
+function s.sdop2(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local g=c:GetCardTarget()
+	if g:GetCount()<1 then return end
+	local g2=g:Filter(s.sdfilter2,c)
+	if g2:GetCount()>0 then 
+		local tc=g2:GetFirst()
+		while tc do
+			c:CancelCardTarget(tc)
+			tc=g2:GetNext()
+		end
+	end
 end
 
 function s.ocost(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -160,8 +172,26 @@ end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if not (c:IsFaceup() and c:IsRelateToEffect(e) and c:IsControler(tp) and not c:IsImmuneToEffect(e)) then return end
-	if c:IsOriginalCode(406) then c:SetCardData(CARDDATA_PICCODE,407,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD_DISABLE,c)
-	else c:SetCardData(CARDDATA_PICCODE,406,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD_DISABLE,c) end
+	local ae={c:IsHasEffect(237)}
+	local form=0
+	if ae then
+        for _, te in ipairs(ae) do
+            if te:GetValue() and te:GetValue()>form then
+                form=te:GetValue()
+            end
+        end
+	end
+	if form<2 then 
+		c:SetCardData(CARDDATA_PICCODE,406+form,0,RESET_EVENT+RESETS_STANDARD_DISABLE,c)
+		local e1=Effect.CreateEffect(c)
+		e1:SetDescription(aux.Stringid(237,form+2))
+		e1:SetProperty(EFFECT_FLAG_CLIENT_HINT)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(237)
+		e1:SetValue(form+1)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
+		c:RegisterEffect(e1, true)
+	end
 	-- local e8 = Effect.CreateEffect(c)
 	-- e8:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE + EFFECT_FLAG_DAMAGE_STEP + EFFECT_FLAG_DAMAGE_CAL)
 	-- e8:SetType(EFFECT_TYPE_SINGLE + EFFECT_TYPE_CONTINUOUS)
@@ -180,14 +210,33 @@ end
 -- 		c:SetEntityCode(id,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
 -- 	end
 -- end
+
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+	local ae={e:GetHandler():IsHasEffect(237)}
+	local form=0
+	if ae then
+        for _, te in ipairs(ae) do
+            if te:GetValue() and te:GetValue()>form then
+                form=te:GetValue()
+            end
+        end
+	end
 	local ttype,tloc,tplayer=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_TYPE,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_CONTROLER)
 	return ttype&TYPE_MONSTER>0 and tloc&LOCATION_ONFIELD>0 and tplayer==1-tp
-	and e:GetHandler():IsOriginalCode(406)
+	and form==1
 end
 
 function s.spcon3(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsOriginalCode(407)
+	local ae={e:GetHandler():IsHasEffect(237)}
+	local form=0
+	if ae then
+        for _, te in ipairs(ae) do
+            if te:GetValue() and te:GetValue()>form then
+                form=te:GetValue()
+            end
+        end
+	end
+	return form==2
 end
 function s.namechangefilter(c)
 	return c:IsFaceup() and not c:IsCode(CARD_UNKNOWN)

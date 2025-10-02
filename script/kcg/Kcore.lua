@@ -1405,7 +1405,7 @@ function aux.natcon(e)
 end
 
 function aux.oatcon(e)
-	return aux.isotk(e:GetHandler()) and not aux.isegg(e:GetHandler())
+	return aux.isphoenix(e:GetHandler()) and not aux.isegg(e:GetHandler())
 end
 
 function aux.atcon(e)
@@ -1527,7 +1527,8 @@ end
 
 function aux.toegg(c)
 	local e1 = Effect.CreateEffect(c)
-	e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE + EFFECT_FLAG_CANNOT_DISABLE)
+    e1:SetDescription(aux.Stringid(708,8))
+	e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_CANNOT_DISABLE)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetCode(708)
 	e1:SetValue(1)
@@ -1563,15 +1564,16 @@ function aux.isotk(c)
 end
 function aux.tootk(c)
 	local code=c:GetOriginalCode()
-	local cid=3
-	if code==708 then cid=0 end
-	if code==824 then cid=1 end
-	if code==83 then cid=2 end
-	c:SetCardData(CARDDATA_PICCODE,10000047,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD_DISABLE,c)
-	c:SetCardData(CARDDATA_TYPE,TYPE_MONSTER|TYPE_EFFECT|TYPE_FUSION,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD_DISABLE,c)
+	-- local cid=3
+	-- if code==708 then cid=0 end
+	-- if code==824 then cid=1 end
+	-- if code==83 then cid=2 end
+	local te1=c:SetCardData(CARDDATA_PICCODE,10000047,0,RESET_EVENT+RESETS_STANDARD_DISABLE,c)
+	local te2=c:SetCardData(CARDDATA_TYPE,TYPE_MONSTER|TYPE_EFFECT|TYPE_FUSION,0,RESET_EVENT+RESETS_STANDARD_DISABLE,c)
 	--c:RegisterFlagEffect(708,RESET_EVENT+RESETS_STANDARD_DISABLE,EFFECT_FLAG_CLIENT_HINT,1,code,aux.Stringid(825,cid))
-	local e1 = Effect.CreateEffect(c)
-	e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE + EFFECT_FLAG_CANNOT_DISABLE)
+	local e1=Effect.CreateEffect(c)
+    e1:SetDescription(aux.Stringid(708,10))
+	e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_IGNORE_IMMUNE)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetCode(708)
 	e1:SetValue(3)
@@ -1585,8 +1587,8 @@ function aux.tootk(c)
 	-- e8:SetReset(RESET_EVENT + 0x1fe0000)
 	-- c:RegisterEffect(e8, true)
 	local e4 = Effect.CreateEffect(c)
-	e4:SetProperty(EFFECT_FLAG_DAMAGE_STEP + EFFECT_FLAG_DAMAGE_CAL)
-	e4:SetType(EFFECT_TYPE_FIELD + EFFECT_TYPE_CONTINUOUS)
+	e4:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
+	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e4:SetCode(EVENT_ADJUST)
 	e4:SetRange(LOCATION_MZONE)
 	e4:SetCondition(aux.lpcon)
@@ -1594,11 +1596,11 @@ function aux.tootk(c)
 	e4:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
 	c:RegisterEffect(e4)
 	local e5 = Effect.CreateEffect(c)
-	e5:SetProperty(EFFECT_FLAG_DAMAGE_STEP + EFFECT_FLAG_DAMAGE_CAL)
-	e5:SetType(EFFECT_TYPE_FIELD + EFFECT_TYPE_CONTINUOUS)
+	e5:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
+	e5:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e5:SetRange(LOCATION_MZONE)
 	e5:SetCode(EVENT_CHAINING)
-	e5:SetLabelObject(e4)
+	e5:SetLabelObject({e4,te2,te1})
 	e5:SetCondition(aux.lpcon2)
 	e5:SetOperation(aux.lpop2)
 	e5:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
@@ -1639,9 +1641,7 @@ function aux.lpop2(e, tp, eg, ep, ev, re, r, rp)
 	local ttp = c:GetControler()
 	local atk = c:GetAttack()
 	if aux.isotk(c) and re:GetHandler():IsCode(95286165) then
-		if e:GetLabelObject() then
-			e:GetLabelObject():Reset()
-		end
+        aux.recover(c,e:GetLabelObject())
 		Duel.ChangeChainOperation(0,function(e, tp, eg, ep, ev, re, r, rp)
             local e1 = Effect.CreateEffect(c)
             e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
@@ -1655,21 +1655,21 @@ function aux.lpop2(e, tp, eg, ep, ev, re, r, rp)
             c:RegisterEffect(e2, true)
             Duel.Recover(ttp, atk, REASON_EFFECT)
 		end)
-        aux.recover(c)
 		e:Reset()
 	end
 end
 
 function aux.tophoenix(c)
 	local code=c:GetOriginalCode()
-	local cid=3
-	if code==708 then cid=0 end
-	if code==824 then cid=1 end
-	if code==83 then cid=2 end
-	c:SetCardData(CARDDATA_PICCODE,10000049,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD_DISABLE,c)
+	-- local cid=3
+	-- if code==708 then cid=0 end
+	-- if code==824 then cid=1 end
+	-- if code==83 then cid=2 end
+	c:SetCardData(CARDDATA_PICCODE,10000049,0,RESET_EVENT+RESETS_STANDARD_DISABLE,c)
 	--c:RegisterFlagEffect(708,RESET_EVENT+RESETS_STANDARD_DISABLE,EFFECT_FLAG_CLIENT_HINT,1,code,aux.Stringid(825,cid))
 	local e1 = Effect.CreateEffect(c)
-	e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE + EFFECT_FLAG_CANNOT_DISABLE)
+    e1:SetDescription(aux.Stringid(708,9))
+	e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_IGNORE_IMMUNE)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetCode(708)
 	e1:SetValue(2)
@@ -1696,7 +1696,7 @@ function aux.isphoenix(c)
 	end
 	return chk
 end
-function aux.recover(c)
+function aux.recover(c,se)
 	if aux.isegg(c) then
         local ae={c:IsHasEffect(708)}
         if ae then
@@ -1705,8 +1705,8 @@ function aux.recover(c)
             end
         end
 	end
-	local ocode=c:GetFlagEffectLabel(708)
-	if (aux.isphoenix(c) or aux.isotk(c)) and ocode and (ocode == 708 or ocode == 824 or ocode == 83) then
+	if (aux.isphoenix(c) or aux.isotk(c)) and se then
+    --and ocode and (ocode == 708 or ocode == 824 or ocode == 83) then
 		--c:SetEntityCode(ocode,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
 		--c:ResetFlagEffect(708)
         local ae={c:IsHasEffect(708)}
@@ -1715,15 +1715,10 @@ function aux.recover(c)
                 te:Reset()
             end
         end
-	end
-    local ae={c:IsHasEffect(EFFECT_SET_ENTITY)}
-    if ae then
-        for _, te in ipairs(ae) do
-            if te:GetOwner()==c then
-                te:Reset()
-            end
+        for _, te in ipairs(se) do
+            te:Reset()
         end
-    end
+	end
 end
 
 ---------------------------------------------------------------------------------------------------------------
