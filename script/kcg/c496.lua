@@ -18,9 +18,9 @@ function s.initial_effect(c)
 	e2:SetTarget(s.target)
 	e2:SetValue(1)
 	c:RegisterEffect(e2)
-	local e3=e2:Clone()
-	e3:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
-	c:RegisterEffect(e3)
+	-- local e3=e2:Clone()
+	-- e3:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
+	-- c:RegisterEffect(e3)
 
 	--Damage
 	local e4=Effect.CreateEffect(c)

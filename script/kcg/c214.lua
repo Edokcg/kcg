@@ -61,7 +61,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	if not rg then return end
 	local ocode=rg:GetOriginalCode()
 	local acode=rg:GetOriginalAlias()
-	if tc:IsOriginalCode(213) and not aux.burstlist[acode] then
+	if tc:IsOriginalCode(213) and not aux.burstlist[code] then
 		local level=math.min(12,rg:GetOriginalLevel()+2)
 		local ss={rg:GetOriginalSetCard()}
         local addset=false
@@ -170,8 +170,8 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		e4:SetOperation(s.spop2)
 		tc:RegisterEffect(e4)
     elseif tc:IsOriginalCode(213) then
-        tc:SetEntityCode(aux.burstlist[acode],nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
-        aux.CopyCardTable(aux.burstlist[acode],tc)
+        tc:SetEntityCode(aux.burstlist[code],nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
+        aux.CopyCardTable(aux.burstlist[code],tc)
 	end
 	Duel.SpecialSummon(tc,0,tp,tp,true,false,POS_FACEUP)
 	tc:CompleteProcedure()

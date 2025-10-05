@@ -23,6 +23,15 @@ function s.initial_effect(c)
 	e3:SetCondition(s.atkcon)
 	e3:SetOperation(s.atkop)
 	c:RegisterEffect(e3)
+	--Can make a second attack during each Battle Phase, while a Level 10 or higher monster is banished
+	-- local e4=Effect.CreateEffect(c)
+	-- e4:SetDescription(aux.Stringid(id,1))
+	-- e4:SetProperty(EFFECT_FLAG_CLIENT_HINT)
+	-- e4:SetType(EFFECT_TYPE_SINGLE)
+	-- e4:SetCode(EFFECT_EXTRA_ATTACK)
+	-- e4:SetCondition(function(e) return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsLevelAbove,10),0,LOCATION_REMOVED,LOCATION_REMOVED,1,nil) end)
+	-- e4:SetValue(1)
+	-- c:RegisterEffect(e4)
 end
 s.listed_names={29762407}
 

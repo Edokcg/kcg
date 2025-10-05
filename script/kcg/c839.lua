@@ -52,6 +52,7 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,0,LOCATION_DECK)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
 	local rvg=Duel.GetMatchingGroup(s.spfilter,tp,LOCATION_DECK,0,nil,e,tp)
     if not (Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and (rvg:GetClassCount(Card.GetCode)>=3 or rvg:GetClassCount(Card.GetRealCode)>=3) 
     and Duel.IsExistingMatchingCard(s.filter2,tp,LOCATION_DECK,0,1,nil)) then return end

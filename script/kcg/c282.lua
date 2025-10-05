@@ -68,9 +68,10 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
     local gc=rg:GetFirst()
     if gc:IsFacedown() then Duel.ConfirmCards(tp, gc) end
     local ttcode=0
+	local code=gc:GetCode()
     local ocode=gc:GetOriginalCode()
     local acode=gc:GetOriginalAlias()
-    local tcode=s.list[acode]
+    local tcode=s.list[code]
     if tcode then 
 		ttcode=tcode
 	else
@@ -109,13 +110,13 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
                 e1:SetValue(0xa1)
                 tc:RegisterEffect(e1)
             end
-            aux.CopyCardTable(gc,tc,false,"listed_names",id,acode)
+            aux.CopyCardTable(gc,tc,false,"listed_names",id,code)
 			local ran=0
-			if s.efflist[acode]~=nil then
-				ran=s.efflist[acode]
+			if s.efflist[code]~=nil then
+				ran=s.efflist[code]
 			else
 				ran=Duel.GetRandomNumber(0,1)
-				s.efflist={[acode]=ran}
+				s.efflist={[code]=ran}
 			end
             if not gc:IsOriginalType(TYPE_EFFECT) then
                 if ran==1 then
@@ -177,7 +178,7 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
                         end
                         local e1=Effect.CreateEffect(tc)
                         e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
-                        e1:SetDescription(aux.Stringid(id,8),true,0,0,0,0,acode)
+                        e1:SetDescription(aux.Stringid(id,8),true,0,0,0,0,code)
                         e1:SetType(EFFECT_TYPE_SINGLE)
                         e1:SetCode(id)
                         tc:RegisterEffect(e1)

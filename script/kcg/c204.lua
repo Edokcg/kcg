@@ -39,15 +39,16 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
             elseif tc:IsCode(10000010) then
                 code=129
             elseif tc:IsCode(10000020) then
-                code=131                    
+                code=131
             elseif tc:IsCode(57793869) then
-                code=132                    
+                code=132
             elseif tc:IsCode(6007213) then
                 code=133
             end
             c:SetEntityCode(code,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
             aux.CopyCardTable(code,c)
         else
+            local code=tc:GetCode()
             local ocode=tc:GetOriginalCode()
             local acode=tc:GetOriginalAlias()
             local ss={tc:GetOriginalSetCard()}
@@ -103,14 +104,14 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
                 e1:SetValue(0x23)
                 c:RegisterEffect(e1,true)
             end
-            aux.CopyCardTable(tc,c,false,"listed_names",27564031,acode)
+            aux.CopyCardTable(tc,c,false,"listed_names",27564031,code)
             local e1=Effect.CreateEffect(c)
-            e1:SetDescription(aux.Stringid(102,gtype+1),true,0,0,0,0,acode,true)
+            e1:SetDescription(aux.Stringid(102,gtype+1),true,0,0,0,0,code,true)
             e1:SetType(EFFECT_TYPE_FIELD)
             e1:SetCode(EFFECT_SPSUMMON_PROC)
             e1:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT)
             e1:SetRange(LOCATION_HAND)
-            e1:SetLabel(acode)
+            e1:SetLabel(code)
             e1:SetCondition(s.spcon2)
             e1:SetOperation(s.spop2)
             c:RegisterEffect(e1,true)

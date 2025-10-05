@@ -223,7 +223,7 @@ function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	end
 	local ttype,tloc,tplayer=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_TYPE,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_CONTROLER)
 	return ttype&TYPE_MONSTER>0 and tloc&LOCATION_ONFIELD>0 and tplayer==1-tp
-	and form==1
+	and form>=1
 end
 
 function s.spcon3(e,tp,eg,ep,ev,re,r,rp)

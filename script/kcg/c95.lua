@@ -160,39 +160,9 @@ function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.rfilter(tc)
     local c1,c2=tc:GetTributeRequirement()
-    local eff1 = {tc:GetCardEffect(EFFECT_LIMIT_SUMMON_PROC)}
-    local eff12 = {}
-	local eff22 = {}
-    for _, te in ipairs(eff1) do
-        local e1 = te:Clone()
-        table.insert(eff12, e1)
-        local e2 = te:Clone()
-        e2:SetCode(EFFECT_SUMMON_PROC)
-        tc:RegisterEffect(e2)
-        table.insert(eff22, e2)
-        te:Reset()
-    end
-	local e2 = Effect.CreateEffect(tc)
-	e2:SetType(EFFECT_TYPE_SINGLE)
-	e2:SetCode(EFFECT_DECREASE_TRIBUTE)
-	e2:SetValue(c1-1)
-	tc:RegisterEffect(e2, true)
-    table.insert(eff22, e2)
 	if not (tc:IsType(TYPE_MONSTER) and tc:IsSummonable(true, nil)) then
-        for _, te in ipairs(eff22) do
-            te:Reset()
-        end
-        for _, te in ipairs(eff12) do
-            tc:RegisterEffect(te)
-        end
 		return false
 	end
-    for _, te in ipairs(eff22) do
-        te:Reset()
-    end
-    for _, te in ipairs(eff12) do
-        tc:RegisterEffect(te)
-    end
 	return true
 end
 function s.target2(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -204,26 +174,6 @@ function s.operation2(e,tp,eg,ep,ev,re,r,rp)
 	local tc=e:GetLabelObject():GetLabelObject()
     local c1,c2=tc:GetTributeRequirement()
 	if tc and s.rfilter(tc) then
-		local eff1 = {tc:GetCardEffect(EFFECT_LIMIT_SUMMON_PROC)}
-		local eff12 = {}
-        local eff22 = {}
-		for _, te in ipairs(eff1) do
-			local e1 = te:Clone()
-			table.insert(eff12, e1)
-			local e2 = te:Clone()
-			e2:SetDescription(aux.Stringid(id,4))
-            e2:SetCode(EFFECT_SUMMON_PROC)
-			tc:RegisterEffect(e2)
-			table.insert(eff22, e2)
-			te:Reset()
-		end
-		-- local e2 = Effect.CreateEffect(tc)
-		-- e2:SetType(EFFECT_TYPE_SINGLE)
-		-- e2:SetCode(EFFECT_DECREASE_TRIBUTE)
-		-- e2:SetValue(c1-1)
-		-- e2:SetReset(RESET_CHAIN)
-		-- tc:RegisterEffect(e2, true)
-        -- table.insert(eff22, e2)
 		local s2 = tc:IsSummonable(true, nil)
 		if s2 then
 			Duel.Summon(tp, tc, true, nil, 0)
@@ -233,12 +183,6 @@ function s.operation2(e,tp,eg,ep,ev,re,r,rp)
             e1235:SetCode(EVENT_LEAVE_FIELD)
             e1235:SetOperation(s.lose)
             tc:RegisterEffect(e1235)
-		end
-        for _, te in ipairs(eff22) do
-            te:Reset()
-        end
-		for _, te in ipairs(eff12) do
-			tc:RegisterEffect(te)
 		end
 	end
 end

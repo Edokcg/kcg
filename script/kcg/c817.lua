@@ -82,14 +82,13 @@ function s.regop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local pos=c:GetPreviousPosition()
 	if c:IsReason(REASON_BATTLE) then pos=c:GetBattlePosition() end
-	if rp~=tp and c:GetPreviousControler()==tp and c:IsReason(REASON_DESTROY)
-		and c:IsPreviousLocation(LOCATION_ONFIELD) and bit.band(pos,POS_FACEUP)~=0 then
-		c:RegisterFlagEffect(817,RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END,0,1)
+	if c:IsReason(REASON_DESTROY) and c:IsPreviousLocation(LOCATION_ONFIELD) and (pos&POS_FACEUP)>0 then
+		c:RegisterFlagEffect(id,RESETS_STANDARD_PHASE_END,0,1)
 	end
 end
 
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():GetFlagEffect(817)~=0
+	return e:GetHandler():GetFlagEffect(id)~=0
 end
 
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)

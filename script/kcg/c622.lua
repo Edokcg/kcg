@@ -204,8 +204,8 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
                 e1:SetValue(0x10a1)
                 tc:RegisterEffect(e1)
             end
-            aux.CopyCardTable(gc,tc,"listed_names",id,acode)
-            tc.__index.material={acode,id}
+            aux.CopyCardTable(gc,tc,"listed_names",id,code)
+            tc.__index.material={code,id}
 
 			local strong_eff_att={false,false,false}
 			local strong_eff_immu1={false,false,false}
@@ -255,13 +255,13 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 			end
 
 			local hascodetable=false
-			if s.efflist[acode]~=nil then
+			if s.efflist[code]~=nil then
 				hascodetable=true
 			end
 			if not hascodetable then
-				s.efflist[acode]={}
+				s.efflist[code]={}
 				for i=1,effno do
-					s.efflist[acode][i]={}
+					s.efflist[code][i]={}
 				end
 			end
 			local te1={tc:GetFieldEffect()}
@@ -276,7 +276,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 			end
 			for i=1,effno do
 				if hascodetable then
-					strong_eff_att[i],strong_eff_immu1[i],strong_eff_immu2[i],strong_eff_weaken[i],efftype[i],effcode[i],effcond[i],effop[i],effcount,effcounttype=table.unpack(s.efflist[acode][i])
+					strong_eff_att[i],strong_eff_immu1[i],strong_eff_immu2[i],strong_eff_weaken[i],efftype[i],effcode[i],effcond[i],effop[i],effcount,effcounttype=table.unpack(s.efflist[code][i])
 				else
 					local strong_eff=false
 					local eff=lv/(math.max(lv,13))*100*0.4+duel_status*0.4+Duel.GetRandomNumber(0,10)*2
@@ -352,7 +352,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 					lastefftype=efftype[i]
 					effcount=ecount2
 					effcounttype=ecounttype
-					s.efflist[acode][i]={strong_eff_att[i],strong_eff_immu1[i],strong_eff_immu2[i],strong_eff_weaken[i],efftype[i],effcode[i],effcond[i],effop[i],effcount,effcounttype}
+					s.efflist[code][i]={strong_eff_att[i],strong_eff_immu1[i],strong_eff_immu2[i],strong_eff_weaken[i],efftype[i],effcode[i],effcond[i],effop[i],effcount,effcounttype}
 				end
 		    end
 			for i=1,effno do

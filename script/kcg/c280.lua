@@ -61,9 +61,10 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
     if #rg<1 then return end
     if rg:GetFirst():IsFacedown() then Duel.ConfirmCards(tp,rg:GetFirst()) end
     local ttcode=0
+	local code=rg:GetFirst():GetCode()
     local acode=rg:GetFirst():GetOriginalAlias()
     local ocode=rg:GetFirst():GetOriginalCode()
-    local tcode=s.list[acode]
+    local tcode=s.list[code]
     if tcode then
 		ttcode=tcode
 	else
@@ -102,8 +103,8 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
                 e1:SetValue(0xa1)
                 tc:RegisterEffect(e1)
             end
-            aux.CopyCardTable(rg:GetFirst(),tc,false,"listed_names",id,acode)
-            tc.__index.material_trap=acode
+            aux.CopyCardTable(rg:GetFirst(),tc,false,"listed_names",id,code)
+            tc.__index.material_trap=code
             local tequip=false
             local tec = {rg:GetFirst():GetTriggerEffect()}
             if tec then

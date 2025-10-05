@@ -31,7 +31,7 @@ function s.initial_effect(c)
 
 	--disable attack
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(24696097,2))
+	e3:SetDescription(aux.Stringid(id,4))
 	e3:SetProperty(EFFECT_FLAG_DAMAGE_STEP)
 	e3:SetCategory(CATEGORY_REMOVE)
 	e3:SetType(EFFECT_TYPE_QUICK_O)
@@ -94,6 +94,7 @@ function s.dircon2(e)
 end
 
 function s.discon(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetCurrentPhase()==PHASE_END then return false end
 	if e:GetHandler():IsStatus(STATUS_BATTLE_DESTROYED) or not Duel.IsChainNegatable(ev) then return false end
 	if re:IsHasCategory(CATEGORY_NEGATE)
 		and Duel.GetChainInfo(ev-1,CHAININFO_TRIGGERING_EFFECT):IsHasType(EFFECT_TYPE_ACTIVATE) then return false end
@@ -135,7 +136,7 @@ function s.daop2(e,tp,eg,ep,ev,re,r,rp,chk)
 
 	--disable attack
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(84013237,0))
+	e1:SetDescription(aux.Stringid(24696097,2))
 	e1:SetProperty(EFFECT_FLAG_DAMAGE_STEP)
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_QUICK_O)
 	e1:SetRange(LOCATION_REMOVED)
@@ -151,10 +152,10 @@ function s.daop2(e,tp,eg,ep,ev,re,r,rp,chk)
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e2:SetCode(EVENT_PHASE+PHASE_END)
-	e2:SetReset(RESET_PHASE+PHASE_END)
-	e2:SetRange(LOCATION_REMOVED)   
+	e2:SetRange(LOCATION_REMOVED)
 	e2:SetCountLimit(1)
 	e2:SetOperation(s.retop)
+	e2:SetReset(RESET_EVENT+0x1ff0000+RESET_PHASE+PHASE_END)
 	c:RegisterEffect(e2)
 	end
 end
@@ -171,7 +172,7 @@ function s.daop(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.NegateAttack()
 end
 function s.retop(e,tp,eg,ep,ev,re,r,rp,chk)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)>0 then Duel.ReturnToField(e:GetHandler()) end
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)>0 then Duel.SpecialSummon(e:GetHandler(),0,tp,tp,false,false,POS_FACEUP) end
 end
 
 function s.sccon(e,tp,eg,ep,ev,re,r,rp)

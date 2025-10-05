@@ -84,20 +84,20 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 	local code=gc:GetCode()
 	local ocode=gc:GetOriginalCode()
     local acode=gc:GetOriginalAlias()
-	local tcode=s.list[acode]
+	local tcode=s.list[code]
 	if tcode then 
 		if type(tcode)=="table" and #tcode>1 then
 			local opt=0
-			if acode==CARD_DARK_MAGICIAN_GIRL then
+			if code==CARD_DARK_MAGICIAN_GIRL then
 				opt=Duel.SelectOption(tp,aux.Stringid(621,14),aux.Stringid(621,8),aux.Stringid(622,5))
 			end
-			if acode==CARD_DARK_MAGICIAN then
+			if code==CARD_DARK_MAGICIAN then
 				opt=Duel.SelectOption(tp,aux.Stringid(621,5),aux.Stringid(621,6),aux.Stringid(621,7),aux.Stringid(621,8),aux.Stringid(621,9),aux.Stringid(621,10),aux.Stringid(621,11),aux.Stringid(621,12),aux.Stringid(621,13),aux.Stringid(622,5))
 			end
-			if acode==CARD_BUSTER_BLADER then
+			if code==CARD_BUSTER_BLADER then
 				opt=Duel.SelectOption(tp,aux.Stringid(621,15),aux.Stringid(621,13))
 			end
-			if acode==CARD_ALBAZ then
+			if code==CARD_ALBAZ then
 				opt=Duel.SelectOption(tp,aux.Stringid(363,1),aux.Stringid(363,2),aux.Stringid(363,3),aux.Stringid(363,4))
 			end
 			ttcode=tcode[opt+1]
@@ -174,8 +174,8 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
                 e1:SetValue(0xa1)
                 tc:RegisterEffect(e1)
             end
-            aux.CopyCardTable(gc,tc,"listed_names",id,acode)
-            tc.__index.material={acode,id}
+            aux.CopyCardTable(gc,tc,"listed_names",id,code)
+            tc.__index.material={code,id}
 
 			local strong_eff_att={false,false,false}
 			local strong_eff_immu1={false,false,false}
@@ -225,18 +225,18 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 			end
 
 			local hascodetable=false
-			if s.efflist[acode]~=nil then
+			if s.efflist[code]~=nil then
 				hascodetable=true
 			end
 			if not hascodetable then
-				s.efflist[acode]={}
+				s.efflist[code]={}
 				for i=1,effno do
-					s.efflist[acode][i]={}
+					s.efflist[code][i]={}
 				end
 			end
 			for i=1,effno do
 				if hascodetable then
-					strong_eff_att[i],strong_eff_immu1[i],strong_eff_immu2[i],strong_eff_weaken[i],efftype[i],effcode[i],effcond[i],effop[i],effcount,effcounttype=table.unpack(s.efflist[acode][i])
+					strong_eff_att[i],strong_eff_immu1[i],strong_eff_immu2[i],strong_eff_weaken[i],efftype[i],effcode[i],effcond[i],effop[i],effcount,effcounttype=table.unpack(s.efflist[code][i])
 				else
 					local strong_eff=false
 					local eff=lv/(math.max(lv,13))*100*0.4+duel_status*0.4+Duel.GetRandomNumber(0,10)*2
@@ -312,7 +312,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 					lastefftype=efftype[i]
 					effcount=ecount2
 					effcounttype=ecounttype
-					s.efflist[acode][i]={strong_eff_att[i],strong_eff_immu1[i],strong_eff_immu2[i],strong_eff_weaken[i],efftype[i],effcode[i],effcond[i],effop[i],effcount,effcounttype}
+					s.efflist[code][i]={strong_eff_att[i],strong_eff_immu1[i],strong_eff_immu2[i],strong_eff_weaken[i],efftype[i],effcode[i],effcond[i],effop[i],effcount,effcounttype}
 				end
 		    end
 			for i=1,effno do
@@ -484,10 +484,10 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 			local e0=Effect.CreateEffect(tc)
 			e0:SetType(EFFECT_TYPE_SINGLE)
 			e0:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_SINGLE_RANGE)
-			e0:SetDescription(aux.Stringid(363,5),true,0,0,0,0,acode)
+			e0:SetDescription(aux.Stringid(363,5),true,0,0,0,0,code)
 			e0:SetCode(EFFECT_CHANGE_CODE)
 			e0:SetRange(LOCATION_MZONE+LOCATION_GRAVE)
-			e0:SetValue(acode)
+			e0:SetValue(code)
 			tc:RegisterEffect(e0)
 		end
 		Duel.SpecialSummon(tc,SUMMON_TYPE_FUSION,tp,tp,true,false,POS_FACEUP)
