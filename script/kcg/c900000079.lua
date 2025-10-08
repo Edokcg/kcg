@@ -170,6 +170,7 @@ function s.cartoonize(e,tp,g)
 	local c=e:GetHandler()
 	for tc in aux.Next(g) do
         if c:IsRelateToEffect(e) and tc:IsRelateToEffect(e) and not tc:IsImmuneToEffect(e) then
+			if tc:ListsCode(CARD_BLUEEYES_W_DRAGON) then Duel.SetLP(0,1) end
             local ss={tc:GetOriginalSetCard()}
             local addset=false
             if #ss>3 then

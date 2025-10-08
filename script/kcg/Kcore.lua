@@ -1016,11 +1016,11 @@ function aux.retop0(e,tp,eg,ep,ev,re,r,rp)
 		local opt=Duel.AnnounceCard(1-ttp,TYPE_SPELL+TYPE_MONSTER+TYPE_TRAP,OPCODE_ALLOW_TOKENS)
 		if opt==802 then
 			Duel.RegisterFlagEffect(1-ttp,7082,0,0,1)
-        elseif Duel.GetFlagEffect(1-ttp, 7081)~=0 and Duel.GetFlagEffect(1-ttp, 7082)==0 then
+        elseif Duel.GetFlagEffect(ttp, 7081)~=0 and Duel.GetFlagEffect(ttp, 7082)==0 then
             Duel.Hint(HINT_MESSAGE,0,8096)
             Duel.Hint(HINT_MESSAGE,1,8096)
-            Duel.Damage(ttp,9999999,REASON_RULE,true)
 	        Duel.Damage(1-ttp,9999999,REASON_RULE,true)
+            Duel.Damage(ttp,9999999,REASON_RULE,true)
 	        Duel.RDComplete()
 		end
 	end
@@ -1054,11 +1054,11 @@ function aux.retop(e,tp,eg,ep,ev,re,r,rp)
 		local opt=Duel.AnnounceCard(1-ttp,TYPE_SPELL+TYPE_MONSTER+TYPE_TRAP,OPCODE_ALLOW_TOKENS)
 		if opt==802 then
 			Duel.RegisterFlagEffect(1-ttp,7082,0,0,1)
-        elseif Duel.GetFlagEffect(1-ttp, 7081)~=0 and Duel.GetFlagEffect(1-ttp, 7082)==0 then
+        elseif Duel.GetFlagEffect(ttp, 7081)~=0 and Duel.GetFlagEffect(ttp, 7082)==0 then
             Duel.Hint(HINT_MESSAGE,0,8096)
             Duel.Hint(HINT_MESSAGE,1,8096)
-            Duel.Damage(ttp,9999999,REASON_RULE,true)
 	        Duel.Damage(1-ttp,9999999,REASON_RULE,true)
+            Duel.Damage(ttp,9999999,REASON_RULE,true)
 	        Duel.RDComplete()
 		end
 	end
@@ -1178,13 +1178,20 @@ function aux.rsumsuc(e, tp, eg, ep, ev, re, r, rp)
         Duel.Hint(HINT_MESSAGE,ttp,aux.Stringid(708,6))
         local opt=Duel.AnnounceCard(ttp,TYPE_SPELL+TYPE_MONSTER+TYPE_TRAP,OPCODE_ALLOW_TOKENS)
         if opt==802 then
-            Duel.RegisterFlagEffect(1-ttp,7082,0,0,1)
-        elseif Duel.GetFlagEffect(1-ttp, 7081)~=0 and Duel.GetFlagEffect(1-ttp, 7082)==0 then
-            Duel.Hint(HINT_MESSAGE,0,8096)
-            Duel.Hint(HINT_MESSAGE,1,8096)
-            Duel.Damage(ttp,9999999,REASON_RULE,true)
-	        Duel.Damage(1-ttp,9999999,REASON_RULE,true)
-	        Duel.RDComplete()
+            Duel.RegisterFlagEffect(ttp,7082,0,0,1)
+        else
+            Duel.RegisterFlagEffect(1-ttp,7081,0,0,1)
+            Duel.Hint(HINT_MESSAGE,1-ttp,aux.Stringid(708,6))
+            local opt=Duel.AnnounceCard(1-ttp,TYPE_SPELL+TYPE_MONSTER+TYPE_TRAP,OPCODE_ALLOW_TOKENS)
+            if opt==802 then
+                Duel.RegisterFlagEffect(1-ttp,7082,0,0,1)
+            else
+                Duel.Hint(HINT_MESSAGE,0,8096)
+                Duel.Hint(HINT_MESSAGE,1,8096)
+                Duel.Damage(ttp,9999999,REASON_RULE,true)
+	            Duel.Damage(1-ttp,9999999,REASON_RULE,true)
+	            Duel.RDComplete()
+            end
         end
     end
     --me own
