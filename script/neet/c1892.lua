@@ -29,7 +29,7 @@ function s.initial_effect(c)
 	e2:SetCost(Cost.DetachFromSelf(1,1,nil))
 	e2:SetTarget(s.damtg)
 	e2:SetOperation(s.damop)
-	c:RegisterEffect(e2,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e2)
 	--Xyz Summon
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,2))

@@ -32,7 +32,7 @@ function s.initial_effect(c)
 	e2:SetHintTiming(TIMING_BATTLE_PHASE)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetCondition(s.atkcon)
-	e2:SetCost(s.atkcost)
+	e2:SetCost(Cost.DetachFromSelf(1))
 	e2:SetTarget(s.atktg)
 	e2:SetOperation(s.atkop)
 	e2:SetLabel(RESET_EVENT+RESETS_STANDARD)
@@ -40,7 +40,7 @@ function s.initial_effect(c)
 	e3:SetType(EFFECT_TYPE_SINGLE)
 	e3:SetCode(EFFECT_RANKUP_EFFECT)
 	e3:SetLabelObject(e2)
-	c:RegisterEffect(e3,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e3)
 end
 s.xyz_number=39
 s.listed_series = {0x48}

@@ -21,9 +21,9 @@ function s.initial_effect(c)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetHintTiming(0,TIMING_END_PHASE)
 	e1:SetCountLimit(1)
-	e1:SetCost(s.negcost)
+	e1:SetCost(Cost.DetachFromSelf(1))
 	e1:SetOperation(s.negop)
-	c:RegisterEffect(e1,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e1)
 	
 	--atk
 	local e2=Effect.CreateEffect(c)

@@ -143,9 +143,11 @@ function s.atkop2(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
     local att=c:GetAttribute()
     local att=c:GetAttribute()
+    local bt=c:GetBattleTarget()
 	if c:IsFaceup() and c:IsRelateToEffect(e) and bt and bt:IsFaceup() and (bt:GetAttack()>0 or not bt:IsDisabled()) then
 		if bt:GetAttack()>0 then
 			local e1=Effect.CreateEffect(c)
+            e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 			e1:SetType(EFFECT_TYPE_SINGLE)
 			e1:SetCode(EFFECT_SET_ATTACK_FINAL)
 			e1:SetValue(0)
@@ -154,6 +156,7 @@ function s.atkop2(e,tp,eg,ep,ev,re,r,rp)
 		end
         if not bt:IsDisabled() then
 			local e1=Effect.CreateEffect(c)
+            e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 			e1:SetType(EFFECT_TYPE_SINGLE)
 			e1:SetCode(EFFECT_DISABLE)
 			e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_BATTLE)

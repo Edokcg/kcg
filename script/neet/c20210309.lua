@@ -22,9 +22,9 @@ function s.initial_effect(c)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetCountLimit(1)
-	e2:SetCost(s.cost)
+	e2:SetCost(Cost.DetachFromSelf(1))
 	e2:SetOperation(s.op)
-	c:RegisterEffect(e2,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e2)
 
 	--battle indestructable
 	local e6=Effect.CreateEffect(c)

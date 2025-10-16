@@ -33,7 +33,7 @@ function s.initial_effect(c)
 	e3:SetCost(Cost.DetachFromSelf(1))
 	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
-	c:RegisterEffect(e3,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e3)
 end
 s.listed_names={CARD_GALAXYEYES_P_DRAGON}
 s.listed_series={0x55,0x7b}

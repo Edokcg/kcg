@@ -27,7 +27,7 @@ function s.initial_effect(c)
 	e2:SetCost(Cost.DetachFromSelf(1))
 	e2:SetTarget(s.tdtg)
 	e2:SetOperation(s.tdop)
-	c:RegisterEffect(e2,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e2)
 end
 s.listed_series={0x8d}
 function s.cfilter(c)

@@ -45,7 +45,7 @@ function s.initial_effect(c)
 	e4:SetCost(Cost.DetachFromSelf(1))
 	e4:SetTarget(s.sptg)
 	e4:SetOperation(s.spop)
-	c:RegisterEffect(e4,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e4)
 end
 s.xyz_number=23
 function s.regcon(e,tp,eg,ep,ev,re,r,rp)

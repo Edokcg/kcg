@@ -26,7 +26,7 @@ function s.initial_effect(c)
 	e2:SetCost(Cost.DetachFromSelf(1))
 	e2:SetTarget(s.drtg)
 	e2:SetOperation(s.drop)
-	c:RegisterEffect(e2,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e2)
 
 	local e6=Effect.CreateEffect(c)
 	e6:SetType(EFFECT_TYPE_SINGLE)

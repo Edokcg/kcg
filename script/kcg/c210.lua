@@ -30,11 +30,11 @@ function s.initial_effect(c)
 	e3:SetCode(EVENT_CHAINING)
 	e3:SetProperty(EFFECT_FLAG_DAMAGE_STEP)
 	e3:SetRange(LOCATION_MZONE)
-	e3:SetCost(s.cost)
+	e3:SetCost(Cost.DetachFromSelf(1))
 	e3:SetCondition(s.descondition)
 	e3:SetTarget(s.target)
 	e3:SetOperation(s.activate)
-	c:RegisterEffect(e3,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e3)
 end
 s.xyz_number=99
 s.listed_series={0x95,0x48}

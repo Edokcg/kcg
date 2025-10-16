@@ -34,7 +34,7 @@ function s.initial_effect(c)
 	e1:SetCost(Cost.DetachFromSelf(1))
 	e1:SetTarget(s.thtg)
 	e1:SetOperation(s.thop)
-	c:RegisterEffect(e1,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e1)
 end
 s.listed_series={0x141}
 function s.valcheck(e,c)

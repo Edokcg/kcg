@@ -43,7 +43,7 @@ function s.initial_effect(c)
 	e4:SetCost(Cost.DetachFromSelf(1))
 	e4:SetTarget(s.target)
 	e4:SetOperation(s.operation)
-	c:RegisterEffect(e4,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e4)
 end
 s.listed_series={0x8e}
 function s.lvtg(e,c)
