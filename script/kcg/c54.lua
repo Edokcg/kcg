@@ -162,10 +162,10 @@ function s.initial_effect(c)
 	e14:SetType(EFFECT_TYPE_IGNITION)
 	e14:SetCountLimit(1)
 	e14:SetRange(LOCATION_MZONE)
-	e14:SetCost(s.ctcost)
+	e14:SetCost(Cost.DetachFromSelf(function(e) return e:GetHandler():GetOverlayCount() end,function(e) return e:GetHandler():GetOverlayCount() end,function(e,og) e:SetLabel(#og) end))
 	e14:SetTarget(s.cttg)
 	e14:SetOperation(s.ctop)
-	c:RegisterEffect(e14,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e14)
 end
 s.listed_series={0x20f8}
 s.listed_names={48}

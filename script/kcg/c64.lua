@@ -19,10 +19,10 @@ function s.initial_effect(c)
 	  e1:SetHintTiming(TIMING_BATTLE_PHASE)
 	  e1:SetRange(LOCATION_MZONE)
 		e1:SetCondition(s.atkcon)
-		e1:SetCost(s.atkcost)  
-		e1:SetTarget(s.atktg)  
-		e1:SetOperation(s.atkop)  
-		c:RegisterEffect(e1,false,EFFECT_MARKER_DETACH_XMAT)   
+		e1:SetCost(Cost.DetachFromSelf(1,1,function(e,og) Duel.Overlay(e:GetHandler():GetBattleTarget(),og) end))
+		e1:SetTarget(s.atktg)
+		e1:SetOperation(s.atkop)
+		c:RegisterEffect(e1)
 end
 s.xyz_number=39
 s.listed_series = {0x48}
@@ -46,14 +46,13 @@ function s.atkcon(e)
 	local bt=c:GetBattleTarget()
 	return bt~=nil and bt:IsType(TYPE_XYZ) and bt:IsFaceup() and not e:GetHandler():IsStatus(STATUS_CHAINING)
 end
-function s.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
+function s.atkcost(e,tp,eg,ep,ev,re,r,rp)
 	local o=e:GetHandler():GetOverlayGroup() 
 	local c=e:GetHandler()
 	local bt=c:GetBattleTarget()
-	Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(47660516,0))	  
+	Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(47660516,0))
 	local g=o:Select(tp,1,1,nil)
-	Duel.Overlay(bt,g) 
+	Duel.Overlay(bt,g)
 	--Duel.RaiseSingleEvent(e:GetHandler(),EVENT_DETACH_MATERIAL,e,0,0,0,0)
 end
 function s.atktg(e,tp,eg,ep,ev,re,r,rp,chk)

@@ -24,7 +24,7 @@ function s.efop(e,tp,eg,ep,ev,re,r,rp)
 	e2:SetCost(s.atkcost)
 	e2:SetOperation(s.atkop)
 	e2:SetReset(RESET_EVENT+RESETS_STANDARD)
-	eqc:RegisterEffect(e2,false,EFFECT_MARKER_DETACH_XMAT)
+	eqc:RegisterEffect(e2)
 end
 
 function s.atkfilter(c)

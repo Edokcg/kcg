@@ -42,14 +42,13 @@ function s.initial_effect(c)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetHintTiming(TIMING_DAMAGE_CAL)
 	e3:SetCondition(s.atkcon1)
-	e3:SetCost(s.atkcost1)
+	e3:SetCost(Cost.AND(Cost.DetachFromSelf(1),s.atkcost1))
 	e3:SetOperation(s.atkop1)
-	e3:SetLabel(RESET_EVENT+RESETS_STANDARD)
 	local e4=Effect.CreateEffect(c)
 	e4:SetType(EFFECT_TYPE_SINGLE)
 	e4:SetCode(EFFECT_RANKUP_EFFECT)
 	e4:SetLabelObject(e3)
-	c:RegisterEffect(e4,false,EFFECT_MARKER_DETACH_XMAT)	
+	c:RegisterEffect(e4)
 
 	--Eraser
 	local e6=Effect.CreateEffect(c)
@@ -178,8 +177,7 @@ function s.atkcon1(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.atkcost1(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then return c:CheckRemoveOverlayCard(tp,1,REASON_COST) and c:GetFlagEffect(id)==0 end
-	c:RemoveOverlayCard(tp,1,1,REASON_COST)
+	if chk==0 then return c:GetFlagEffect(id)==0 end
 	c:RegisterFlagEffect(id,RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END,0,1)
 end
 function s.atkop1(e,tp,eg,ep,ev,re,r,rp)

@@ -763,11 +763,7 @@ function Duel.SelectMatchingCard(sel_player, f, tp, s, o, mint, maxt, cancel, ex
                     end
                     e1:SetProperty(prop)
                     if not noeffect then
-                        if efftype[i]==1 then
-                            matgc:RegisterEffect(e1)
-                        else
-                            matgc:RegisterEffect(e1,false,EFFECT_MARKER_DETACH_XMAT)
-                        end
+                        matgc:RegisterEffect(e1)
                     else
                         e1:Reset()
                     end

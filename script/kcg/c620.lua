@@ -30,12 +30,11 @@ function s.initial_effect(c)
     e1:SetDescription(aux.Stringid(id,2))
     e1:SetType(EFFECT_TYPE_IGNITION)
     e1:SetRange(LOCATION_MZONE)
-    e1:SetCost(function(e, tp, eg, ep, ev, re, r, rp, chk)
+    e1:SetCost(Cost.AND(Cost.DetachFromSelf(function(e) return e:GetHandler():GetOverlayCount() end),function(e, tp, eg, ep, ev, re, r, rp, chk)
         local c=e:GetHandler()
-        if chk==0 then return c:CheckRemoveOverlayCard(tp,1,REASON_COST) and Duel.GetLP(tp)>1 end
-        Duel.SendtoGrave(c:GetOverlayGroup(),REASON_COST)
+        if chk==0 then return Duel.GetLP(tp)>1 end
         Duel.SetLP(tp,1)
-    end)
+    end))
     e1:SetTarget(function(e, tp, eg, ep, ev, re, r, rp, chk)
         if chk==0 then return Duel.IsExistingMatchingCard(Card.IsDestructable,tp,0,LOCATION_MZONE,1,nil) end
         local sg=Duel.GetMatchingGroup(Card.IsDestructable,tp,0,LOCATION_MZONE,nil)
@@ -49,7 +48,7 @@ function s.initial_effect(c)
             Duel.Damage(1-tp,sum,REASON_EFFECT)
         end
     end)
-    c:RegisterEffect(e1,true,EFFECT_MARKER_DETACH_XMAT)
+    c:RegisterEffect(e1,true)
 
 end
 s.listed_series = {0x48}

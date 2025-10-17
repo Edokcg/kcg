@@ -89,11 +89,11 @@ function s.initial_effect(c)
 	e8:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e8:SetRange(LOCATION_MZONE)
 	e8:SetCode(EVENT_ATTACK_ANNOUNCE)
-	e8:SetCost(s.atkcost)
+	e8:SetCost(Cost.DetachFromSelf(1))
 	e8:SetCondition(s.condition)
 	e8:SetTarget(s.atktarget)
 	e8:SetOperation(s.atkop)
-	c:RegisterEffect(e8,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e8)
 
 	-- Destroy a Monster
     local e9 = Effect.CreateEffect(c)
@@ -105,10 +105,10 @@ function s.initial_effect(c)
     e9:SetHintTiming(0, TIMING_END_PHASE)
     e9:SetRange(LOCATION_MZONE)
     e9:SetCountLimit(1)
-    e9:SetCost(s.cost)
+    e9:SetCost(Cost.DetachFromSelf(1))
     e9:SetTarget(s.target)
     e9:SetOperation(s.operation)
-    c:RegisterEffect(e9, false, EFFECT_MARKER_DETACH_XMAT)
+    c:RegisterEffect(e9)
 end
 s.xyz_number=1000
 s.listed_series = {0x48}

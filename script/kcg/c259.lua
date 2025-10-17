@@ -22,10 +22,10 @@ function s.initial_effect(c)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetHintTiming(0,TIMING_END_PHASE)
 	--e1:SetCountLimit(1)
-	e1:SetCost(s.cost)
+	e1:SetCost(Cost.DetachFromSelf(1))
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.operation)
-	c:RegisterEffect(e1,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e1)
 end
 s.xyz_number=103
 s.listed_series = {0x48}

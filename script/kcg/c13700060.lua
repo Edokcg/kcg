@@ -35,11 +35,11 @@ function s.initial_effect(c)
 	e4:SetType(EFFECT_TYPE_QUICK_O)
 	e4:SetCode(EVENT_FREE_CHAIN)
 	e4:SetRange(LOCATION_MZONE)
-	e4:SetCost(s.atkcost)
+	e4:SetCost(Cost.DetachFromSelf(1))
 	e4:SetCondition(s.atkcon)
 	e4:SetTarget(s.atktg)
 	e4:SetOperation(s.atkop)
-	c:RegisterEffect(e4,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e4)
 	--back to deck
 	local e46=Effect.CreateEffect(c)
 	e46:SetCategory(CATEGORY_TODECK)
@@ -57,7 +57,7 @@ function s.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE)
 	e2:SetCode(EFFECT_EXTRA_ATTACK)
 	e2:SetValue(s.atkvalue)
-	c:RegisterEffect(e2) 
+	c:RegisterEffect(e2)
  
 	--half damage
 	local e5=Effect.CreateEffect(c)
@@ -86,9 +86,7 @@ function s.initial_effect(c)
 	--Re-Attach
 	local e7=Effect.CreateEffect(c)
 	e7:SetDescription(aux.Stringid(79094383,0))
-	e7:SetCategory(CATEGORY_LEAVE_GRAVE)
 	e7:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	--e7:SetProperty(EFFECT_FLAG_REPEAT)
 	e7:SetCode(EVENT_PHASE+PHASE_STANDBY)
 	e7:SetCountLimit(1)
 	e7:SetRange(LOCATION_MZONE)
@@ -130,23 +128,27 @@ end
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	return tp~=Duel.GetTurnPlayer()
 end
-function s.filter(c,e,tp)
-	return c:GetFlagEffect(13732)~=0 and not c:IsHasEffect(EFFECT_NECRO_VALLEY)
+function s.filter(c,tc,tid)
+	return c:GetPreviousLocation()&LOCATION_OVERLAY~=0 and c:GetReasonEffect() and c:GetReasonEffect():GetHandler()==tc and c:GetTurnID()==tid-1
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsType(TYPE_XYZ) and Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_GRAVE,LOCATION_GRAVE,1,nil,e,tp) end
-	local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_GRAVE,LOCATION_GRAVE,nil,e,tp)
-	Duel.SetOperationInfo(0,CATEGORY_LEAVE_GRAVE,g,g:GetCount(),0,0)
+	local tid=Duel.GetTurnCount()
+	if Duel.IsTurnPlayer(tp) then tid=tid-1 end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_GRAVE,LOCATION_GRAVE,1,nil,e:GetHandler(),tid) end
+	local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_GRAVE,LOCATION_GRAVE,nil,e:GetHandler(),tid)
+	Duel.SetOperationInfo(0,CATEGORY_LEAVE_GRAVE,g,#g,tp,0)
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
+	local tid=Duel.GetTurnCount()
+	if Duel.IsTurnPlayer(tp) then tid=tid-1 end
 	local c=e:GetHandler()
-	local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_GRAVE,LOCATION_GRAVE,nil,e,tp)
-	if g:GetCount()>0 then
+	local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_GRAVE,LOCATION_GRAVE,nil,c,tid)
+	if c:IsRelateToEffect(e) then
 		Duel.Overlay(c,g)
 	end
 end
 
---atk 
+--atk
 function s.atkval(e,c)
 	return c:GetOverlayCount()*1000
 end
@@ -154,7 +156,7 @@ end
 function s.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local g=e:GetHandler():GetOverlayGroup()
 	if chk==0 then return g:GetCount()>0 end
-	Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(47660516,0))   
+	Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(47660516,0))
 	local sg=g:Select(tp,1,1,nil)
 	Duel.SendtoGrave(sg,REASON_COST)
 	Duel.RaiseSingleEvent(e:GetHandler(),EVENT_DETACH_MATERIAL,e,0,0,0,0)
@@ -187,7 +189,7 @@ function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	e10:SetCode(EVENT_DAMAGE_STEP_END)
 	e10:SetReset(RESET_EVENT+0x1ff0000+RESET_PHASE+PHASE_BATTLE)
 	e10:SetOperation(s.resetop)
-	c:RegisterEffect(e10) 
+	c:RegisterEffect(e10)
 end
 function s.resetop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetAttacker()==e:GetHandler() and e:GetHandler():GetFlagEffect(511010206)~=0 then

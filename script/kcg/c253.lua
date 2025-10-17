@@ -33,7 +33,7 @@ function s.initial_effect(c)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e2:SetCountLimit(1)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetCost(s.descost)
+	e2:SetCost(Cost.DetachFromSelf(1))
 	e2:SetTarget(s.destg)
 	e2:SetOperation(s.desop)
 	e2:SetLabel(RESET_EVENT+RESETS_STANDARD)
@@ -41,7 +41,7 @@ function s.initial_effect(c)
 	e4:SetType(EFFECT_TYPE_SINGLE)
 	e4:SetCode(EFFECT_RANKUP_EFFECT)
 	e4:SetLabelObject(e2)
-	c:RegisterEffect(e4,false,EFFECT_MARKER_DETACH_XMAT)	
+	c:RegisterEffect(e4)	
 end
 s.xyz_number=105
 s.listed_series = {0x48}

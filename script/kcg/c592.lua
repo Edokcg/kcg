@@ -44,10 +44,10 @@ function s.initial_effect(c)
 	e5:SetRange(LOCATION_MZONE)
 	e5:SetCode(EVENT_PHASE+PHASE_END)
 	e5:SetCountLimit(1)
-	e5:SetCost(s.atkcost1)
+	e5:SetCost(Cost.DetachFromSelf(1))
 	e5:SetCondition(s.wincon)
 	e5:SetOperation(s.winop)
-	c:RegisterEffect(e5,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e5)
 
 	--自己场上怪兽不能成为攻击目标
 	local e7=Effect.CreateEffect(c)

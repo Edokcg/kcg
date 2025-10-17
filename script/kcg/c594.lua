@@ -67,10 +67,10 @@ function s.initial_effect(c)
 	e10:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e10:SetRange(LOCATION_MZONE)
 	e10:SetCode(EVENT_ATTACK_ANNOUNCE)
-	e10:SetCost(s.atkcost)
+	e10:SetCost(Cost.DetachFromSelf(1))
 	e10:SetTarget(s.target)
 	e10:SetOperation(s.atkop)
-	c:RegisterEffect(e10,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e10)
 end
 s.xyz_number=100
 s.listed_series = {0x48, 0x568}

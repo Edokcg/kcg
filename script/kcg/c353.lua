@@ -25,7 +25,7 @@ function s.efop(e,tp,eg,ep,ev,re,r,rp)
 	e3:SetTarget(s.atktg2)
 	e3:SetOperation(s.atkop2)
 	e3:SetReset(RESET_EVENT+RESETS_STANDARD)
-	eqc:RegisterEffect(e3,false,EFFECT_MARKER_DETACH_XMAT)
+	eqc:RegisterEffect(e3)
 end
 
 function s.atkcon2(e,tp,eg,ep,ev,re,r,rp)

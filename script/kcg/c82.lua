@@ -22,10 +22,10 @@ function s.initial_effect(c)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetHintTiming(TIMING_DAMAGE_STEP)
 	e1:SetCondition(s.condition)
-	e1:SetCost(s.cost)
+	e1:SetCost(Cost.AND(Cost.DetachFromSelf(1),s.cost))
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.operation)
-	c:RegisterEffect(e1,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e1)
 
 	--self destroy
 	-- local e2=Effect.CreateEffect(c)
@@ -58,9 +58,7 @@ function s.rfilter(c)
 		and Duel.IsExistingTarget(s.filter,0,LOCATION_MZONE,LOCATION_MZONE,1,c)
 end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST)
-		and Duel.IsExistingMatchingCard(s.rfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,nil) end
-	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.rfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
 	local g=Duel.SelectMatchingCard(tp,s.rfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,1,nil)
 	if #g<1 then return end

@@ -11,10 +11,10 @@ function s.initial_effect(c)
 	e1:SetDescription(aux.Stringid(86532744,0))
 	e1:SetType(EFFECT_TYPE_IGNITION)
 	e1:SetRange(LOCATION_MZONE)
-	e1:SetCost(s.cost)
+	e1:SetCost(Cost.AND(Cost.DetachFromSelf(1),s.cost))
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.operation)
-	c:RegisterEffect(e1,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e1)
 
 	--cannot destroyed
 	local e0=Effect.CreateEffect(c)
@@ -91,9 +91,7 @@ end
 	return c:IsFaceup() and c:IsSummonCode(lc,SUMMON_TYPE_XYZ,tp,84013237)
 end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	local g=e:GetHandler():GetOverlayGroup():GetCount()
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) and Duel.GetLP(tp)>1 end
-	e:GetHandler():RemoveOverlayCard(tp,g,g,REASON_COST)
+	if chk==0 then return Duel.GetLP(tp)>1 end
 	Duel.SetLP(tp,1)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)

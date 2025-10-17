@@ -49,7 +49,7 @@ function s.initial_effect(c)
 	e3:SetCondition(function(_,tp) return Duel.IsTurnPlayer(tp) and Duel.GetLP(tp)<=1000 end)
 	e3:SetCost(Cost.DetachFromSelf(1))
 	e3:SetOperation(s.operation)
-	c:RegisterEffect(e3,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e3)
 
 	--Unaffected by opponent's monster effects
 	local e4=Effect.CreateEffect(c)

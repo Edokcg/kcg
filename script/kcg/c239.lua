@@ -75,10 +75,10 @@ function s.initial_effect(c)
 	e7:SetDescription(aux.Stringid(id,1))
 	e7:SetType(EFFECT_TYPE_IGNITION)
 	e7:SetRange(LOCATION_MZONE)
-	e7:SetCost(s.descost)
+	e7:SetCost(Cost.DetachFromSelf(1))
 	e7:SetTarget(s.destg)
 	e7:SetOperation(s.desop)
-	c:RegisterEffect(e7,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e7)
 end
 s.listed_series={0x10af,0xaf}
 s.listed_names={47198668}

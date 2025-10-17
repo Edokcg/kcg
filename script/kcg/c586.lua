@@ -34,10 +34,10 @@ function s.initial_effect(c)
 	e4:SetHintTiming(0,TIMING_END_PHASE)
 	e4:SetRange(LOCATION_MZONE)
 	e4:SetCountLimit(1)
-	e4:SetCost(s.cost)
+	e4:SetCost(Cost.DetachFromSelf(1))
 	e4:SetTarget(s.target)
 	e4:SetOperation(s.operation)
-	c:RegisterEffect(e4,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e4)
 
 	--Destroy replace
 	local e5=Effect.CreateEffect(c)

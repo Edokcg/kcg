@@ -35,9 +35,9 @@ function s.initial_effect(c)
 	e3:SetCode(EVENT_ATTACK_ANNOUNCE)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetCondition(s.con)
-	e3:SetCost(s.cost)
+	e3:SetCost(Cost.DetachFromSelf(1))
 	e3:SetOperation(s.op)
-	c:RegisterEffect(e3,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e3,fal)
 
 	--gain atk
 	local e4=Effect.CreateEffect(c)

@@ -22,10 +22,10 @@ function s.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetCountLimit(1)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetCost(s.cost)
+	e2:SetCost(Cost.DetachFromSelf(1))
 	e2:SetTarget(s.target)
 	e2:SetOperation(s.operation)
-	c:RegisterEffect(e2,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e2)
 
 	--multi atk
 	local e4=Effect.CreateEffect(c)

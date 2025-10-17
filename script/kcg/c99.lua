@@ -19,10 +19,10 @@ function s.initial_effect(c)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetCountLimit(1)
 	e2:SetCondition(function(_,tp) return Duel.IsTurnPlayer(1-tp) end)
-	e2:SetCost(s.negcost)
+	e2:SetCost(Cost.DetachFromSelf(1,1,s.negcost))
 	e2:SetTarget(s.negtg)
 	e2:SetOperation(s.negop)
-	c:RegisterEffect(e2,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e2)
 	--negate
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,0))
@@ -32,10 +32,10 @@ function s.initial_effect(c)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetCountLimit(1)
 	e3:SetCondition(s.negcon)
-	e3:SetCost(s.negcost)
+	e3:SetCost(Cost.DetachFromSelf(1,1,s.negcost))
 	e3:SetTarget(s.negtg)
 	e3:SetOperation(s.negop)
-	c:RegisterEffect(e3,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e3)
 	aux.GlobalCheck(s,function()
 		--Cards that resolved effects check
 		BPResolvedEffects={}
@@ -75,10 +75,8 @@ end
 function s.ftarget(e,c)
 	return c:GetFlagEffectLabel(id+1)~=e:GetLabel()
 end
-function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
+function s.negcost(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	c:RemoveOverlayCard(tp,1,1,REASON_COST)
 	if Duel.GetTurnPlayer()==tp then
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_FIELD)

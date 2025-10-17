@@ -46,9 +46,9 @@ function s.initial_effect(c)
 	e8:SetCountLimit(1)
 	e8:SetRange(LOCATION_MZONE)
 	e8:SetHintTiming(0,TIMING_END_PHASE)
-	e8:SetCost(s.cost)
+	e8:SetCost(Cost.AND(Cost.DetachFromSelf(1),s.cost))
 	e8:SetOperation(s.operation2)
-	c:RegisterEffect(e8,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e8)
 	--prevent effect damage
 	local e9=Effect.CreateEffect(c)
 	e9:SetDescription(aux.Stringid(13719,13))
@@ -58,9 +58,9 @@ function s.initial_effect(c)
 	e9:SetCountLimit(1)
 	e9:SetRange(LOCATION_MZONE)
 	e9:SetHintTiming(0,TIMING_END_PHASE)
-	e9:SetCost(s.cost)
+	e9:SetCost(Cost.AND(Cost.DetachFromSelf(1),s.cost))
 	e9:SetOperation(s.operation3)
-	c:RegisterEffect(e9,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e9)
 end
 s.xyz_number=0
 s.listed_series = {0x48}
@@ -122,9 +122,8 @@ function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
- function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) and not e:GetHandler():IsStatus(STATUS_CHAINING) end
-	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return not e:GetHandler():IsStatus(STATUS_CHAINING) end
 end
 function s.operation2(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

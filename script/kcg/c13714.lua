@@ -47,9 +47,9 @@ function s.initial_effect(c)
 	e3:SetHintTiming(TIMING_BATTLE_PHASE)
 	e3:SetCountLimit(1)
 	e3:SetCondition(s.atkcon1)
-	e3:SetCost(s.atkcost1)
+	e3:SetCost(Cost.AND(Cost.DetachFromSelf(1),s.atkcost1))
 	e3:SetOperation(s.atkop1)
-	c:RegisterEffect(e3,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e3)
 
 	--Eraser
 	local e6=Effect.CreateEffect(c)
@@ -69,7 +69,7 @@ function s.initial_effect(c)
 		ge2:SetCode(EVENT_DESTROYED)
 		ge2:SetOperation(s.check2op)
 		Duel.RegisterEffect(ge2,0)
-	end)	
+	end)
 end
 s.xyz_number=100
 s.listed_series = {0x48}
@@ -151,8 +151,7 @@ function s.atkcon1(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.atkcost1(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then return c:CheckRemoveOverlayCard(tp,1,REASON_COST) and c:GetFlagEffect(13714)==0 end
-	c:RemoveOverlayCard(tp,1,1,REASON_COST)
+	if chk==0 then return c:GetFlagEffect(13714)==0 end
 	--c:RegisterFlagEffect(13714,RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END,0,1)
 end
 function s.atkop1(e,tp,eg,ep,ev,re,r,rp)

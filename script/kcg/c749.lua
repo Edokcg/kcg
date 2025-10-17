@@ -84,10 +84,10 @@ function s.initial_effect(c)
 	e6:SetType(EFFECT_TYPE_QUICK_O)
 	e6:SetCode(EVENT_FREE_CHAIN)
 	e6:SetRange(LOCATION_MZONE)
-	e6:SetCost(s.atkcost)
+	e6:SetCost(Cost.DetachFromSelf(1))
 	e6:SetCondition(s.atkcon)
 	e6:SetOperation(s.atkop)
-	c:RegisterEffect(e6,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e6)
 
 	--multiattack
 	local e8=Effect.CreateEffect(c)
