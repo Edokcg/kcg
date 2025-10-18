@@ -23,7 +23,9 @@ function s.initial_effect(c)
 	e5:SetCost(s.negcost)
 	e5:SetTarget(s.negtg)
 	e5:SetOperation(s.negop)
-	c:RegisterEffect(e5)	
+	c:RegisterEffect(e5)
+	
+	aux.DoubleSnareValidity(c,LOCATION_MZONE)
 end
 s.listed_series={0x503}
 

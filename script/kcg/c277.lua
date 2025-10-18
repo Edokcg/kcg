@@ -78,7 +78,7 @@ function c277.acti2(e,tp,eg,ep,ev,re,r,rp)
 					e5:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_BATTLE)
 					e:GetHandler():RegisterEffect(e5)
 
-					local e18=Effect.CreateEffect(c)
+					local e18=Effect.CreateEffect(e:GetHandler())
 					e18:SetType(EFFECT_TYPE_FIELD)
 					e18:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
 					e18:SetCode(EFFECT_CANNOT_LOSE_LP)
@@ -86,7 +86,7 @@ function c277.acti2(e,tp,eg,ep,ev,re,r,rp)
 					e18:SetTargetRange(0,1)
 					e18:SetValue(1)
 					e18:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_BATTLE)
-					c:RegisterEffect(e18)	
+					e:GetHandler():RegisterEffect(e18)	
 				end
 			end
 		else 

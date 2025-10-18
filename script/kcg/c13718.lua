@@ -2,7 +2,7 @@
 local s, id = GetID()
 function s.initial_effect(c)
     -- xyz summon
-    Xyz.AddProcedureX(c, nil, 7, 3, nil, nil, Xyz.InfiniteMats)
+    Xyz.AddProcedureX(c, nil, 7, 3, nil, nil, Xyz.InfiniteMats, nil, nil, nil, s.spop)
     c:EnableReviveLimit()
 
     local e01=Effect.CreateEffect(c)
@@ -58,78 +58,76 @@ s.listed_series = {SET_NUMBER_C}
 
 function s.xyztg(e,c)
 	local no=c.xyz_number
-	return c:IsFaceup() and no and no>=101 and no<=107 and c:IsSetCard(SET_NUMBER_C)
+	return c:IsFaceup() and ((no and no>=101 and no<=107 and c:IsSetCard(SET_NUMBER_C)) or c:GetLevel()==7)
 end
 
--- function s.spop(e, tp, eg, ep, ev, re, r, rp, c)
---     local c = e:GetHandler()
---     Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_XMATERIAL)
---     local tg = Duel.SelectMatchingCard(tp, s.ovfilter, tp, LOCATION_MZONE, LOCATION_MZONE, 3, 99, nil, c, tp)
---     if #tg <3 then return end
---     -- local ag = tg
---     for tc2 in aux.Next(tg) do
---         local ttc = tc2:GetOverlayGroup()
---         Duel.Overlay(c, ttc)
---         Duel.Overlay(c, tc2)
---         -- ag:Merge(ttc)
---     end
---     c:SetMaterial(tg)
---     if tg:FilterCount(Card.IsCode, nil, 12744567)>0 and tg:FilterCount(Card.IsCode, nil, 67173574)>0 and tg:FilterCount(Card.IsCode, nil, 20785975)>0 and tg:FilterCount(Card.IsCode, nil, 49456901)>0 and tg:FilterCount(Card.IsCode, nil, 85121942)>0 and tg:FilterCount(Card.IsCode, nil, 55888045)>0 and tg:FilterCount(Card.IsCode, nil, 68396121)>0 then
---         Duel.Hint(HINT_MUSIC,tp,aux.Stringid(828, 7))
---     end
--- end
+function s.spop(e, tp, eg, ep, ev, re, r, rp, c)
+    local c = e:GetHandler()
+    local tg = c:GetMaterial()
+    if tg:FilterCount(Card.IsCode, nil, 12744567)>0 and tg:FilterCount(Card.IsCode, nil, 67173574)>0 and tg:FilterCount(Card.IsCode, nil, 20785975)>0 and tg:FilterCount(Card.IsCode, nil, 49456901)>0 and tg:FilterCount(Card.IsCode, nil, 85121942)>0 and tg:FilterCount(Card.IsCode, nil, 55888045)>0 and tg:FilterCount(Card.IsCode, nil, 68396121)>0 then
+        Duel.Hint(HINT_MUSIC,tp,aux.Stringid(828, 7))
+    end
+end
 
 function s.con(e)
 	return Duel.IsExistingMatchingCard(s.cfilter,0,LOCATION_ALL,LOCATION_ALL,1,e:GetOwner())
 end
 function s.cfilter(c)
-    return c:IsHasEffect(511002571) and c:GetFlagEffect(5110013630)==0
+    local chk=false
+    local effs={c:GetOwnEffects()}
+    for _,te in ipairs(effs) do
+        if te:GetCode()&511001822==511001822 or te:GetLabel()==511001822 then te=te:GetLabelObject() end
+        if te:HasDetachCost() then chk=true end
+    end
+    return chk and c:GetFlagEffect(5110013630)==0
 end
 function s.op(e)
     local g = Duel.GetMatchingGroup(s.cfilter, 0, LOCATION_ALL, LOCATION_ALL, e:GetOwner())
     for c in aux.Next(g) do
-        local effs = {c:GetCardEffect(511002571)}
-        for _, eff in ipairs(effs) do
-            local te = eff:GetLabelObject()
+        local effs={c:GetOwnEffects()}
+        for _,te in ipairs(effs) do
             if te:GetCode()&511001822==511001822 or te:GetLabel()==511001822 then te=te:GetLabelObject() end
-            local resetflag,resetcount=te:GetReset()
-			local rm,max,code,flag,hopt=te:GetCountLimit()
-            local category = te:GetCategory()
-            local prop1,prop2=te:GetProperty()
-            local label = te:GetLabel()
-            local e1 = Effect.CreateEffect(c)
-            if te:GetDescription() then
-                e1:SetDescription(te:GetDescription())
+            if te:HasDetachCost() then
+                local resetflag,resetcount=te:GetReset()
+                local rm,max,code,flag,hopt=te:GetCountLimit()
+                local category = te:GetCategory()
+                local prop1,prop2=te:GetProperty()
+                local label = te:GetLabel()
+                local e1 = Effect.CreateEffect(c)
+                if te:GetDescription() then
+                    e1:SetDescription(te:GetDescription())
+                end
+                e1:SetLabelObject(te)
+                e1:SetType(EFFECT_TYPE_XMATERIAL+te:GetType()&(~EFFECT_TYPE_SINGLE))
+                if te:GetCode()>0 then
+                    e1:SetCode(te:GetCode())
+                end
+                e1:SetCategory(category)
+                e1:SetProperty(prop1,prop2)
+                if label then
+                    e1:SetLabel(label)
+                end
+                e1:SetCondition(s.copycon)
+                e1:SetCost(s.copycost)
+                if max > 0 then
+                    e1:SetCountLimit(max,{code,hopt}, flag)
+                end
+                if te:GetTarget() then
+                    e1:SetTarget(te:GetTarget())
+                end
+                if te:GetOperation() then
+                    e1:SetOperation(te:GetOperation())
+                end
+                if resetflag>0 and resetcount>0 then
+                    e1:SetReset(resetflag, resetcount)
+                elseif resetflag>0 then
+                    e1:SetReset(resetflag)
+                end
+                c:RegisterEffect(e1, true)
             end
-            e1:SetLabelObject(te)
-            e1:SetType(EFFECT_TYPE_XMATERIAL+te:GetType()&(~EFFECT_TYPE_SINGLE))
-            if te:GetCode()>0 then
-                e1:SetCode(te:GetCode())
-            end
-            e1:SetCategory(category)
-            e1:SetProperty(prop1,prop2)
-            if label then
-                e1:SetLabel(label)
-            end
-            e1:SetCondition(s.copycon)
-            e1:SetCost(s.copycost)
-            if max > 0 then
-                e1:SetCountLimit(max,{code,hopt}, flag)
-            end
-            if te:GetTarget() then
-                e1:SetTarget(te:GetTarget())
-            end
-            if te:GetOperation() then
-                e1:SetOperation(te:GetOperation())
-            end
-            if resetflag>0 and resetcount>0 then
-                e1:SetReset(resetflag, resetcount)
-            elseif resetflag>0 then
-                e1:SetReset(resetflag)
-            end
-            c:RegisterEffect(e1, true)
-            c:RegisterFlagEffect(5110013630,resetflag,prop1,resetcount)
+            c:RegisterFlagEffect(5110013630,0,0,1)
         end
+        if c:GetRealCode()==0 then c:RegisterFlagEffect(5110013630,0,0,1) end
     end
 end
 function s.copycon(e, tp, eg, ep, ev, re, r, rp)

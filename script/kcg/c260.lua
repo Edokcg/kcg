@@ -1,4 +1,5 @@
 --CNo.103 神葬零嬢ラグナ・インフィニティ
+Duel.EnableUnofficialProc(PROC_STATS_CHANGED)
 local s, id = GetID()
 function s.initial_effect(c)
 	--xyz summon
@@ -13,21 +14,10 @@ function s.initial_effect(c)
 	e0:SetValue(s.indes)
 	c:RegisterEffect(e0)
 
-	if not s.global_check then
-		s.global_check=true
-		local ge1=Effect.CreateEffect(c)
-		ge1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-		ge1:SetCode(EVENT_ADJUST)
-		ge1:SetRange(LOCATION_MZONE)
-		ge1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
-		ge1:SetOperation(s.choperation)
-		c:RegisterEffect(ge1)
-	end
-
 	--activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetCategory(CATEGORY_DAMAGE)
-	e1:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
+	e1:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_DAMAGE_STEP)
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e1:SetCode(511001265)
 	e1:SetRange(LOCATION_MZONE)
@@ -51,7 +41,7 @@ function s.initial_effect(c)
 	e5:SetType(EFFECT_TYPE_SINGLE)
 	e5:SetCode(EFFECT_RANKUP_EFFECT)
 	e5:SetLabelObject(e2)
-	c:RegisterEffect(e5)	
+	c:RegisterEffect(e5)
 end
 s.xyz_number=103
 s.listed_series = {0x48}
@@ -71,7 +61,7 @@ function s.filter(c)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsControler(1-tp) and chkc:IsLocation(LOCATION_MZONE) and s.filter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(s.filter,tp,0,LOCATION_MZONE,1,nil) and not e:GetHandler():IsStatus(STATUS_CHAINING) end
+	if chk==0 then return Duel.IsExistingTarget(s.filter,tp,0,LOCATION_MZONE,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
 	local g=Duel.SelectTarget(tp,s.filter,tp,0,LOCATION_MZONE,1,1,nil)
 	local tc=g:GetFirst()
@@ -107,53 +97,24 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	  Duel.SpecialSummon(g:GetFirst(),0,tp,tp,false,false,POS_FACEUP)
 end
 
-function s.choperation(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()  
-	local g=Duel.GetMatchingGroup(Card.IsFaceup,c:GetControler(),0,LOCATION_MZONE,nil)
-	local tc=g:GetFirst()
-	while tc do
-		if tc:IsFaceup() and tc:GetFlagEffect(511001430)==0 then
-			local e1=Effect.CreateEffect(c) 
-			e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
-			e1:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_FIELD)
-			e1:SetCode(EVENT_ADJUST)
-			e1:SetRange(LOCATION_MZONE)
-			e1:SetLabel(tc:GetAttack())
-			e1:SetOperation(s.chop)
-			e1:SetReset(RESET_EVENT+0x1fe0000)
-			tc:RegisterEffect(e1,true)
-			tc:RegisterFlagEffect(511001430,RESET_EVENT+0x1fe0000,0,1)  
-		end 
-		tc=g:GetNext()
-	end
-end
-function s.chop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	if e:GetLabel()==c:GetAttack() then return end
-	local val=0
-	if e:GetLabel()>c:GetAttack() then
-		val=e:GetLabel()-c:GetAttack()
-	else
-		val=c:GetAttack()-e:GetLabel()
-	end
-	Duel.RaiseEvent(c,511001265,e,0,0,c:GetControler(),val)
-	e:SetLabel(c:GetAttack())
-end
-
 function s.damcon(e,tp,eg,ep,ev,re,r,rp)
 	local ec=eg:GetFirst()
-	e:SetLabel(ev)
-	return eg:GetCount()==1 and ec:IsControler(1-tp) and ev>0
-end
-function s.damcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
+	if #eg~=1 then return false end
+	local val=0
+	if ec:GetFlagEffect(284)>0 then val=ec:GetFlagEffectLabel(284) end
+	return ec:IsControler(1-tp) and ec:GetAttack()~=val and ec:IsLocation(LOCATION_MZONE)
 end
 function s.damtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local ec=eg:GetFirst()
 	if chk==0 then return true end
+	local dam=0
+	local val=0
+	if ec:GetFlagEffect(284)>0 then val=ec:GetFlagEffectLabel(284) end
+	if ec:GetAttack()>val then dam=ec:GetAttack()-val
+	else dam=val-ec:GetAttack() end
 	Duel.SetTargetPlayer(1-tp)
-	Duel.SetTargetParam(e:GetLabel())
-	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,1-tp,e:GetLabel())
+	Duel.SetTargetParam(dam)
+	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,1-tp,dam)
 end
 function s.damop(e,tp,eg,ep,ev,re,r,rp)
 	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)

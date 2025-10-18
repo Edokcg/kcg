@@ -59,7 +59,9 @@ function s.initial_effect(c)
 	e12:SetCode(EFFECT_RANKUP_EFFECT)
 	e12:SetLabelObject(e3)
 	c:RegisterEffect(e12)
-
+	
+	aux.DoubleSnareValidity(c,LOCATION_MZONE)
+	
 	--   local e4=Effect.CreateEffect(c)
 	-- e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)	  
 	-- e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)

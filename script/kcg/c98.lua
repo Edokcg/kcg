@@ -25,6 +25,7 @@ function s.initial_effect(c)
 	e1:SetOperation(s.negop)
 	c:RegisterEffect(e1)
 	
+	aux.DoubleSnareValidity(c,LOCATION_MZONE)
 	--atk
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(68396121,1))
@@ -210,28 +211,22 @@ end
  function s.discon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	return not c:IsStatus(STATUS_BATTLE_DESTROYED) and not c:IsStatus(STATUS_CHAINING) and Duel.IsChainNegatable(ev) 
-	  and re:GetHandler():IsOnField() and not (re:GetHandler():IsType(TYPE_PENDULUM) and re:IsHasType(EFFECT_TYPE_ACTIVATE))
+	  and re:GetHandler():IsOnField()
 end
 function s.disop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=re:GetHandler()
 	if not Duel.SelectYesNo(tp,aux.Stringid(13718,11)) then
 		if Duel.NegateActivation(ev) then
 			tc:CancelToGrave()
-			if not tc:IsType(TYPE_CONTINUOUS) and not tc:IsType(TYPE_EQUIP) and not tc:IsType(TYPE_FIELD) 
-			and not tc:IsType(TYPE_EFFECT) and not tc:IsType(TYPE_FLIP) and not tc:IsType(TYPE_PENDULUM) then
-				if re:IsActiveType(TYPE_MONSTER) then 
-					Duel.ChangePosition(tc,POS_FACEDOWN_DEFENSE)
-				else 
-					Duel.SSet(tp,tc)
-				end 
-				local e1=Effect.CreateEffect(e:GetHandler())
-				e1:SetDescription(aux.Stringid(id,3))
-				e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE+EFFECT_FLAG_CLIENT_HINT)
-				e1:SetType(EFFECT_TYPE_SINGLE)
-				e1:SetCode(EFFECT_CANNOT_TRIGGER)
-				e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-				tc:RegisterEffect(e1)
-			end 
+			if re:IsHasType(EFFECT_TYPE_ACTIVATE) then Duel.ChangePosition(tc,POS_FACEDOWN)
+			elseif re:IsHasType(EFFECT_TYPE_FLIP) then Duel.ChangePosition(tc,POS_FACEDOWN_DEFENSE) end
+			local e1=Effect.CreateEffect(e:GetHandler())
+			e1:SetDescription(aux.Stringid(id,3))
+			e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE+EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetCode(EFFECT_CANNOT_TRIGGER)
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+			tc:RegisterEffect(e1)
 		end 
 	end
 end

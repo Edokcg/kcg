@@ -75,6 +75,7 @@ function s.initial_effect(c)
 	e5:SetTarget(s.cttg)
 	e5:SetOperation(s.ctop)
 	c:RegisterEffect(e5)
+	aux.DoubleSnareValidity(c,LOCATION_MZONE)
 end
 s.xyz_number=0
 
