@@ -1964,18 +1964,14 @@ function Auxiliary.SwapEntity(g1, g2)
             local code2=tac:GetOriginalCode()
             if code1==code2 then return end
             tc:SetEntityCode(code2, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true)
-            aux.CopyCardTable(code2,tc)
             tac:SetEntityCode(code1, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true)
-            aux.CopyCardTable(code1,tac)
         end
     else
         local code1=g1:GetOriginalCode()
         local code2=g2:GetOriginalCode()
         if code1==code2 then return end
         g1:SetEntityCode(code2, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true)
-        aux.CopyCardTable(code2,g1)
         g2:SetEntityCode(code1, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true)
-        aux.CopyCardTable(code1,g2)
     end
 end
 
@@ -2140,7 +2136,7 @@ function Auxiliary.GetValueType(v)
 end
 
 --Summon procedure
-function Xyz.AddProcedureX(c,f,lv,ct,alterf,desc,maxct,op,mustbemat,exchk)
+function Xyz.AddProcedureX(c,f,lv,ct,alterf,desc,maxct,op,mustbemat,exchk,spop)
 	--exchk for special xyz, checking other materials
 	--mustbemat for Startime Magician
 	if not maxct then maxct=ct end
@@ -2173,7 +2169,7 @@ function Xyz.AddProcedureX(c,f,lv,ct,alterf,desc,maxct,op,mustbemat,exchk)
 	e1:SetRange(LOCATION_EXTRA)
 	e1:SetCondition(Xyz.Condition(f,lv,ct,maxct,mustbemat,exchk))
 	e1:SetTarget(Xyz.Target(f,lv,ct,maxct,mustbemat,exchk))
-	e1:SetOperation(Xyz.OperationX(f,lv,ct,maxct,mustbemat,exchk))
+	e1:SetOperation(Xyz.OperationX(f,lv,ct,maxct,mustbemat,exchk,spop))
 	e1:SetValue(SUMMON_TYPE_XYZ)
 	e1:SetLabelObject(chk1)
 	c:RegisterEffect(e1)
@@ -2192,7 +2188,7 @@ function Xyz.AddProcedureX(c,f,lv,ct,alterf,desc,maxct,op,mustbemat,exchk)
 		c:RegisterEffect(e2)
 	end
 end
-function Xyz.OperationX(f, lv, minc, maxc, mustbemat, exchk)
+function Xyz.OperationX(f, lv, minc, maxc, mustbemat, exchk, spop)
 	return  function(e,tp,eg,ep,ev,re,r,rp,c,must,og,min,max)
         local g=e:GetLabelObject()
         if not g then return end
@@ -2210,6 +2206,7 @@ function Xyz.OperationX(f, lv, minc, maxc, mustbemat, exchk)
         c:SetMaterial(g)
         Duel.Overlay(c,g,true)
         g:DeleteGroup()
+        if spop then spop(e,tp,eg,ep,ev,re,r,rp) end
     end
 end
 
