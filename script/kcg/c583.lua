@@ -40,7 +40,8 @@ function s.indes(e,c)
 end
 
 function s.ovfilter(c)
-	return c:IsFaceup() and c:IsCode(42230449) and Duel.IsExistingMatchingCard(s.damfilter,0,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil)
+	return c:IsFaceup() and c:IsCode(42230449) 
+	--and Duel.IsExistingMatchingCard(s.damfilter,0,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil)
 end
 
 -- function s.descon(e)

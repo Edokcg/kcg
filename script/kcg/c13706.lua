@@ -6,6 +6,7 @@ function s.initial_effect(c)
     e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
     e0:SetType(EFFECT_TYPE_ACTIVATE)
     e0:SetCode(EVENT_FREE_CHAIN)
+    e0:SetOperation(s.activate)
     c:RegisterEffect(e0)
 
     local e2 = Effect.CreateEffect(c)
@@ -46,6 +47,20 @@ function s.initial_effect(c)
     c:RegisterEffect(e8)
 end
 s.listed_series={0x14b}
+
+function s.activate(e, tp, eg, ep, ev, re, r, rp)
+    local c = e:GetHandler()
+    local e0 = Effect.CreateEffect(c)
+    e0:SetType(EFFECT_TYPE_SINGLE)
+    e0:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
+    e0:SetValue(1)
+	if Duel.GetTurnPlayer()==tp then
+		e0:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END+RESET_SELF_TURN,2)
+	else
+		e0:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END+RESET_SELF_TURN,1)
+	end
+    c:RegisterEffect(e0)
+end
 
 function s.cinfilter(c)
     return c:GetFlagEffect(592) ~= 0 and not c:IsDisabled()

@@ -219,8 +219,8 @@ function s.operation(e, tp, eg, ep, ev, re, r, rp)
     local ttp = tc:GetControler()
     if tc and tc:IsRelateToEffect(e) then
         if Duel.Destroy(tc, REASON_EFFECT) > 0 then
-            Duel.BreakEffect()
-            if Duel.IsExistingMatchingCard(s.filter3, ttp, LOCATION_EXTRA, 0, 1, nil, e, ttp, tc) then
+            if Duel.IsExistingMatchingCard(s.filter3, ttp, LOCATION_EXTRA, 0, 1, nil, e, ttp, tc) and Duel.SelectYesNo(tp, aux.Stringid(13717, 0)) then
+				Duel.BreakEffect()
                 local g2 = Duel.GetFieldGroup(ttp, LOCATION_EXTRA, 0)
                 if tp ~= ttp then
                     Duel.ConfirmCards(tp, g2)

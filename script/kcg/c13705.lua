@@ -9,7 +9,7 @@ function s.initial_effect(c)
 	  local e0=Effect.CreateEffect(c)
 	e0:SetType(EFFECT_TYPE_SINGLE)
 	e0:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
-	e0:SetValue(s.indes)
+	e0:SetValue(1)
 	c:RegisterEffect(e0)
 
 	--selfdes
@@ -43,7 +43,8 @@ function s.indes(e,c)
 end
 
 function s.ovfilter(c)
-	return c:IsFaceup() and c:IsCode(15232745) and Duel.IsExistingMatchingCard(s.damfilter,0,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil)
+	return c:IsFaceup() and c:IsCode(15232745) 
+	--and Duel.IsExistingMatchingCard(s.damfilter,0,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil)
 end
 
 -- function s.descon(e)
