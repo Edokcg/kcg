@@ -6,7 +6,7 @@ function s.initial_effect(c)
 	c:EnableReviveLimit()
 
 	--cannot destroyed
-	  local e0=Effect.CreateEffect(c)
+	local e0=Effect.CreateEffect(c)
 	e0:SetType(EFFECT_TYPE_SINGLE)
 	e0:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
 	e0:SetValue(1)
@@ -20,7 +20,7 @@ function s.initial_effect(c)
 	-- e2:SetCode(EFFECT_SELF_DESTROY)
 	-- e2:SetCondition(s.descon)
 	-- c:RegisterEffect(e2)
-
+	
 	--Banish and Damage
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(9161357,0))
@@ -32,7 +32,15 @@ function s.initial_effect(c)
 	e3:SetTarget(s.rmtg)
 	e3:SetOperation(s.rmop)
 	c:RegisterEffect(e3)
-end 
+	--Special summon
+	local e2=Effect.CreateEffect(c)
+	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e2:SetCode(EVENT_REMOVE)
+	e2:SetOperation(s.op)
+	e2:SetLabelObject(e3)
+	c:RegisterEffect(e2)
+end
 s.xyz_number=1
 s.listed_series = {0x48}
 s.listed_names={41418852,15232745}
@@ -68,61 +76,55 @@ function s.rmop(e,tp,eg,ep,ev,re,r,rp)
 	local tatk=c:GetAttack()
 	local g=Duel.GetMatchingGroup(s.rrfilter,tp,LOCATION_MZONE,LOCATION_MZONE,nil,e)
 	if g:GetCount()>0 and c:IsRelateToEffect(e) and Duel.Remove(g,POS_FACEUP,REASON_EFFECT)~=0 then
-	local tc=g:GetFirst() 
-	local tatk=0
-	  while tc do
-		local atk=tc:GetPreviousAttackOnField() 
-		if atk<0 then atk=0 end 
-		tatk=tatk+atk 
-		tc=g:GetNext() 
-	  end
-
-	--spsummon
-	local e4=Effect.CreateEffect(c)
-	e4:SetDescription(aux.Stringid(10449150,1))
-	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e4:SetCode(EVENT_PHASE+PHASE_STANDBY)
-	e4:SetRange(LOCATION_REMOVED)
-	e4:SetCountLimit(1)
-	e4:SetCondition(s.spcon)
-	e4:SetTarget(s.sptg)
-	e4:SetOperation(s.spop)
-	if Duel.GetCurrentPhase()==PHASE_STANDBY and Duel.GetTurnPlayer()==tp then
-		e4:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_STANDBY+RESET_SELF_TURN,2)
-	else
-		e4:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_STANDBY+RESET_SELF_TURN,1)
+		local tc=g:GetFirst() 
+		local tatk=0
+		while tc do
+		  local atk=tc:GetPreviousAttackOnField() 
+		  if atk<0 then atk=0 end 
+		  tatk=tatk+atk 
+		  tc=g:GetNext() 
+		end
+		e:SetLabel(tatk)
 	end
-	c:RegisterEffect(e4)
-
-	--damage
-	local e5=Effect.CreateEffect(c) 
-	e5:SetDescription(aux.Stringid(10449150,2)) 
-	e5:SetCategory(CATEGORY_DAMAGE+CATEGORY_DESTROY) 
-	e5:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F) 
-	e5:SetProperty(EFFECT_FLAG_PLAYER_TARGET) 
-	e5:SetCode(EVENT_SPSUMMON_SUCCESS) 
-	e5:SetCondition(s.damcon) 
-	e5:SetTarget(s.damtg) 
-	e5:SetOperation(s.damop)  
-	e5:SetLabel(tatk)
-	if Duel.GetCurrentPhase()==PHASE_STANDBY and Duel.GetTurnPlayer()==tp then
-		e5:SetReset(RESET_EVENT+0x1fe0000-RESET_TOFIELD+RESET_PHASE+PHASE_STANDBY+RESET_SELF_TURN,2)
-	else
-		e5:SetReset(RESET_EVENT+0x1fe0000-RESET_TOFIELD+RESET_PHASE+PHASE_STANDBY+RESET_SELF_TURN,1)
-	end
-	c:RegisterEffect(e5) end 
 end
 
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+	local res=(Duel.IsPhase(PHASE_STANDBY) and Duel.IsTurnPlayer(tp)) and 2 or 1
+	local turn_asc=(Duel.GetCurrentPhase()<PHASE_STANDBY and Duel.IsTurnPlayer(tp)) and 0 or (Duel.IsTurnPlayer(tp)) and 2 or 1
+	local e1=Effect.CreateEffect(e:GetHandler())
+	e1:SetDescription(aux.Stringid(id,4))
+	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e1:SetCode(EVENT_PHASE|PHASE_STANDBY)
+	e1:SetRange(LOCATION_REMOVED)
+	e1:SetCountLimit(1)
+	e1:SetCondition(s.spcon)
+	e1:SetTarget(s.sptg)
+	e1:SetOperation(s.spop)
+	e1:SetLabel(turn_asc+Duel.GetTurnCount())
+	e1:SetReset(RESET_EVENT|RESETS_STANDARD|RESET_PHASE|PHASE_STANDBY|RESET_SELF_TURN,res)
+	e:GetHandler():RegisterEffect(e1)
+end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetTurnPlayer()==tp
+	return Duel.GetTurnCount()==e:GetLabel() and Duel.IsTurnPlayer(tp)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	  if chk==0 then return e:GetHandler():IsCanBeSpecialSummoned(e,SUMMON_TYPE_SPECIAL+1,tp,false,false) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 end
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)>0 then
-	Duel.SpecialSummon(e:GetHandler(),SUMMON_TYPE_SPECIAL+1,tp,tp,false,false,POS_FACEUP)
+	local c=e:GetHandler()
+	local te=e:GetLabelObject()
+	local isme=false
+	if c:GetReasonEffect()==te then isme=true end
+	local atk=Duel.GetMatchingGroup(aux.FaceupFilter(Card.IsType,TYPE_XYZ),tp,LOCATION_REMOVED,LOCATION_REMOVED,c):GetSum(Card.GetAttack)
+	if isme then atk=e:GetLabel() end
+	if c:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)>0 then
+		if Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,CARD_NUMERON_NETWORK),tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) and atk>0 then
+			Duel.BreakEffect()
+			Duel.Damage(1-tp,atk,REASON_EFFECT)
+		elseif not Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,CARD_NUMERON_NETWORK),tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) then
+			Duel.Destroy(e:GetHandler(),REASON_EFFECT)
+		end
 	end
 end
 
