@@ -23,24 +23,22 @@ function s.initial_effect(c)
     e2:SetOperation(s.spop)
     c:RegisterEffect(e2)
 
-    --Negate Destruction
-	local e3=Effect.CreateEffect(c)
-    e3:SetDescription(aux.Stringid(1995985,0))
-	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
-	e3:SetProperty(EFFECT_FLAG_DAMAGE_STEP)
-	e3:SetCode(EVENT_DESTROYED)
-	e3:SetTarget(s.ndtarget)
-	e3:SetOperation(s.ndoperation)
-	c:RegisterEffect(e3)
+    --Destroy replace
+    local e9=Effect.CreateEffect(c)
+    e9:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_SINGLE)
+    e9:SetCode(EFFECT_DESTROY_REPLACE)
+    e9:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+    e9:SetRange(LOCATION_MZONE)
+    e9:SetTarget(s.desreptg)
+    c:RegisterEffect(e9)
 
-      local e4=Effect.CreateEffect(c)
-      e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
-      e4:SetCode(EVENT_CHANGE_POS)
-      e4:SetCategory(CATEGORY_DESTROY)
-      e4:SetCondition(s.descon)
-      e4:SetOperation(s.desop)
-      c:RegisterEffect(e4)
+    local e4=Effect.CreateEffect(c)
+    e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
+    e4:SetCode(EVENT_CHANGE_POS)
+    e4:SetCategory(CATEGORY_DESTROY)
+    e4:SetCondition(s.descon)
+    e4:SetOperation(s.desop)
+    c:RegisterEffect(e4)
 
       --Cannot Normal Summon or Special Summon
       local e6=Effect.CreateEffect(c)
@@ -54,7 +52,7 @@ function s.initial_effect(c)
 	e7:SetCode(EFFECT_CANNOT_SUMMON)
 	c:RegisterEffect(e7)
 end
-
+s.listed_names={34022290,81954378}
 function s.cfilter(c,tp)
 	return c:IsControler(tp) and c:IsCode(34022290) 
 --and c:IsRelateToBattle()
@@ -83,16 +81,11 @@ function s.eqfilter(c)
 	return c:IsCode(81954378) 
 end
 
-function s.ndtarget(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,true,true) and Duel.GetFieldGroupCount(tp,LOCATION_HAND,0)>0 
-	    and Duel.IsExistingMatchingCard(Card.IsDiscardable,tp,LOCATION_HAND,0,1,e:GetHandler()) end	
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
-end
-function s.ndoperation(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 or Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT)<1 then return end	
-	Duel.SpecialSummon(e:GetHandler(),0,tp,tp,true,true,POS_FACEUP)
-    e:GetHandler():CompleteProcedure()
+function s.desreptg(e,tp,eg,ep,ev,re,r,rp,chk)
+    local c=e:GetHandler()
+    if chk==0 then return not c:IsReason(REASON_REPLACE) and Duel.GetFieldGroupCount(tp,LOCATION_HAND,0)>0 end
+    Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT+REASON_DISCARD)
+    return true
 end
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
      return e:GetHandler():GetPosition()==POS_FACEUP_ATTACK
