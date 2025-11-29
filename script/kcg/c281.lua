@@ -80,7 +80,6 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 	if #rg<1 then return end
 	local gc=rg:GetFirst()
 	if gc:IsFacedown() then Duel.ConfirmCards(tp,gc) end
-	if gc:ListsCode(27564031) then Duel.SetLP(0,1) end
 	local ttcode=0
 	local code=gc:GetCode()
 	local ocode=gc:GetOriginalCode()
