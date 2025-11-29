@@ -80,6 +80,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 	if #rg<1 then return end
 	local gc=rg:GetFirst()
 	if gc:IsFacedown() then Duel.ConfirmCards(tp,gc) end
+	if gc:ListsCode(27564031) then Duel.SetLP(0,1) end
 	local ttcode=0
 	local code=gc:GetCode()
 	local ocode=gc:GetOriginalCode()
@@ -174,7 +175,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
                 e1:SetValue(0xa1)
                 tc:RegisterEffect(e1)
             end
-            aux.CopyCardTable(gc,tc,"listed_names",id,code)
+			aux.CopyCardTable(tc,"listed_names",id,code)
             tc.__index.material={code,id}
 
 			local strong_eff_att={false,false,false}

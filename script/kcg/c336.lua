@@ -103,7 +103,7 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
         else
             tc2:SetEntityCode(ocode,nil,rc:GetOriginalSetCard(),rc:GetOriginalType()|TYPE_TOKEN|TYPE_EFFECT&~TYPE_NORMAL,nil,nil,nil,nil,nil,nil,nil,nil,true,347,effcode,347)
         end
-        aux.CopyCardTable(rc,tc2)
+        --aux.CopyCardTable(rc,tc2)
 		local e0=Effect.CreateEffect(tc2)
 		e0:SetType(EFFECT_TYPE_SINGLE)
 		e0:SetCode(EFFECT_SET_BASE_ATTACK)

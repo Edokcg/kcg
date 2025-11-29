@@ -53,7 +53,6 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		local typ=Duel.GetCardTypeFromCode(tcode)
 		if typ&(TYPE_MONSTER)~=0 then
 			rg:GetFirst():SetEntityCode(tcode, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true)
-			aux.CopyCardTable(tcode,rg:GetFirst())
 			if Duel.GetLocationCount(tp,LOCATION_MZONE)<1 or not Duel.SelectYesNo(tp,aux.Stringid(id,0)) then return end
 			Duel.BreakEffect()
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)

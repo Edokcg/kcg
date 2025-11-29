@@ -111,7 +111,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 			e1:SetValue(0x62)
 			tc:RegisterEffect(e1,true)
 		end
-		aux.CopyCardTable(tc,tc,false,"listed_names",15259703)
+		aux.CopyCardTable(tc,"listed_names",15259703)
 		local e4=Effect.CreateEffect(c)
 		e4:SetType(EFFECT_TYPE_SINGLE)
 		e4:SetDescription(aux.Stringid(838,4),true,0,0,0,0,0,true)

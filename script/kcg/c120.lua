@@ -113,6 +113,7 @@ function s.operation(e, tp, eg, ep, ev, re, r, rp)
 	end
 	local tc = g:GetFirst()
 	while tc do
+		local c1,c2=tc:GetTributeRequirement()
 		local eff1 = {tc:GetCardEffect(EFFECT_LIMIT_SUMMON_PROC)}
 		local eff2 = {tc:GetCardEffect(EFFECT_LIMIT_SET_PROC)}
 		local eff12 = {}

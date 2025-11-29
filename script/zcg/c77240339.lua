@@ -85,13 +85,10 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
     local opt = Duel.SelectOption(e:GetHandlerPlayer(), aux.Stringid(id, 2), aux.Stringid(id, 3), aux.Stringid(id, 4))
     if opt == 0 then
         tc:SetEntityCode(15259703, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true)
-        aux.CopyCardTable(15259703,tc)
     elseif opt == 1 then
         tc:SetEntityCode(900000079, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true)
-        aux.CopyCardTable(900000079,tc)
     else
         tc:SetEntityCode(77240346, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true)
-        aux.CopyCardTable(77240346,tc)
     end
     --[[ local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE)

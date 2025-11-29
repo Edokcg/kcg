@@ -15,7 +15,8 @@ function s.initial_effect(c)
 	e5:SetCode(EFFECT_DESTROY_REPLACE)
 	e5:SetRange(LOCATION_FZONE)
 	e5:SetTarget(s.reptg)
-	e5:SetValue(s.repvalue)
+	e5:SetValue(s.desval)
+	e5:SetOperation(s.desop)
 	c:RegisterEffect(e5)
 
 	--salvage
@@ -38,71 +39,37 @@ function s.repfilter(c,tp)
 end
 function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	local ttp=c:GetControler()
-	local g=eg:Filter(s.repfilter,nil,ttp)
-	if chk==0 then return g:GetCount()>0 and not e:GetHandler():IsStatus(STATUS_DESTROY_CONFIRMED) and (Duel.GetLocationCount(ttp,LOCATION_MZONE)>0 or Duel.GetFieldGroupCount(ttp,LOCATION_MZONE,0)>0) end
-	if Duel.SelectYesNo(ttp,aux.Stringid(19333131,0)) then
-		local bg=g
-		if Duel.GetLocationCount(ttp,LOCATION_MZONE)<g:GetCount() and Duel.GetLocationCount(ttp,LOCATION_MZONE)>0 then
-			Duel.Hint(HINT_SELECTMSG,ttp,aux.Stringid(19333131,0))
-			local ag=Duel.SelectMatchingCard(ttp,nil,ttp,LOCATION_MZONE,0,Duel.GetLocationCount(ttp,LOCATION_MZONE),Duel.GetLocationCount(ttp,LOCATION_MZONE),nil)
-			if #ag>0 then bg=ag end
-		end
-		local zone=0
-		local ag=Group.CreateGroup()
-		for tc in aux.Next(bg) do
-			local seq=tc:GetSequence()
-			zone=bit.bor(zone,(0x1<<seq))
-			if Duel.GetLocationCount(ttp,LOCATION_MZONE)<1 then
-			    ag:AddCard(tc)
-			else 
-				Duel.Hint(HINT_SELECTMSG,ttp,HINTMSG_TOZONE)
-				local dis=Duel.SelectDisableField(ttp,1,LOCATION_MZONE,0,zone)
-				local s=Duel.MoveSequence(tc,math.log(dis,2))
-			end
-			c:RegisterFlagEffect(126,RESET_EVENT+0x1fe0000,0,1) 
-		end
-		g:Sub(bg)
-		g:Merge(ag)
-		g:KeepAlive()
-		local e2=Effect.CreateEffect(c)
-		e2:SetType(EFFECT_TYPE_FIELD)
-		e2:SetCode(EFFECT_DISABLE_FIELD)
-		e2:SetRange(LOCATION_FZONE)
-		e2:SetLabel(zone)
-		e2:SetLabelObject(g)
-		e2:SetOperation(s.disop)
-		e2:SetReset(RESET_EVENT+0x1fe0000)
-		c:RegisterEffect(e2)
-		return true
-	else return false end
+	local g=eg:Filter(s.repfilter,nil,tp)
+	if chk==0 then return #g>0 end
+	g:KeepAlive()
+	e:SetLabelObject(g)
+	return Duel.SelectEffectYesNo(tp,e:GetHandler())
 end
-function s.repvalue(e,c)
-	return s.repfilter(c,e:GetHandlerPlayer())
+function s.desval(e,c)
+	return c:IsControler(e:GetHandlerPlayer())
+end
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local zone0=0
+	for tc in aux.Next(e:GetLabelObject()) do
+		local seq=tc:GetSequence()
+		zone0=bit.bor(zone0,(0x1<<seq))
+		local dis=1<<seq
+		local zone=Duel.SelectDisableField(tp,1,LOCATION_MZONE,0,zone0)
+		if zone then Duel.MoveSequence(tc,math.log(zone,2)) end
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_FIELD)
+		e1:SetRange(LOCATION_FZONE)
+		e1:SetCode(EFFECT_DISABLE_FIELD)
+		e1:SetOperation(s.disop)
+		e1:SetLabel(dis)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
+		c:RegisterEffect(e1)
+		e:SetLabel(e:GetLabel()+dis)
+		c:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD_DISABLE,0,1)
+	end
 end
 function s.disop(e,tp)
-	-- local c=Duel.GetLocationCount(tp,LOCATION_MZONE)
-	-- local dis1=0
-	-- if e:GetLabel()>c then 
-	--     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	-- 	local g=Duel.SelectMatchingCard(tp,nil,tp,LOCATION_MZONE,0,e:GetLabel()-c,e:GetLabel()-c,nil)
-	-- 	if Duel.Destroy(g,REASON_RULE)>0 then
-	-- 		c=Duel.GetLocationCount(tp,LOCATION_MZONE)
-	-- 		dis1=Duel.SelectDisableField(tp,c,LOCATION_MZONE,0,0)
-	-- 		for i=1,c do
-	-- 			e:GetHandler():RegisterFlagEffect(126,RESET_EVENT+0x1fe0000,0,1)  
-	-- 		end  
-	-- 	end  
-	-- else 
-	-- 	dis1=Duel.SelectDisableField(tp,e:GetLabel(),LOCATION_MZONE,0,0)  
-	-- 	for i=1,e:GetLabel() do
-	-- 		e:GetHandler():RegisterFlagEffect(126,RESET_EVENT+0x1fe0000,0,1)  
-	-- 	end 
-	-- end
-	-- return dis1
-	local g=e:GetLabelObject()
-	Duel.Destroy(g,REASON_REPLACE+REASON_RULE)
-	g:DeleteGroup()
 	return e:GetLabel()
 end
 
@@ -121,7 +88,7 @@ function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.RegisterEffect(e1,tp)
 end
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():GetFlagEffect(126)>=5
+	return e:GetHandler():GetFlagEffect(id)>=5
 	and Duel.GetLocationCount(tp,LOCATION_MZONE)==0
 end
 function s.filter2(c)

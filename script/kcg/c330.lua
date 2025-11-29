@@ -56,7 +56,7 @@ function s.efop(e,tp,eg,ep,ev,re,r,rp)
         else
             tc2:SetEntityCode(ocode,nil,eqc:GetOriginalSetCard(),eqc:GetOriginalType()|TYPE_TOKEN|TYPE_EFFECT&~TYPE_NORMAL,nil,nil,nil,nil,nil,nil,nil,nil,true,347,effcode,347)
         end
-        aux.CopyCardTable(eqc,tc2)
+        --aux.CopyCardTable(eqc,tc2)
 		local mt=eqc:GetMetatable()
 		local e0=Effect.CreateEffect(tc2)
 		e0:SetType(EFFECT_TYPE_SINGLE)

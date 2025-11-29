@@ -123,7 +123,6 @@ function s.retop(e, tp, eg, ep, ev, re, r, rp)
 		local type = c:GetOriginalType()|TYPE_PENDULUM
         if bit.band(type,TYPE_TOKEN)~=0 then type = type - TYPE_TOKEN end
 		c:SetEntityCode(48, nil, nil, type, nil, nil, nil, nil, nil, nil, nil, nil, true)
-        aux.CopyCardTable(48,c)
     end
 end
 

@@ -91,7 +91,6 @@ end
 function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.SendtoDeck(e:GetHandler(),nil,2,REASON_EFFECT)==0 then return end
 	e:GetHandler():SetEntityCode(900000074, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true)
-    aux.CopyCardTable(900000074,e:GetHandler())
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.spfilter2),tp,LOCATION_HAND+LOCATION_DECK+LOCATION_GRAVE,0,1,1,nil,e,tp)

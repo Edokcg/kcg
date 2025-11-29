@@ -31,6 +31,8 @@ Auxiliary.burstlist={
     [97836203] = 47027714,
     [CARD_STARDUST_DRAGON] = 61257789,
     [70902743] = 511002518,
+    [60800381] = 23219323,
+    [80321197] = 50604072,
     --neet
     [28240337] = 1124,
     [51447164] = 1355,
@@ -2017,91 +2019,17 @@ function Auxiliary.mix_twosetcodes(c1, c2)
     return ss
 end
 
-function Auxiliary.extraobjfromtable2(table1,table2)
-    local tab={}
-    local len=0
-    for cindex,name in ipairs(table2) do
-        for index,value in ipairs(table1) do
-            if value==name then --if table1 already has element name, not need add name to table1
-                table.remove(table2,cindex)
-            end
-        end
-        table.insert(tab,name)
-        len=len+1
-    end
-    return tab,len
-end
-function Auxiliary.addtobigtable(table1,bigtable,bigtable2,k)
-    local has_listed_table=false
-    for k2,tab2 in pairs(bigtable) do
-        if k2==k then
-            has_listed_table=true
-            local ntab2=aux.extraobjfromtable2(tab2,table1) --add table1(already remove obj exist in bigtable) to ntab2
-            for index2,value2 in ipairs(ntab2) do
-                table.insert(bigtable2,value2)
-            end
-            break
-        end
-    end
-    if not has_listed_table then bigtable2[k]=table1 end
-end
-function Auxiliary.CopyCardTable(c,tc,merge,list,...)
-    if type(c)~="number" and type(c)~="Card" then error("Parameter 1 should be \"number\" or \"Card\"",2) end
+function Auxiliary.CopyCardTable(c,list,...)
+    if type(c)~="Card" then error("Parameter 1 should be \"Card\"",2) return end
+    if list~="listed_series" and list~="listed_names" then error("Parameter 2 should be \"listed_series or listed_names\"",2) return end
     local card_names={...}
-    local listed_names_chk=false
-    if #card_names>0 then listed_names_chk=true end
-    local otcode=tc:GetOriginalCode()
-    if not _G["c" .. otcode] then otcode=tc:GetOriginalAlias() end
-    if not _G["c" .. otcode] then return end
-    local ocode=0
-    if type(c)~="number" then
-        ocode=c:GetOriginalCode()
-        if not _G["c" .. ocode] then ocode=c:GetOriginalAlias() end
-    else
-        ocode=c
-    end
-    if not _G["c" .. ocode] then _G["c" .. ocode]={} end
-    for k,tab in pairs(_G["c" .. ocode]) do --check every c table
-        if listed_names_chk and k==list then --if c table has table list
-            has_listed_names_table=true
-            local ntab,ntab_len=aux.extraobjfromtable2(tab,card_names) --add card_names(already remove obj exist in tab) to ntab
-            for index, value in ipairs(tab) do --add c table k to ntab
-                table.insert(ntab,value)
-            end
-            --ntab: to be added to tc table
-            if ntab_len>0 then
-                if merge then
-                    aux.addtobigtable(ntab,_G["c" .. otcode],tc.__index,k)
-                else
-                    tc.__index[k]=ntab
-                end
-            end
-        else
-            if merge then
-                local has_listed_table=false
-                for k2,tab2 in pairs(_G["c" .. otcode]) do
-                    if k2==k then
-                        has_listed_table=true
-                        if type(tc.__index[k])=="table" then
-                            local ntab=aux.extraobjfromtable2(tab2,tab)
-                            for index,value in ipairs(ntab) do
-                                table.insert(tc.__index[k],value)
-                            end
-                        else
-                            if tab2~=tab then tc.__index[k]=tab end
-                        end
-                    end
-                end
-                if not has_listed_table then
-                    tc.__index[k]=tab
-                end
-            else
-                tc.__index[k]=tab
-            end
+    if #card_names<1 then error("Parameter 3 should be \"integer\"",2) return end
+    if type(c.__index[list])=="table" then
+        for index,value in ipairs(card_names) do
+            table.insert(c.__index[list],value)
         end
-    end
-    if not has_listed_names_table and listed_names_chk then 
-        tc.__index[list]=card_names
+    else
+        c.__index[list]=card_names
     end
 end
 

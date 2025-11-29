@@ -18,5 +18,4 @@ end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	if not Duel.IsEnvironment(42015635) then return end
 	e:GetHandler():SetEntityCode(17955766, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true)
-    aux.CopyCardTable(17955766,e:GetHandler())
 end

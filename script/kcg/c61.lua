@@ -19,9 +19,9 @@ function s.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_IGNITION)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCondition(function(e,tp) return Duel.GetLP(tp)<=1000 end)
-	e1:SetCost(s.cost)
+	e1:SetCost(Cost.DetachFromSelf(1))
 	e1:SetOperation(s.operation)
-	c:RegisterEffect(e1,false,EFFECT_MARKER_DETACH_XMAT)
+	c:RegisterEffect(e1)
 
 	local e2=Effect.CreateEffect(c)
 	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
@@ -139,7 +139,6 @@ function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	-- e9:SetReset(RESET_EVENT+0x1fe0000)
 	-- c:RegisterEffect(e9, true)
 	c:SetEntityCode(math.max(code1,code2,code3),nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD,c,true)
-	aux.CopyCardTable(math.max(code1,code2,code3),c)
 	local e1=Effect.CreateEffect(c)
 	e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
 	e1:SetDescription(aux.Stringid(id,4))
@@ -158,14 +157,12 @@ end
 -- 	eqg:Sub(eg)
 -- 	if eg:IsExists(s.filter2,1,nil,c,code) and not eqg:IsExists(Card.IsCode,1,c,code) and not c:IsOriginalCode(id) then
 -- 		c:SetEntityCode(id,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
--- 		aux.CopyCardTable(id,c)
 -- 	end
 -- end
 -- function s.recover2(e,tp,eg,ep,ev,re,r,rp)
 -- 	local c=e:GetHandler()
 -- 	if not c:IsOriginalCode(id) then
 -- 		c:SetEntityCode(id,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
--- 		aux.CopyCardTable(id,c)
 -- 	end
 -- end
 

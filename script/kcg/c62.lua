@@ -33,7 +33,7 @@ function s.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetCountLimit(1)
-	e2:SetCost(s.descost)
+	e2:SetCost(Cost.DetachFromSelf(1))
 	e2:SetTarget(s.destg)
 	e2:SetOperation(s.desop)
 	e2:SetLabel(RESET_EVENT+RESETS_STANDARD)
@@ -41,7 +41,7 @@ function s.initial_effect(c)
 	e3:SetType(EFFECT_TYPE_SINGLE)
 	e3:SetCode(EFFECT_RANKUP_EFFECT)
 	e3:SetLabelObject(e2)
-	c:RegisterEffect(e3,false,EFFECT_MARKER_DETACH_XMAT) 
+	c:RegisterEffect(e3) 
 
 
 	local e4=Effect.CreateEffect(c)
@@ -50,7 +50,7 @@ function s.initial_effect(c)
 	e4:SetCode(EVENT_EQUIP)
 	e4:SetTarget(s.destg2)
 	e4:SetOperation(s.desop2)
-	c:RegisterEffect(e4)   
+	c:RegisterEffect(e4)
 end
 s.xyz_number=39
 s.listed_series={0x48}
@@ -138,7 +138,6 @@ function s.desop2(e,tp,eg,ep,ev,re,r,rp)
 	-- e9:SetReset(RESET_EVENT+0x1fe0000)
 	-- c:RegisterEffect(e9, true)
 	c:SetEntityCode(code1,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD,c,true)
-	aux.CopyCardTable(code1,c)
 	local e1=Effect.CreateEffect(c)
 	e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
 	e1:SetDescription(aux.Stringid(id,2))
@@ -157,13 +156,11 @@ end
 -- 	eqg:Sub(eg)
 -- 	if eg:IsExists(s.filter2,1,nil,c,code) and not eqg:IsExists(Card.IsCode,1,c,code) and not c:IsOriginalCode(id) then
 -- 		c:SetEntityCode(id,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
--- 		aux.CopyCardTable(id,c)
 -- 	end
 -- end
 -- function s.recover2(e,tp,eg,ep,ev,re,r,rp)
 -- 	local c=e:GetHandler()
 -- 	if not c:IsOriginalCode(id) then
 -- 		c:SetEntityCode(id,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
--- 		aux.CopyCardTable(id,c)
 -- 	end
 -- end

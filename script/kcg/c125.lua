@@ -1,10 +1,18 @@
 --霧の王
 local s,id=GetID()
 function s.initial_effect(c)
-	--decrease tribute
+	--summon with 1 tribute
+	local e0=Effect.CreateEffect(c)
+	e0:SetDescription(aux.Stringid(id,0))
+	e0:SetType(EFFECT_TYPE_SINGLE)
+	e0:SetCode(EFFECT_SUMMON_PROC)
+	e0:SetCondition(s.ttcon)
+	e0:SetOperation(s.ttop)
+	e0:SetValue(SUMMON_TYPE_TRIBUTE)
+	c:RegisterEffect(e0)
+	--summon with no tribute
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(35950025,0))
-	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+	e1:SetDescription(aux.Stringid(id,1))
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetCode(EFFECT_SUMMON_PROC)
 	e1:SetCondition(s.ntcon)
@@ -17,24 +25,22 @@ function s.initial_effect(c)
 	e2:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
 	e2:SetTarget(s.target)
 	c:RegisterEffect(e2)
-	local e3=Effect.CreateEffect(c)
 	local e3=e2:Clone()
 	e3:SetCode(EFFECT_DISABLE_EFFECT)
 	c:RegisterEffect(e3)
-	local e5=Effect.CreateEffect(c)
-	e5:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e5:SetCode(EVENT_CHAINING)
-	e5:SetRange(LOCATION_MZONE)
-	e5:SetOperation(s.disop)
-	c:RegisterEffect(e5)
+	local e7=Effect.CreateEffect(c)
+	e7:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e7:SetCode(EVENT_CHAINING)
+	e7:SetRange(LOCATION_MZONE)
+	e7:SetOperation(s.disop)
+	c:RegisterEffect(e7)
 
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(1828513,0))
-	e4:SetType(EFFECT_TYPE_QUICK_O)
+	e4:SetCategory(CATEGORY_ATKCHANGE)
+	e4:SetType(EFFECT_TYPE_TRIGGER_O+EFFECT_TYPE_SINGLE)
 	e4:SetCode(EVENT_PRE_DAMAGE_CALCULATE)
-	e4:SetRange(LOCATION_MZONE)
 	e4:SetCondition(s.atkcondition)
-	e4:SetTarget(s.atkcost)
 	e4:SetOperation(s.atkoperation)
 	c:RegisterEffect(e4)
 
@@ -50,17 +56,22 @@ function s.initial_effect(c)
 	e6:SetCode(EFFECT_SUMMON_COST)
 	e6:SetOperation(s.facechk)
 	e6:SetLabelObject(e5)
-	c:RegisterEffect(e6)	  
+	c:RegisterEffect(e6)
 end
 
-function s.filter(c)
-	return c:IsFaceup() and c:IsCode(111215001)
-end
 function s.ntcon(e,c,minc)
 	if c==nil then return true end
 	return minc==0 and c:GetLevel()>4 and Duel.GetLocationCount(c:GetControler(),LOCATION_MZONE)>0
-		and (Duel.IsExistingMatchingCard(s.filter,c:GetControler(),LOCATION_ONFIELD,0,1,nil)
-		or Duel.IsEnvironment(111215001))
+end
+function s.ttcon(e,c,minc)
+	if c==nil then return true end
+	return minc<=1 and Duel.CheckTribute(c,1)
+end
+function s.ttop(e,tp,eg,ep,ev,re,r,rp,c)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
+	local g=Duel.SelectTribute(tp,c,1,1)
+	c:SetMaterial(g)
+	Duel.Release(g, REASON_SUMMON+REASON_MATERIAL)
 end
 
 function s.disop(e,tp,eg,ep,ev,re,r,rp)
@@ -73,24 +84,23 @@ function s.target(e,c)
 end
 
 function s.atkcondition(e,tp,eg,ep,ev,re,r,rp)
-	  return e:GetHandler()==Duel.GetAttacker() and Duel.GetAttackTarget()~=nil
-end
-function s.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then return c:GetFlagEffect(96864105)==0 end
-	c:RegisterFlagEffect(96864105,RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_DAMAGE_CAL,0,1)
+	local bc=c:GetBattleTarget()
+	return c==Duel.GetAttacker() and bc and bc:IsControler(1-tp)
 end
 function s.atkoperation(e,tp,eg,ep,ev,re,r,rp)
-	   if Duel.GetAttackTarget()==nil then return end
-	   local e1=Effect.CreateEffect(e:GetHandler())
-	   e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	   e1:SetType(EFFECT_TYPE_SINGLE)
-	   e1:SetCode(EFFECT_SET_ATTACK_FINAL)
-	   e1:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_DAMAGE_CAL)
-	   e1:SetValue(1)
-	   e:GetHandler():RegisterEffect(e1)
-	   local e2=e1:Clone()
-	   Duel.GetAttackTarget():RegisterEffect(e2)
+	local c=e:GetHandler()
+	local bc=c:GetBattleTarget()
+	if c:IsRelateToEffect(e) and c:IsFaceup() and bc and bc:IsRelateToBattle() then
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_SET_ATTACK_FINAL)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_DAMAGE)
+		e1:SetValue(1)
+		c:RegisterEffect(e1)
+		local e2=e1:Clone()
+		bc:RegisterEffect(e2)
+	end
 end
 
 function s.valcheck(e,c)

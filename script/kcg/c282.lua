@@ -110,7 +110,7 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
                 e1:SetValue(0xa1)
                 tc:RegisterEffect(e1)
             end
-            aux.CopyCardTable(gc,tc,false,"listed_names",id,code)
+            aux.CopyCardTable(tc,"listed_names",id,code)
 			local ran=0
 			if s.efflist[code]~=nil then
 				ran=s.efflist[code]

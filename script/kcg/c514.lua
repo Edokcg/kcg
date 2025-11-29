@@ -91,7 +91,6 @@ function s.activate32(e, tp, eg, ep, ev, re, r, rp)
     local code = Duel.AnnounceCard(tp, 0x95, OPCODE_ISSETCARD,OPCODE_ALLOW_ALIASES)
     local a = Duel.CreateToken(tp, code)
     tc:SetEntityCode(code, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true)
-    aux.CopyCardTable(code,tc)
     if Duel.GetFlagEffect(tp, 89999997) == 1 then
         Duel.Hint(HINT_CARD, 0, 510000103)
     end

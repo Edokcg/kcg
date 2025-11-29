@@ -60,7 +60,6 @@ function s.desspop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if not c:IsRelateToEffect(e) or not Duel.SpecialSummonStep(c,0,tp,tp,false,false,POS_FACEUP) then return end
 	c:SetEntityCode(223, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true)
-	aux.CopyCardTable(223,c)
 	Duel.SpecialSummonComplete()
 	local g=Duel.GetMatchingGroup(s.setfilter,tp,LOCATION_DECK,0,nil)
 	if #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then

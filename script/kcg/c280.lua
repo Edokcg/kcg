@@ -103,7 +103,7 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
                 e1:SetValue(0xa1)
                 tc:RegisterEffect(e1)
             end
-            aux.CopyCardTable(rg:GetFirst(),tc,false,"listed_names",id,code)
+            aux.CopyCardTable(tc,"listed_names",id,code)
             tc.__index.material_trap=code
             local tequip=false
             local tec = {rg:GetFirst():GetTriggerEffect()}

@@ -46,7 +46,6 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
                 code=133
             end
             c:SetEntityCode(code,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
-            aux.CopyCardTable(code,c)
         else
             local code=tc:GetCode()
             local ocode=tc:GetOriginalCode()
@@ -104,7 +103,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
                 e1:SetValue(0x23)
                 c:RegisterEffect(e1,true)
             end
-            aux.CopyCardTable(tc,c,false,"listed_names",27564031,code)
+            aux.CopyCardTable(c,"listed_names",27564031,acode)
             local e1=Effect.CreateEffect(c)
             e1:SetDescription(aux.Stringid(102,gtype+1),true,0,0,0,0,code,true)
             e1:SetType(EFFECT_TYPE_FIELD)

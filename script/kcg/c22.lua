@@ -129,7 +129,6 @@ function s.desrepop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if not Duel.SpecialSummonStep(c,0,tp,tp,true,true,POS_FACEUP) then return end
 	c:SetEntityCode(1692, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true)
-	aux.CopyCardTable(1692,c)
 	c:CopyEffect(id,RESET_EVENT+RESETS_STANDARD,1)
 	Duel.SpecialSummonComplete()
 	c:CompleteProcedure()

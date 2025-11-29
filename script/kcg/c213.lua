@@ -113,7 +113,6 @@ function s.thop2(e,tp,eg,ep,ev,re,r,rp)
         end
     else
         c:SetEntityCode(aux.burstlist[acode],nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
-        aux.CopyCardTable(aux.burstlist[acode],c)
         return
     end
     if addset then
@@ -124,7 +123,7 @@ function s.thop2(e,tp,eg,ep,ev,re,r,rp)
         e1:SetValue(0x104f)
         tc:RegisterEffect(e1)
     end
-    aux.CopyCardTable(tc,c,false,"listed_names",CARD_ASSAULT_MODE,acode)
+    aux.CopyCardTable(c,"listed_names",CARD_ASSAULT_MODE,acode)
     c.__index.assault_mode=acode
 	local tec2 = {c:GetTriggerEffect()}
 	if tec2 then

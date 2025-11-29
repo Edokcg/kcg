@@ -575,7 +575,6 @@ function Duel.SelectMatchingCard(sel_player, f, tp, s, o, mint, maxt, cancel, ex
                 Duel.SendtoDeck(token, tp, 0, REASON_RULE)
                 local ss=aux.mix_twosetcodes(tgc, token)
                 token:SetEntityCode(ocode, nil, ss, nil, tgc:GetOriginalRank() + 1, nil, nil, tgc:GetTextAttack() + 500, tgc:GetTextDefense() + 1000, nil, nil, nil, false, tokencode, ocode, tokencode)
-                aux.CopyCardTable(tgc,token)
                 if f(token, table.unpack(params)) then
                     g:AddCard(token)
                 end
@@ -775,7 +774,6 @@ function Duel.SelectMatchingCard(sel_player, f, tp, s, o, mint, maxt, cancel, ex
                 Duel.SendtoDeck(token, nil, 0, REASON_RULE)
                 local ss=aux.mix_twosetcodes(tgc, token)
                 token:SetEntityCode(ocode, nil, ss, nil, tgc:GetOriginalRank() + 1, nil, nil, nil, nil, nil, nil, nil, false, 36, 36, 36)
-                aux.CopyCardTable(tgc,token)
                 if f(token, table.unpack(params)) then
                     g:AddCard(token)
                 end

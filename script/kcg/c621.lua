@@ -161,7 +161,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
                 e1:SetValue(0xa1)
                 tc:RegisterEffect(e1)
             end
-            aux.CopyCardTable(gc,tc,"listed_names",id,code)
+			aux.CopyCardTable(tc,"listed_names",id,code)
             tc.__index.material={code,id}
 
 			local strong_eff_att={false,false,false}

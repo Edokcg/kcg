@@ -61,13 +61,10 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	for tc in aux.Next(sg) do
 		if tc:IsOriginalCode(281) then
 			tc:SetEntityCode(293,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
-    		aux.CopyCardTable(293,tc)
 		elseif tc:IsOriginalCode(280) then
 			tc:SetEntityCode(294,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
-    		aux.CopyCardTable(294,tc)
 		elseif tc:IsOriginalCode(282) then
 			tc:SetEntityCode(295,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
-    		aux.CopyCardTable(295,tc)
 		end
 	end
 end

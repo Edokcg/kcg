@@ -235,7 +235,7 @@ function s.cartoonize(e,tp,g)
 				e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 				tc:RegisterEffect(e1,true)
 			end
-			aux.CopyCardTable(tc,tc,false,"listed_names",15259703)
+			aux.CopyCardTable(tc,"listed_names",15259703)
             local e4=Effect.CreateEffect(c)
             e4:SetType(EFFECT_TYPE_SINGLE)
             e4:SetDescription(aux.Stringid(838,4),true,0,0,0,0,0,true)

@@ -34,7 +34,6 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
             local typ=Duel.GetCardTypeFromCode(v)
             if typ&(TYPE_MONSTER)~=0 then
                 c:SetEntityCode(v, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true)
-                aux.CopyCardTable(v,c)
                 break
             end
         end

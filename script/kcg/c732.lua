@@ -139,7 +139,6 @@ end
 function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.SendtoDeck(e:GetHandler(),nil,2,REASON_EFFECT)==0 then return end
 	e:GetHandler():SetEntityCode(900000071, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true)
-	aux.CopyCardTable(900000071,e:GetHandler())
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	Duel.BreakEffect()
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)

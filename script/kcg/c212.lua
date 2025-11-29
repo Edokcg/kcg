@@ -142,7 +142,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
             e1:SetValue(0x104f)
             tc:RegisterEffect(e1)
         end
-        aux.CopyCardTable(rg,tc,false,"listed_names",CARD_ASSAULT_MODE,acode)
+        aux.CopyCardTable(tc,"listed_names",CARD_ASSAULT_MODE,acode)
         tc.__index.assault_mode=acode
         --Special summon
         local e4=Effect.CreateEffect(tc)
@@ -162,7 +162,6 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
         tc:RegisterEffect(e4)
     elseif tc:IsOriginalCode(213) then
         tc:SetEntityCode(aux.burstlist[code],nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
-        aux.CopyCardTable(aux.burstlist[code],tc)
 	end
     if Duel.SpecialSummonStep(tc,0,tp,tp,true,false,POS_FACEUP) then
         --Cannot be destroyed by battle this turn
