@@ -1,32 +1,30 @@
 --部分同调相关--
 local SynchroMaterial=Card.IsCanBeSynchroMaterial
 function Card.IsCanBeSynchroMaterial(c,sc,tc)
-	local chk=false
 	if not c:HasLevel() and sc and (sc.synchrouserank or sc.synchrouselink) then
 		local effs={c:GetCardEffect(EFFECT_CANNOT_BE_SYNCHRO_MATERIAL)}
 		for _,eff in ipairs(effs) do
 			local f=eff:GetValue()
-			if f(eff,sc) then
-				chk=false
-			else
-				chk=true
+			if f and not f(eff,sc) then
+				return false
 			end
 		end
-		if #effs==0 then chk=true end
+		return true
 	end
 	if not c:HasLevel() and c:IsHasEffect(1196) and sc then 
-		local effs={c:GetCardEffect(EFFECT_CANNOT_BE_SYNCHRO_MATERIAL)}
 		for _,eff in ipairs(effs) do
 			local f=eff:GetValue()
-			if f(eff,sc) then
-				chk=false
-			else
-				chk=true
+			if f and not f(eff,sc) then
+				return false
 			end
 		end
-		if #effs==0 then chk=true end
+		return true
 	end
-	return SynchroMaterial(c,sc,tc) or chk
+	if not sc then
+		return SynchroMaterial(c)
+	else
+		return SynchroMaterial(c,sc,tc)
+	end
 end
 local SynchroLevel=Card.GetSynchroLevel
 function Card.GetSynchroLevel(c,sc)
