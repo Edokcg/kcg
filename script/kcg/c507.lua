@@ -57,6 +57,7 @@ function s.initial_effect(c)
 	e6:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_SINGLE)
 	e6:SetCode(EFFECT_DESTROY_REPLACE)
 	e6:SetTarget(s.desreptg)
+	e6:SetOperation(s.repop)
 	c:RegisterEffect(e6)
 end
 s.listed_series={SET_MEKLORD,0x557,0x507,0x525,0x50d}
@@ -184,9 +185,11 @@ function s.desreptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return not c:IsReason(REASON_REPLACE)
 		and Duel.IsExistingMatchingCard(s.repfilter,tp,LOCATION_MZONE|LOCATION_GRAVE,0,1,nil) end
 	if Duel.SelectEffectYesNo(tp,e:GetHandler(),96) then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-		local g=Duel.SelectMatchingCard(tp,s.repfilter,tp,LOCATION_MZONE|LOCATION_GRAVE,0,1,1,nil)
-		Duel.Remove(g,POS_FACEUP,REASON_EFFECT+REASON_REPLACE)
 		return true
 	else return false end
+end
+function s.repop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+	local g=Duel.SelectMatchingCard(tp,s.repfilter,tp,LOCATION_MZONE|LOCATION_GRAVE,0,1,1,nil)
+	Duel.Remove(g,POS_FACEUP,REASON_EFFECT+REASON_REPLACE)
 end

@@ -59,6 +59,7 @@ function s.initial_effect(c)
 	e7:SetRange(LOCATION_MZONE)
 	e7:SetCode(EFFECT_DESTROY_REPLACE)
 	e7:SetTarget(s.desreptg)
+	e7:SetOperation(s.repop)
 	c:RegisterEffect(e7)
 end
 s.listed_series={0x4a}
@@ -149,26 +150,18 @@ function s.negop2(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 -------------------------------------------------------------------------------------------------------------------------------------------
+function s.repfilter(c)
+	return c:IsSetCard(SET_TIMELORD) and c:IsFaceup() and c:IsAbleToRemove()
+end
 function s.desreptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	if chk==0 then return not c:IsReason(REASON_REPLACE)
-		and Duel.IsExistingMatchingCard(s.vfilter,tp,LOCATION_MZONE,0,1,nil) end
-	if Duel.SelectYesNo(tp,aux.Stringid(10000052,0)) then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-		local g=Duel.SelectMatchingCard(tp,s.vfilter,tp,LOCATION_MZONE,0,1,1,nil)
-		if Duel.Remove(g,POS_FACEUP,REASON_EFFECT+REASON_REPLACE)>0 then
-      local e8=Effect.CreateEffect(c)
-	e8:SetType(EFFECT_TYPE_SINGLE)
-	e8:SetCode(EFFECT_AVOID_BATTLE_DAMAGE)
-	e8:SetCondition(s.damco)
-	e8:SetValue(1)
-	e8:SetReset(RESET_PHASE+PHASE_DAMAGE)
-	c:RegisterEffect(e8) end
-		return true
+		and Duel.IsExistingMatchingCard(s.repfilter,tp,LOCATION_MZONE,0,1,nil,c) end
+	if Duel.SelectEffectYesNo(tp,c,96) then return true
 	else return false end
 end
-
-function s.damco(e,c)
-	if c==nil then return true end
-	return Duel.IsExistingMatchingCard(Card.IsSetCard,e:GetHandlerPlayer(),LOCATION_ONFIELD,0,1,e:GetHandler(),0x4a)
+function s.repop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESREPLACE)
+	local g=Duel.SelectMatchingCard(tp,s.repfilter,tp,LOCATION_MZONE,0,1,1,e:GetHandler())
+	Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
 end

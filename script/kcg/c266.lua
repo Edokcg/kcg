@@ -27,6 +27,7 @@ function s.initial_effect(c)
 	e3:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
 	e3:SetCode(EFFECT_DESTROY_REPLACE)
 	e3:SetTarget(s.desreptg)
+	e3:SetOperation(s.repop)
 	--e3:SetValue(1)
 	c:RegisterEffect(e3)
 end
@@ -74,8 +75,10 @@ function s.desreptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	if chk==0 then return true end
 	if Duel.SelectYesNo(tp,aux.Stringid(13108445,0)) then
-		Duel.SendtoHand(c,nil,REASON_EFFECT+REASON_COST)
 		return true
 	else return false end
+end
+function s.repop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.SendtoHand(e:GetHandler(),nil,REASON_EFFECT+REASON_COST)
 end
 

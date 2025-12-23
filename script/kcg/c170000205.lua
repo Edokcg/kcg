@@ -30,6 +30,7 @@ function s.initial_effect(c)
     e9:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
     e9:SetRange(LOCATION_MZONE)
     e9:SetTarget(s.desreptg)
+    e9:SetOperation(s.repop)
     c:RegisterEffect(e9)
 
     local e4=Effect.CreateEffect(c)
@@ -84,9 +85,12 @@ end
 function s.desreptg(e,tp,eg,ep,ev,re,r,rp,chk)
     local c=e:GetHandler()
     if chk==0 then return not c:IsReason(REASON_REPLACE) and Duel.GetFieldGroupCount(tp,LOCATION_HAND,0)>0 end
-    Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT+REASON_DISCARD)
     return true
 end
+function s.repop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT+REASON_DISCARD)
+end
+
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
      return e:GetHandler():GetPosition()==POS_FACEUP_ATTACK
 end

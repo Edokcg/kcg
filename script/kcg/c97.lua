@@ -28,6 +28,7 @@ function s.initial_effect(c)
 	e2:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetTarget(s.reptg)
+	e2:SetOperation(s.repop)
 	c:RegisterEffect(e2)
 end
 s.xyz_number=101
@@ -72,7 +73,9 @@ end
 function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_EFFECT+REASON_REPLACE) end
 	if Duel.SelectYesNo(tp,aux.Stringid(48739166,1)) then
-		e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_EFFECT+REASON_REPLACE)
 		return true
 	else return false end
+end
+function s.repop(e,tp,eg,ep,ev,re,r,rp)
+	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_EFFECT+REASON_REPLACE)
 end

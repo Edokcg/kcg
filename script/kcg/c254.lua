@@ -32,6 +32,7 @@ function s.initial_effect(c)
 	e2:SetCode(EFFECT_DESTROY_REPLACE)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetTarget(s.reptg)
+	e2:SetOperation(s.repop)
 	c:RegisterEffect(e2)
 end
 s.xyz_number=102
@@ -83,18 +84,20 @@ end
 function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_EFFECT) end
 	if Duel.SelectYesNo(tp,aux.Stringid(49678559,1)) then
-		local g=e:GetHandler():GetOverlayGroup()
-		Duel.SendtoGrave(g,REASON_EFFECT)
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetType(EFFECT_TYPE_FIELD)
-		e1:SetCode(EFFECT_CHANGE_DAMAGE)
-		e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-		e1:SetTargetRange(1,0)
-		e1:SetValue(s.damval)
-		e1:SetReset(RESET_PHASE+PHASE_END,1)
-		Duel.RegisterEffect(e1,tp)
 		return true
 	else return false end
+end
+function s.repop(e,tp,eg,ep,ev,re,r,rp)
+	local g=e:GetHandler():GetOverlayGroup()
+	Duel.SendtoGrave(g,REASON_EFFECT)
+	local e1=Effect.CreateEffect(e:GetHandler())
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetCode(EFFECT_CHANGE_DAMAGE)
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e1:SetTargetRange(1,0)
+	e1:SetValue(s.damval)
+	e1:SetReset(RESET_PHASE+PHASE_END,1)
+	Duel.RegisterEffect(e1,tp)
 end
 function s.damval(e,re,dam,r,rp,rc)
 	if bit.band(r,REASON_BATTLE)~=0 then

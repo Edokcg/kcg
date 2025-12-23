@@ -127,15 +127,11 @@ function s.desreptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return c:IsFaceup()
 		and Duel.IsExistingMatchingCard(s.repfilter,tp,LOCATION_GRAVE,0,1,c) end
 	if Duel.SelectYesNo(tp,aux.Stringid(13707,6)) then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESREPLACE)
-		local g=Duel.SelectMatchingCard(tp,s.repfilter,tp,LOCATION_GRAVE,0,1,1,c)
-		if #g<1 then return false end
-		e:SetLabelObject(g:GetFirst())
-		Duel.HintSelection(g)
 		return true
 	else return false end
 end
 function s.desrepop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=e:GetLabelObject()
-	Duel.Remove(tc,POS_FACEUP,REASON_EFFECT+REASON_REPLACE)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESREPLACE)
+	local g=Duel.SelectMatchingCard(tp,s.repfilter,tp,LOCATION_GRAVE,0,1,1,e:GetHandler())
+	Duel.Remove(g,POS_FACEUP,REASON_EFFECT+REASON_REPLACE)
 end
