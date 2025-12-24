@@ -156,7 +156,7 @@ end
 function s.desreptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	if chk==0 then return not c:IsReason(REASON_REPLACE)
-		and Duel.IsExistingMatchingCard(s.repfilter,tp,LOCATION_MZONE,0,1,nil,c) end
+		and Duel.IsExistingMatchingCard(s.repfilter,tp,LOCATION_MZONE,0,1,c) end
 	if Duel.SelectEffectYesNo(tp,c,96) then return true
 	else return false end
 end
