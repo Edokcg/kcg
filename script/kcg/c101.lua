@@ -1,4 +1,5 @@
 --シューティング·クェーサー·ドラゴン
+Duel.EnableUnofficialProc(PROC_CANNOT_BATTLE_INDES)
 local s, id = GetID()
 function s.initial_effect(c)
 	--synchro summon
@@ -48,21 +49,24 @@ function s.initial_effect(c)
 	e4:SetTarget(s.sumtg)
 	e4:SetOperation(s.sumop)
 	c:RegisterEffect(e4)
-	--local e5=e4:Clone()
-	--e5:SetCode(EVENT_REMOVE)
-	--c:RegisterEffect(e5)
-	--local e6=e4:Clone()
-	--e6:SetCode(EVENT_TO_DECK)
-	--c:RegisterEffect(e6)
 
-	local e9=Effect.CreateEffect(c)
-	e9:SetProperty(EFFECT_FLAG_INITIAL)
-	e9:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
-	e9:SetCode(EVENT_BATTLED)
-	e9:SetRange(LOCATION_MZONE)
-	e9:SetCondition(s.con)
-	e9:SetOperation(s.op)
-	c:RegisterEffect(e9)
+	local e5=Effect.CreateEffect(c)
+	e5:SetType(EFFECT_TYPE_FIELD)
+	e5:SetCode(EFFECT_CANNOT_BATTLE_INDES)
+	e5:SetRange(LOCATION_MZONE)
+	e5:SetTargetRange(0,LOCATION_MZONE)
+	e5:SetTarget(s.battg)
+	e5:SetValue(s.batval)
+	c:RegisterEffect(e5)
+
+	-- local e9=Effect.CreateEffect(c)
+	-- e9:SetProperty(EFFECT_FLAG_INITIAL)
+	-- e9:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+	-- e9:SetCode(EVENT_BATTLED)
+	-- e9:SetRange(LOCATION_MZONE)
+	-- e9:SetCondition(s.con)
+	-- e9:SetOperation(s.op)
+	-- c:RegisterEffect(e9)
 
 	--immune
 	local e10=Effect.CreateEffect(c)
@@ -74,18 +78,18 @@ function s.initial_effect(c)
 	c:RegisterEffect(e10)
 	
 	--synchro effect
-	local e5=Effect.CreateEffect(c)
-	e5:SetDescription(aux.Stringid(50091196,1))
-	e5:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_UNCOPYABLE)  
-	e5:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e5:SetType(EFFECT_TYPE_QUICK_O)
-	e5:SetCode(EVENT_FREE_CHAIN)
-	e5:SetHintTiming(0,TIMING_END_PHASE+TIMING_MAIN_END)  
-	e5:SetRange(LOCATION_EXTRA)
-	e5:SetCondition(s.sccon)
-	e5:SetTarget(s.sctarg)
-	e5:SetOperation(s.scop)
-	c:RegisterEffect(e5)	
+	local e8=Effect.CreateEffect(c)
+	e8:SetDescription(aux.Stringid(50091196,1))
+	e8:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_UNCOPYABLE)  
+	e8:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e8:SetType(EFFECT_TYPE_QUICK_O)
+	e8:SetCode(EVENT_FREE_CHAIN)
+	e8:SetHintTiming(0,TIMING_END_PHASE+TIMING_MAIN_END)  
+	e8:SetRange(LOCATION_EXTRA)
+	e8:SetCondition(s.sccon)
+	e8:SetTarget(s.sctarg)
+	e8:SetOperation(s.scop)
+	c:RegisterEffect(e8)
 end
 s.listed_names={24696097}
 
@@ -211,23 +215,30 @@ function s.tgvalue(e,re,rp)
 	return rp~=e:GetHandlerPlayer() and re:IsActiveType(TYPE_MONSTER)
 end
 
-function s.con(e)
-	local c=e:GetHandler()
-	local atk=c:GetAttack()
-	local bc=c:GetBattleTarget()
-	if not bc then return end
-	local bct=0
-	if bc:GetPosition()==POS_FACEUP_ATTACK then
-		bct=bc:GetAttack()
-	else bct=bc:GetDefense()+1 end
-	return c:IsRelateToBattle() and c:GetPosition()==POS_FACEUP_ATTACK 
-	 and atk>=bct and not bc:IsStatus(STATUS_DESTROY_CONFIRMED)
-end 
-function s.op(e,tp,eg,ep,ev,re,r,rp)
-	local bc=e:GetHandler():GetBattleTarget()
-	Duel.Destroy(bc,REASON_RULE)
-	bc:SetStatus(STATUS_DESTROY_CONFIRMED,true)
+function s.battg(e,c)
+	return not c:IsStatus(STATUS_BATTLE_DESTROYED)
 end
+function s.batval(e,re)
+	return re:GetOwnerPlayer()~=e:GetHandlerPlayer()
+end
+
+-- function s.con(e)
+-- 	local c=e:GetHandler()
+-- 	local atk=c:GetAttack()
+-- 	local bc=c:GetBattleTarget()
+-- 	if not bc then return end
+-- 	local bct=0
+-- 	if bc:GetPosition()==POS_FACEUP_ATTACK then
+-- 		bct=bc:GetAttack()
+-- 	else bct=bc:GetDefense()+1 end
+-- 	return c:IsRelateToBattle() and c:GetPosition()==POS_FACEUP_ATTACK 
+-- 	 and atk>=bct and not bc:IsStatus(STATUS_DESTROY_CONFIRMED)
+-- end 
+-- function s.op(e,tp,eg,ep,ev,re,r,rp)
+-- 	local bc=e:GetHandler():GetBattleTarget()
+-- 	Duel.Destroy(bc,REASON_RULE)
+-- 	bc:SetStatus(STATUS_DESTROY_CONFIRMED,true)
+-- end
 
 function s.sccon(e,tp,eg,ep,ev,re,r,rp)
 	return not e:GetHandler():IsStatus(STATUS_CHAINING) and Duel.GetTurnPlayer()~=tp

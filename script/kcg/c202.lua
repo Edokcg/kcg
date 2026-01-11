@@ -1,13 +1,14 @@
 --Cursed Twin Dolls
-function c202.initial_effect(c)
+local s,id=GetID()
+function s.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(2196767,0))
 	e1:SetCategory(CATEGORY_COIN)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetTarget(c202.cointg)
-	e1:SetOperation(c202.actoperation)
+	e1:SetTarget(s.cointg)
+	e1:SetOperation(s.actoperation)
 	c:RegisterEffect(e1)
 
 	--discard deck
@@ -17,18 +18,19 @@ function c202.initial_effect(c)
 	--e3:SetCategory(CATEGORY_DECKDES)
 	--e3:SetCode(EVENT_TO_GRAVE)
 	--e3:SetRange(LOCATION_SZONE)
-	--e3:SetCondition(c202.damcon)
-	--e3:SetTarget(c202.damtg)
-	--e3:SetOperation(c202.damop)
+	--e3:SetCondition(s.damcon)
+	--e3:SetTarget(s.damtg)
+	--e3:SetOperation(s.damop)
 	--c:RegisterEffect(e3)  
 end
-c202.opt=0
+s.toss_coin=true
+s.opt=0
 
-function c202.cointg(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.cointg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
 	Duel.SetOperationInfo(0,CATEGORY_COIN,nil,0,tp,1)
 end
-function c202.actoperation(e,tp,eg,ep,ev,re,r,rp)
+function s.actoperation(e,tp,eg,ep,ev,re,r,rp)
 	local rs=0
 	local opt=Duel.SelectOption(1-tp,60,61)
 	if opt==Duel.TossCoin(tp,1) then res=2 
@@ -47,7 +49,7 @@ function c202.actoperation(e,tp,eg,ep,ev,re,r,rp)
 	e2:SetCode(EVENT_TO_GRAVE)
 	e2:SetRange(LOCATION_SZONE)
 	e2:SetLabel(res)
-	e2:SetOperation(c202.operation)
+	e2:SetOperation(s.operation)
 	e2:SetReset(RESET_EVENT+RESETS_STANDARD)
 	e:GetHandler():RegisterEffect(e2)
 
@@ -59,43 +61,43 @@ function c202.actoperation(e,tp,eg,ep,ev,re,r,rp)
 	e3:SetRange(LOCATION_SZONE)
 	e3:SetValue(LOCATION_REMOVED)
 	e3:SetLabel(res)
-	e3:SetTarget(c202.rmtg)
+	e3:SetTarget(s.rmtg)
 	e3:SetReset(RESET_EVENT+RESETS_STANDARD)
 	e:GetHandler():RegisterEffect(e3)
 end 
 
-function c202.filter1(c,tp)
+function s.filter1(c,tp)
 	return c:GetOwner()==tp
 end
-function c202.operation(e,tp,eg,ep,ev,re,r,rp)
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	  local d1=0
 	  local res=e:GetLabel()
-	  if res==1 then d1=eg:FilterCount(c202.filter1,nil,1-tp)*200
+	  if res==1 then d1=eg:FilterCount(s.filter1,nil,1-tp)*200
 						  Duel.Recover(1-tp,d1,REASON_EFFECT) end
-	  if res==2 then d1=eg:FilterCount(c202.filter1,nil,tp)*200
+	  if res==2 then d1=eg:FilterCount(s.filter1,nil,tp)*200
 						Duel.Recover(tp,d1,REASON_EFFECT) end
 end
 
-function c202.rmtg(e,c)
+function s.rmtg(e,c)
 	  local res=e:GetLabel()
 	  if res==1 then return c:GetOwner()==e:GetHandlerPlayer() end
 	  if res==2 then return c:GetOwner()~=e:GetHandlerPlayer() end
 end
 
-function c202.cfilter(c,tp)
+function s.cfilter(c,tp)
 	return c:IsPreviousLocation(LOCATION_DECK) and c:GetPreviousControler()==tp
 end
-function c202.damcon(e,tp,eg,ep,ev,re,r,rp)
-	return re and bit.band(r,REASON_EFFECT)~=0 and eg:IsExists(c202.cfilter,1,nil,1-tp) and re:GetHandler():GetCode()~=511000120
+function s.damcon(e,tp,eg,ep,ev,re,r,rp)
+	return re and bit.band(r,REASON_EFFECT)~=0 and eg:IsExists(s.cfilter,1,nil,1-tp) and re:GetHandler():GetCode()~=511000120
 end
-function c202.damtg(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.damtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_GRAVE,1,nil,TYPE_MONSTER) end
 	Duel.SetTargetPlayer(1-tp)
 	local dam=Duel.GetMatchingGroupCount(Card.IsType,tp,LOCATION_GRAVE,0,nil,TYPE_MONSTER)*1
 	Duel.SetTargetParam(dam)
 	Duel.SetOperationInfo(0,CATEGORY_DECKDES,nil,0,1-tp,dam)
 end
-function c202.damop(e,tp,eg,ep,ev,re,r,rp)
+function s.damop(e,tp,eg,ep,ev,re,r,rp)
 	local p=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER)
 	local dam=Duel.GetMatchingGroupCount(Card.IsType,tp,LOCATION_GRAVE,0,nil,TYPE_MONSTER)*1
 	Duel.DiscardDeck(1-tp,dam,REASON_EFFECT)

@@ -53,6 +53,12 @@ function s.initial_effect(c)
 	c:RegisterEffect(e6)
 	
 	--被破坏和战斗伤害时可以用场上的时械神除外代替
+	local e8=Effect.CreateEffect(c)
+	e8:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_SINGLE)
+	e8:SetCode(EVENT_PRE_DAMAGE_CALCULATE)
+	e8:SetCondition(s.damcon)
+	e8:SetOperation(s.damop)
+	c:RegisterEffect(e8)
 	local e7=Effect.CreateEffect(c)
 	e7:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_SINGLE)
 	e7:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
@@ -149,13 +155,50 @@ function s.negop2(e,tp,eg,ep,ev,re,r,rp)
 		a:RegisterEffect(e2)
 	end
 end
--------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+function s.damcon(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local bc=c:GetBattleTarget()
+	if not bc or c:GetEffectCount(EFFECT_INDESTRUCTABLE_BATTLE)>0 then return false end
+	if bc==Duel.GetAttackTarget() and bc:IsDefensePos() then return false end
+	if c:IsAttackPos() and bc:IsDefensePos() and bc:GetEffectCount(EFFECT_DEFENSE_ATTACK)==1
+		and c:GetAttack()<=bc:GetDefense() then return true end
+	if c:IsAttackPos() and (bc:IsAttackPos() or bc:IsHasEffect(EFFECT_DEFENSE_ATTACK))
+		and c:GetAttack()<=bc:GetAttack() then return true end
+	if c:IsDefensePos() and bc:IsDefensePos() and bc:GetEffectCount(EFFECT_DEFENSE_ATTACK)==1
+		and c:GetDefense()<bc:GetDefense() then return true end
+	if c:IsDefensePos() and (bc:IsAttackPos() or bc:IsHasEffect(EFFECT_DEFENSE_ATTACK))
+		and c:GetDefense()<bc:GetAttack() then return true end
+	return false
+end
+function s.damop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:IsRelateToBattle() and Duel.IsExistingMatchingCard(s.repfilter,tp,LOCATION_MZONE,0,1,c)
+		and Duel.SelectEffectYesNo(tp,c,96) then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESREPLACE)
+		local g=Duel.SelectMatchingCard(tp,s.repfilter,tp,LOCATION_MZONE,0,1,1,c)
+		Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_FIELD)
+		e1:SetCode(EFFECT_AVOID_BATTLE_DAMAGE)
+		e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+		e1:SetTargetRange(1,0)
+		e1:SetReset(RESET_PHASE|PHASE_DAMAGE)
+		Duel.RegisterEffect(e1,tp)
+		local e2=Effect.CreateEffect(c)
+		e2:SetType(EFFECT_TYPE_SINGLE)
+		e2:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
+		e2:SetValue(1)
+		e2:SetReset(RESET_PHASE|PHASE_DAMAGE)
+		c:RegisterEffect(e2)
+	end
+end
 function s.repfilter(c)
 	return c:IsSetCard(SET_TIMELORD) and c:IsFaceup() and c:IsAbleToRemove()
 end
 function s.desreptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then return not c:IsReason(REASON_REPLACE)
+	if chk==0 then return not c:IsReason(REASON_REPLACE) and c:IsReason(REASON_EFFECT)
 		and Duel.IsExistingMatchingCard(s.repfilter,tp,LOCATION_MZONE,0,1,c) end
 	if Duel.SelectEffectYesNo(tp,c,96) then return true
 	else return false end
