@@ -43,7 +43,7 @@ function s.target2(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,2,PLAYER_ALL,LOCATION_GRAVE)
 end
 function s.warrior(c,te)
-    return c:IsRace(RACE_WARRIOR) and c:IsAbleToHand() and c:GetReasonEffect(te)
+    return c:IsRace(RACE_WARRIOR) and c:IsAbleToHand() and c:IsReasonEffect(te)
 end
 function s.operation2(e,tp,eg,ep,ev,re,r,rp)
     local te=e:GetLabelObject()
@@ -51,6 +51,7 @@ function s.operation2(e,tp,eg,ep,ev,re,r,rp)
     if #g<1 then return end
     local toHand=false
     for tc in aux.Next(g) do
+		Duel.HintSelection(tc)
         if Duel.SelectYesNo(tc:GetControler(),aux.Stringid(id,0)) then
             Duel.SendtoHand(tc,nil,REASON_EFFECT)
             Duel.ConfirmCards(1-tc:GetControler(),tc)

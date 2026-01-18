@@ -12,19 +12,27 @@ function Group.RandomSelect(g,p,ct)
     return _RSelecl(g,p,ct) 
 end
 local _SendtoDeck=Duel.SendtoDeck
-function Duel.SendtoDeck(g,p,seq,reason,rp,chk)
-    if not chk and (Duel.HasFlagEffect(0,id) or Duel.HasFlagEffect(1,id)) and seq and seq==2 then
-        local sp=Duel.HasFlagEffect(0,id) and 0 or 1
-        Duel.Hint(HINT_SELECTMSG,sp,aux.Stringid(id,0))
-        local op=Duel.SelectEffect(sp,
+function Duel.SendtoDeck(g,p,seq,reason,rp)
+    rp=rp or Duel.GetReasonPlayer()
+    if rp==nil then rp=p end
+    if Duel.HasFlagEffect(rp,id) and seq and seq==2 then
+        Duel.Hint(HINT_SELECTMSG,rp,aux.Stringid(id,0))
+        local op=Duel.SelectEffect(rp,
             {true,aux.Stringid(id,1)},
             {true,aux.Stringid(id,2)},
             {true,aux.Stringid(id,3)})
         op=op-1
-        chk=true
-        return Duel.SendtoDeck(g,p,op,reason,rp,chk)
+        return _SendtoDeck(g,p,op,reason,rp)
     end
     return _SendtoDeck(g,p,seq,reason,rp,chk)
+end
+local _ShuffleDeck=Duel.ShuffleDeck
+function Duel.ShuffleDeck(tp)
+    local rp=Duel.GetReasonPlayer() or tp
+    if Duel.HasFlagEffect(rp,id) and Duel.SelectYesNo(rp,aux.Stringid(id,4)) then
+        return
+    end
+    return _ShuffleDeck(tp)
 end
 function s.initial_effect(c)
     --
