@@ -85,7 +85,7 @@ end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
     local rc=re:GetHandler()
-	if Duel.NegateEffect(ev) and rc:IsRelateToEffect(re) and c:IsRelateToEffect(e) then
+	if Duel.NegateEffect(ev) and rc:IsRelateToEffect(re) and c:IsRelateToEffect(e) and c:IsType(TYPE_XYZ) then
 		local b1=rc:IsAbleToRemove() and c:IsAbleToRemove()
         local b2=rc:IsCanBeXyzMaterial(c,tp,REASON_EFFECT)
         if not (b1 or b2) then return end
@@ -94,14 +94,14 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		    {b2,aux.Stringid(id,1)})
         if op==1 then
             local g=Group.FromCards(c)
-            g:Merge(tg)
+            g:Merge(eg)
             Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
-            for tc in aux.Next(tg) do tc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1) end
+            eg:GetFirst():RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
             c:RegisterFlagEffect(id,RESET_EVENT+0x0fe0000,0,1)
             e:SetLabelObject(eg:GetFirst())
         elseif op==2 then
             rc:CancelToGrave()
-            Duel.Overlay(c,tg,true)
+            Duel.Overlay(c,rc,true)
         end
 	end
 end

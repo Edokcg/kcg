@@ -2292,6 +2292,12 @@ Card.RegisterEffect=(function()
 	end
 end)()
 
+function Auxiliary.EvilHeroLimit(e,se,sp,st)
+	return se:GetHandler():IsCode(CARD_DARK_FUSION) or (Duel.IsPlayerAffectedByEffect(e:GetHandlerPlayer(),SKILL_DARK_UNITY) and se:GetHandler():IsCode(CARD_SUPER_POLYMERIZATION))
+		or (Duel.IsPlayerAffectedByEffect(e:GetHandlerPlayer(),EFFECT_SUPREME_CASTLE) and st&SUMMON_TYPE_FUSION==SUMMON_TYPE_FUSION)
+        or se:GetHandler():IsHasEffect(23)
+end
+
 --Custom Setname
 function Card.IsArcana(c)
     return c:IsSetCard(0x5) or c:IsCode(11819473,99189322,511000601)

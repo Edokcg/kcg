@@ -36,17 +36,22 @@ function Duel.ShuffleDeck(tp)
 end
 function s.initial_effect(c)
     --
-    local e1=Effect.CreateEffect(c)
+    local e1=Effect.GlobalEffect()
     e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-    e1:SetRange(0xff)
     e1:SetCode(EVENT_STARTUP)
-    e1:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CANNOT_DISABLE)
     e1:SetOperation(s.op)
-    c:RegisterEffect(e1)
+    Duel.RegisterEffect(e1,0)
 end
 function s.op(e,tp,eg,ep,ev,re,r,rp)
-    local c=e:GetOwner()
-    Duel.DisableShuffleCheck()
-    Duel.SendtoDeck(c,nil,-2,REASON_RULE)   
-    Duel.RegisterFlagEffect(tp,id,0,0,1)
+    if Duel.SelectYesNo(0,aux.Stringid(id,5)) then
+        Duel.RegisterFlagEffect(0,id,0,0,1)
+    end
+    if Duel.SelectYesNo(1,aux.Stringid(id,5)) then
+        Duel.RegisterFlagEffect(1,id,0,0,1)
+    end
+    if Duel.GetMatchingGroupCount(Card.IsCode,0,LOCATION_DECK+LOCATION_HAND,LOCATION_DECK+LOCATION_HAND,nil,id)>0 then 
+        Duel.DisableShuffleCheck()
+        Duel.SendtoDeck(Duel.GetMatchingGroup(Card.IsCode,0,LOCATION_DECK+LOCATION_HAND,LOCATION_DECK+LOCATION_HAND,nil,id),0,-2,REASON_RULE)
+    end
+    e:Reset()
 end

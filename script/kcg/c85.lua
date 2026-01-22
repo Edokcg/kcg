@@ -23,11 +23,12 @@ if not DestinyDraw then
 
     function DestinyDraw.op(e, tp, eg, ep, ev, re, r, rp)
         for _,card in ipairs(selfs) do
+            Duel.DisableShuffleCheck()
 			Duel.SendtoDeck(card,0,-2,REASON_RULE) --exile this card
 		end
         local excg=Duel.GetMatchingGroup(function(c) return c:IsOType(SCOPE_CUSTOM) end,0,0xff,0xff,nil)
+        Duel.DisableShuffleCheck()
         Duel.SendtoDeck(excg, 0, -2, REASON_RULE)
-		Duel.DisableShuffleCheck()
 
         local e1 = Effect.GlobalEffect()
         e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE + EFFECT_FLAG_UNCOPYABLE + EFFECT_FLAG_IGNORE_IMMUNE + EFFECT_FLAG_DELAY)

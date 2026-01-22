@@ -49,24 +49,25 @@ function s.effop2(e,tp,eg,ep,ev,re,r,rp)
 	s.activate(a,e,tp,eg,ep,ev,re,r,rp)
 end
 function s.activate(a,e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(Card.IsAttackPos,tp,0,LOCATION_MZONE,nil)
-    local atk=a:GetAttack()
-    local dg=g:Filter(s.filter,a,a:GetAttack())
-	local tc=dg:GetFirst()
-	local dam=0
-	while tc do
-		local dif=atk-tc:GetAttack()
-		dam=dam+dif
-		tc=dg:GetNext()
-	end
-	local ct=0
-	if #g>0 then ct=Duel.Destroy(g,REASON_EFFECT) end
-	if ct>0 and Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,CARD_DARK_MAGICIAN),tp,LOCATION_MZONE,0,1,nil) then
-		Duel.BreakEffect()
-        Duel.Damage(1-tp,dam,REASON_EFFECT)
-    end
-	if not e:IsHasType(EFFECT_TYPE_ACTIVATE) then return end
 	local c=e:GetHandler()
+	local g=Duel.GetMatchingGroup(Card.IsAttackPos,tp,0,LOCATION_MZONE,nil)
+	if #g>0 then 
+		local atk=a:GetAttack()
+		local dg=g:Filter(s.filter,a,a:GetAttack())
+		local tc=dg:GetFirst()
+		local dam=0
+		while tc do
+			local dif=atk-tc:GetAttack()
+			dam=dam+dif
+			tc=dg:GetNext()
+		end
+		local ct=Duel.Destroy(g,REASON_EFFECT)
+		if ct>0 and Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,CARD_DARK_MAGICIAN),tp,LOCATION_MZONE,0,1,nil) then
+			Duel.BreakEffect()
+			Duel.Damage(1-tp,dam,REASON_EFFECT)
+		end
+	end
+	if not e:IsHasType(EFFECT_TYPE_ACTIVATE) then return end
 	--The first time each monster you control that mentions "Shining Sarcophagus" would be destroyerd by battle or card effect, it is not destroyed
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)

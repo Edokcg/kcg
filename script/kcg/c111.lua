@@ -12,6 +12,7 @@ end
 
 function s.op(e, tp, eg, ep, ev, re, r, rp)
     if Duel.GetMatchingGroupCount(Card.IsCode, 0, LOCATION_EXTRA, LOCATION_EXTRA, nil, id) > 0 then
+        Duel.DisableShuffleCheck()
         Duel.SendtoDeck(Duel.GetMatchingGroup(Card.IsCode, 0, LOCATION_EXTRA, LOCATION_EXTRA, nil, id),0,-2,REASON_RULE)
     end
     e:Reset()

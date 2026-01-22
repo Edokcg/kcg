@@ -86,7 +86,7 @@ function s.operation(e,tp,eg,ev,ep,re,r,rp)
 		local e5=e4:Clone()
 		e5:SetCode(EFFECT_CANNOT_BE_MATERIAL)
         e5:SetValue(aux.cannotmatfilter(SUMMON_TYPE_FUSION,SUMMON_TYPE_SYNCHRO,SUMMON_TYPE_XYZ,SUMMON_TYPE_LINK))
-		tc:RegisterEffect(ee57)
+		tc:RegisterEffect(e5)
 		c:SetCardTarget(tc)
 		tc=g:GetNext()
 	end

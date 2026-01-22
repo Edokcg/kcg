@@ -10,9 +10,7 @@ function s.initial_effect(c)
 
 	local e0=Effect.CreateEffect(c)
 	e0:SetType(EFFECT_TYPE_SINGLE)
-	e0:SetCode(SKILL_DARK_UNITY)
-	e0:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_PLAYER_TARGET)
-	e0:SetTargetRange(1,0)
+	e0:SetCode(id)
 	c:RegisterEffect(e0)
 end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)

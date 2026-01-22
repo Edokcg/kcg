@@ -77,6 +77,7 @@ function s.op(e, tp, eg, ep, ev, re, r, rp)
    local ttp = e:GetOwner():GetControler()
    local code={62015408,58851034,14558127,59438930,67750322,73642296,77538567,10045474,97268402,37742478,18964575,19665973,27204311,55063751,23434538}
    if Duel.GetMatchingGroupCount(Card.IsCode, ttp, LOCATION_EXTRA, 0, nil, id) > 0 then
+      Duel.DisableShuffleCheck()
       Duel.SendtoDeck(Duel.GetMatchingGroup(Card.IsCode, ttp, LOCATION_EXTRA, 0, nil, id),0,-2,REASON_RULE)
       for _, code1 in ipairs(code) do
          local token = Duel.CreateToken(ttp, code1)
@@ -84,6 +85,7 @@ function s.op(e, tp, eg, ep, ev, re, r, rp)
       end
    end
    if Duel.GetMatchingGroupCount(Card.IsCode, 1-ttp, LOCATION_EXTRA, 0, nil, id) > 0 then
+      Duel.DisableShuffleCheck()
       Duel.SendtoDeck(Duel.GetMatchingGroup(Card.IsCode, 1-ttp, LOCATION_EXTRA, 0, nil, id),0,-2,REASON_RULE)
       for _, code1 in ipairs(code) do
          local token = Duel.CreateToken(1-ttp, code1)

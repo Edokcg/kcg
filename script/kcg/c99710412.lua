@@ -68,9 +68,9 @@ if not ModeGame_1 then
     end
 	function ModeGame_1.stop(e,tp,eg,ep,ev,re,r,rp)
 		for _,card in ipairs(selfs) do
+            Duel.DisableShuffleCheck()
 			Duel.SendtoDeck(card,0,-2,REASON_RULE) --exile this card
 		end
-		Duel.DisableShuffleCheck()
 
         local counts={}
 		counts[0]=Duel.GetPlayersCount(0)
