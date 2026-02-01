@@ -4,14 +4,6 @@ function s.initial_effect(c)
 	c:EnableReviveLimit()
 	aux.AddMaleficSummonProcedure(c,nil,LOCATION_EXTRA)
 
-	--Special Summon condition
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-	e1:SetCode(EFFECT_SPSUMMON_CONDITION)
-	e1:SetValue(aux.FALSE)
-	c:RegisterEffect(e1)
-
 	--Self-destruct
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE)

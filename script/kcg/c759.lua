@@ -10,7 +10,7 @@ function s.initial_effect(c)
 	e0:SetType(EFFECT_TYPE_SINGLE)
 	e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 	e0:SetCode(EFFECT_SPSUMMON_CONDITION)
-	e0:SetValue(aux.fuslimit)
+	e0:SetValue(aux.OR(aux.fuslimit,function(e) return not e:GetHandler():IsLocation(LOCATION_EXTRA) end))
 	c:RegisterEffect(e0)
 
 	local e8=Effect.CreateEffect(c)

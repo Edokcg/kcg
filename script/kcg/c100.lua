@@ -29,19 +29,27 @@ function s.initial_effect(c)
 	e2:SetOperation(s.disop)
 	c:RegisterEffect(e2)
 
-	--disable attack
+	--Banish to negate the attack of 1 monster your opponent controls
+	local e4=Effect.CreateEffect(c)
+	e4:SetDescription(aux.Stringid(id,4))
+	e4:SetCategory(CATEGORY_REMOVE)
+	e4:SetType(EFFECT_TYPE_QUICK_O)
+	e4:SetCode(EVENT_FREE_CHAIN)
+	e4:SetRange(LOCATION_MZONE)
+	e4:SetCountLimit(1)
+	e4:SetCondition(s.bancon)
+	e4:SetTarget(s.bantg)
+	e4:SetOperation(s.banop)
+	c:RegisterEffect(e4)
+	--Return to field during the End Phase
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(id,4))
-	e3:SetProperty(EFFECT_FLAG_DAMAGE_STEP)
-	e3:SetCategory(CATEGORY_REMOVE)
-	e3:SetType(EFFECT_TYPE_QUICK_O)
-	e3:SetCode(EVENT_FREE_CHAIN)
-	e3:SetRange(LOCATION_MZONE)
+	e3:SetDescription(aux.Stringid(id,5))
+	e3:SetType(EFFECT_TYPE_TRIGGER_F+EFFECT_TYPE_FIELD)
+	e3:SetCode(EVENT_PHASE+PHASE_END)
+	e3:SetRange(LOCATION_REMOVED)
 	e3:SetCountLimit(1)
-	e3:SetHintTiming(0,TIMING_END_PHASE)
-	e3:SetCondition(s.dacon2)
-	e3:SetTarget(s.datg2)
-	e3:SetOperation(s.daop2)
+	e3:SetTarget(s.rettg)
+	e3:SetOperation(s.retop)
 	c:RegisterEffect(e3)
 
 	--synchro effect
@@ -115,64 +123,48 @@ function s.disop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
-function s.dacon2(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetTurnPlayer()~=e:GetHandlerPlayer() and Duel.GetCurrentPhase()~=PHASE_END 
+function s.bancon(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.IsTurnPlayer(1-tp) and (Duel.IsAbleToEnterBP() or Duel.IsBattlePhase())
 end
-function s.datg2(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsAbleToRemove() end
+function s.bantg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	Duel.SetOperationInfo(0,CATEGORY_REMOVE,e:GetHandler(),1,0,0)
+	if chk==0 then return c:IsAbleToRemove() end
+	Duel.SetOperationInfo(0,CATEGORY_REMOVE,c,1,0,0)
 end
-function s.daop2(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.banop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) then
-	if Duel.Remove(c,POS_FACEUP,REASON_EFFECT+REASON_TEMPORARY)==0 then return end
-
-	  if Duel.GetCurrentPhase()==PHASE_BATTLE_STEP 
-	  and Duel.GetAttacker()~=nil and Duel.GetAttacker():CanAttack() and Duel.GetAttacker():GetControler()~=e:GetHandlerPlayer() 
-	  and Duel.SelectYesNo(tp,aux.Stringid(84013237,0)) then
-	  c:RegisterFlagEffect(100,RESET_PHASE+PHASE_END,0,1)   
-	  Duel.NegateAttack() end
-
-	--disable attack
-	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(24696097,2))
-	e1:SetProperty(EFFECT_FLAG_DAMAGE_STEP)
-	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_QUICK_O)
-	e1:SetRange(LOCATION_REMOVED)
-	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetHintTiming(TIMING_BATTLE_PHASE)
-	e1:SetCountLimit(1)
-	e1:SetCondition(s.dacon)
-	e1:SetTarget(s.datg)
-	e1:SetOperation(s.daop)
-	e1:SetReset(RESET_EVENT+0x1ff0000+RESET_PHASE+PHASE_END)
-	c:RegisterEffect(e1)
-
-	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e2:SetCode(EVENT_PHASE+PHASE_END)
-	e2:SetRange(LOCATION_REMOVED)
-	e2:SetCountLimit(1)
-	e2:SetOperation(s.retop)
-	e2:SetReset(RESET_EVENT+0x1ff0000+RESET_PHASE+PHASE_END)
-	c:RegisterEffect(e2)
+	if c:IsRelateToEffect(e) and Duel.Remove(c,POS_FACEUP,REASON_EFFECT+REASON_TEMPORARY)>0 then
+		c:RegisterFlagEffect(id,RESET_EVENT|RESETS_STANDARD|RESET_PHASE|PHASE_END,0,1)
+		local ac=Duel.GetAttacker()
+		if ac and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+			Duel.NegateAttack()
+		else
+			--You can negate 1 attack this turn from a monster your opponent controls
+			local e1=Effect.CreateEffect(c)
+			e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+			e1:SetCode(EVENT_ATTACK_ANNOUNCE)
+			e1:SetOperation(s.negop)
+			e1:SetReset(RESET_PHASE|PHASE_END)
+			Duel.RegisterEffect(e1,tp)
+		end
 	end
 end
-function s.dacon(e,tp,eg,ep,ev,re,r,rp)
+function s.negop(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetAttacker() and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+		Duel.Hint(HINT_CARD,1-tp,id)
+		Duel.NegateAttack()
+		e:Reset()
+	end
+end
+
+function s.rettg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:GetHandler():HasFlagEffect(id) end
+end
+function s.retop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return Duel.GetCurrentPhase()==PHASE_BATTLE_STEP 
-	  and Duel.GetAttacker()~=nil and Duel.GetAttacker():CanAttack() and Duel.GetAttacker():GetControler()~=e:GetHandlerPlayer() 
-	  and e:GetHandler():GetFlagEffect(100)==0
-end
-function s.datg(e,tp,eg,ep,ev,re,r,rp,chk)
-	  if chk==0 then return true end
-end
-function s.daop(e,tp,eg,ep,ev,re,r,rp,chk)
-	Duel.NegateAttack()
-end
-function s.retop(e,tp,eg,ep,ev,re,r,rp,chk)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)>0 then Duel.SpecialSummon(e:GetHandler(),0,tp,tp,false,false,POS_FACEUP) end
+	if c:IsRelateToEffect(e) then
+		Duel.ReturnToField(c)
+	end
 end
 
 function s.sccon(e,tp,eg,ep,ev,re,r,rp)

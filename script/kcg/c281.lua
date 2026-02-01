@@ -39,8 +39,8 @@ end
 s.list={[71625222]=26273196, --時間魔術師
         [CARD_SUMMONED_SKULL]=32775808, --惡魔顯現
         [64631466]=41578483, --納祭之魔
-	    [CARD_DARK_MAGICIAN_GIRL]={43892408,50237654,622},
-        [CARD_DARK_MAGICIAN]={75380687,5829717,41721210,50237654,59400890,73452089,37818794,85059922,98502113,622},
+	    [CARD_DARK_MAGICIAN_GIRL]={286,50237654,622},
+        [CARD_DARK_MAGICIAN]={287,5829717,41721210,50237654,59400890,73452089,37818794,85059922,98502113,622},
 		[6368038]=2519690, --暗黑騎士 蓋亞
 		[CARD_BLUEEYES_W_DRAGON]=11443677,
 		[28279543]=72064891, --詛咒之龍
@@ -471,7 +471,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
                 tc:RegisterEffect(e1)
             end
 		end
-		if ttcode~=647 and ttcode~=622 then
+		if ttcode~=286 and ttcode~=287 and ttcode~=647 and ttcode~=622 then
 			local e1=Effect.CreateEffect(tc)
 			e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
 			e1:SetDescription(aux.Stringid(282,0),true)
@@ -479,7 +479,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 			e1:SetCode(EFFECT_CANNOT_DISABLE)
 			tc:RegisterEffect(e1)
 		end
-		if ttcode~=32775808 and ttcode~=2519690 and ttcode~=647 and ttcode~=622 then
+		if ttcode~=32775808 and ttcode~=2519690 and ttcode~=41721210 and ttcode~=59400890 and ttcode~=286 and ttcode~=287 and ttcode~=647 and ttcode~=622 then
 			--Change name
 			local e0=Effect.CreateEffect(tc)
 			e0:SetType(EFFECT_TYPE_SINGLE)

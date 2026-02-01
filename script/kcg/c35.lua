@@ -21,17 +21,14 @@ function s.initial_effect(c)
 	e4:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
 	c:RegisterEffect(e4)
 	local e5=e3:Clone()
-	e5:SetCondition(s.damcon)
+	--e5:SetCondition(s.damcon)
 	e5:SetCode(EFFECT_AVOID_BATTLE_DAMAGE)
 	c:RegisterEffect(e5)
 	--LP
 	local e6=Effect.CreateEffect(c)
 	e6:SetCategory(CATEGORY_DAMAGE)
-	e6:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
-	e6:SetCode(EVENT_ATTACK_ANNOUNCE)
-	e6:SetCountLimit(1)
-	e6:SetRange(LOCATION_MZONE)
-	e6:SetCondition(s.thcon)
+	e6:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
+	e6:SetCode(EVENT_BATTLED)
 	e6:SetOperation(s.thop)
 	c:RegisterEffect(e6)
 	--to deck
@@ -57,9 +54,6 @@ function s.ntcon(e,c,minc)
 end
 function s.damcon(e)
 	return e:GetHandler():IsAttackPos()
-end
-function s.thcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetLP(tp)<4000 and e:GetHandler()==Duel.GetAttacker() or e:GetHandler()==Duel.GetAttackTarget() 
 end
 function s.thop(e,tp,eg,ep,ev,re,r,rp)
 			if Duel.GetLP(tp)<4000 then

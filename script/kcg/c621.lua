@@ -458,7 +458,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 				tc:RegisterEffect(e1)
 			end
 		end
-		if ttcode~=647 and ttcode~=622 then
+		if ttcode~=286 and ttcode~=287 and ttcode~=647 and ttcode~=622 then
 			local e1=Effect.CreateEffect(tc)
 			e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
 			e1:SetDescription(aux.Stringid(282,0),true)
@@ -466,7 +466,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 			e1:SetCode(EFFECT_CANNOT_DISABLE)
 			tc:RegisterEffect(e1)
 		end
-		if ttcode~=32775808 and ttcode~=2519690 and ttcode~=647 and ttcode~=622 then
+		if ttcode~=32775808 and ttcode~=2519690 and ttcode~=41721210 and ttcode~=59400890 and ttcode~=286 and ttcode~=287 and ttcode~=647 and ttcode~=622 then
 			--Change name
 			local e0=Effect.CreateEffect(tc)
 			e0:SetType(EFFECT_TYPE_SINGLE)

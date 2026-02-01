@@ -44,8 +44,12 @@ function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) and Duel.Destroy(tc,REASON_EFFECT)~=0 then
-		Duel.Damage(1-tp,tc:GetBaseAttack(),REASON_EFFECT)
+	if tc:IsRelateToEffect(e) then
+		local atk=tc:GetAttack()
+		if atk<0 or tc:IsFacedown() then atk=0 end
+		if Duel.Destroy(tc,REASON_EFFECT)~=0 then
+			Duel.Damage(1-tp,atk,REASON_EFFECT)
+		end
 	end
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)

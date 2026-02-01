@@ -310,17 +310,17 @@ function s.sfilter(e,c,tp)
 end
 
 function s.adjustcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetMatchingGroupCount(s.filter,tp,LOCATION_ONFIELD,0,nil)>0
+	return Duel.GetMatchingGroupCount(s.filter,tp,LOCATION_MZONE,0,nil)>0
 end
 function s.adjustcon2(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetMatchingGroupCount(s.filter,tp,LOCATION_ONFIELD,0,nil)>0
+	return Duel.GetMatchingGroupCount(s.filter,tp,LOCATION_MZONE,0,nil)>0
     and Duel.IsExistingMatchingCard(s.specfilter,e:GetHandlerPlayer(),LOCATION_GRAVE,0,1,nil)
 end
 function s.filter(c)
-	return c:IsFaceup() and (c:IsSetCard(0xa1) or c:IsSetCard(0xa0))
+	return c:IsFaceup() and c:IsOriginalSetCard({0xa1,0xa0})
 end
 function s.adjustop(e,tp,eg,ep,ev,re,r,rp)
-	local dg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_ONFIELD,0,nil)
+	local dg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil)
 	if dg:GetCount()==0 then return end
 	local dgm=dg:GetFirst()
 	while dgm do
@@ -340,12 +340,12 @@ end
 function s.mgfilter(c,e,tp)
 	return c:IsControler(tp) and c:IsLocation(LOCATION_GRAVE)
 		and not bit.band(c:GetReason(),0x40008)~=0x40008 
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsOriginalType(TYPE_MONSTER) and not c:IsHasEffect(EFFECT_NECRO_VALLEY)
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsType(TYPE_MONSTER) and not c:IsHasEffect(EFFECT_NECRO_VALLEY)
 end
 function s.mgfilter2(c,e,tp)
 	return c:IsControler(tp) and c:IsLocation(LOCATION_GRAVE)
 		and not bit.band(c:GetReason(),0x40008)~=0x40008 
-		and not c:IsOriginalType(TYPE_MONSTER) and c:IsSSetable() and not c:IsHasEffect(EFFECT_NECRO_VALLEY)
+		and not c:IsType(TYPE_MONSTER) and c:IsSSetable() and not c:IsHasEffect(EFFECT_NECRO_VALLEY)
 end
 
 function s.efilterr(e,te)

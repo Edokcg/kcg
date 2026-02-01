@@ -21,7 +21,7 @@ function s.initial_effect(c)
     e4:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
     c:RegisterEffect(e4)
     local e5 = e3:Clone()
-    e5:SetCondition(s.damcon)
+    --e5:SetCondition(s.damcon)
     e5:SetCode(EFFECT_AVOID_BATTLE_DAMAGE)
     c:RegisterEffect(e5)
 
@@ -30,8 +30,7 @@ function s.initial_effect(c)
     e1:SetDescription(aux.Stringid(75797046, 0))
     e1:SetCategory(CATEGORY_TOHAND + CATEGORY_DAMAGE)
     e1:SetType(EFFECT_TYPE_SINGLE + EFFECT_TYPE_TRIGGER_F)
-    e1:SetCode(EVENT_DAMAGE_STEP_END)
-    e1:SetCondition(s.con)
+    e1:SetCode(EVENT_BATTLED)
     e1:SetTarget(s.tg)
     e1:SetOperation(s.op)
     c:RegisterEffect(e1)
@@ -82,15 +81,6 @@ function s.batop(e, tp, eg, ep, ev, re, r, rp)
         e:SetLabel(bc:GetAttack())
         e:SetLabelObject(bc)
     end
-end
-function s.con(e, tp, eg, ep, ev, re, r, rp)
-    local c = e:GetHandler()
-    local a = Duel.GetAttacker()
-    if a == c then
-        a = Duel.GetAttackTarget()
-    end
-    e:SetLabelObject(a)
-    return a and a:IsType(TYPE_MONSTER) and a:IsRelateToBattle()
 end
 function s.tg(e, tp, eg, ep, ev, re, r, rp, chk)
     if chk == 0 then

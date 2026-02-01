@@ -8,7 +8,7 @@ function s.initial_effect(c)
 	e15:SetType(EFFECT_TYPE_SINGLE)
 	e15:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 	e15:SetCode(EFFECT_SPSUMMON_CONDITION)
-	e15:SetValue(s.splimit)
+	e15:SetValue(aux.OR(s.splimit,function(e) return not e:GetHandler():IsLocation(LOCATION_EXTRA) end))
 	c:RegisterEffect(e15)
 	
 	local e2=Effect.CreateEffect(c)

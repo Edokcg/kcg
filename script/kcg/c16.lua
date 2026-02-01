@@ -21,18 +21,15 @@ function s.initial_effect(c)
 	e4:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
 	c:RegisterEffect(e4)
 	local e5=e3:Clone()
-	e5:SetCondition(s.damcon)
+	--e5:SetCondition(s.damcon)
 	e5:SetCode(EFFECT_AVOID_BATTLE_DAMAGE)
 	c:RegisterEffect(e5)
 	--to hand
 	local e6=Effect.CreateEffect(c)
 	e6:SetDescription(aux.Stringid(74530899,1))
 	e6:SetCategory(CATEGORY_TOHAND+CATEGORY_DAMAGE)
-	e6:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
-	e6:SetCode(EVENT_PHASE+PHASE_BATTLE)
-	e6:SetCountLimit(1)
-	e6:SetRange(LOCATION_MZONE)
-	e6:SetCondition(s.thcon)
+	e6:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
+	e6:SetCode(EVENT_BATTLED)
 	e6:SetTarget(s.thtg)
 	e6:SetOperation(s.thop)
 	c:RegisterEffect(e6)
@@ -71,9 +68,6 @@ function s.ntcon(e,c,minc)
 end
 function s.damcon(e)
 	return e:GetHandler():IsAttackPos()
-end
-function s.thcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():GetBattledGroupCount()>0
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end

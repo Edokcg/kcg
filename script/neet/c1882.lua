@@ -30,7 +30,7 @@ end
 s.listed_series={0x4a}
 s.listed_names={9409625,36894320,72883039}
 function s.tdfilter(c)
-	return (c:IsCode({9409625,36894320,72883039}) or (c:IsSetCard(0x4a) and c:IsMonster())) and c:IsAbleToDeck()
+	return (c:IsCode(9409625,36894320,72883039) or (c:IsSetCard(0x4a) and c:IsMonster())) and c:IsAbleToDeck()
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsPlayerCanDraw(tp)
