@@ -21,7 +21,7 @@ function s.initial_effect(c)
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
 	e2:SetCode(EVENT_TO_GRAVE)
-	e2:SetCondition(s.condition)
+	--e2:SetCondition(s.condition)
 	e2:SetTarget(s.target)
 	e2:SetOperation(s.operation)
 	c:RegisterEffect(e2)
@@ -50,10 +50,8 @@ end
 function s.filter(c)
 	return c:IsCode(16625614)
 end
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return false end
-	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_HAND+LOCATION_DECK+LOCATION_GRAVE,0,1,nil) 
-	and Duel.CheckLocation(e:GetHandlerPlayer(),LOCATION_SZONE,5) end
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return true end
 end
 function s.cfilter(c)
 	return c:IsFaceup() and c:IsControlerCanBeChanged()

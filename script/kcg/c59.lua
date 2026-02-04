@@ -1,133 +1,166 @@
---ハイパーブレイズ
---Hyper Blaze
---Scripted by Naim, procedure by Eerie Code
+--闘気炎斬龍
+--Fighting Flame Dragon
 local s,id=GetID()
 function s.initial_effect(c)
+	c:EnableReviveLimit()
+	--Fusion Summon Procedure
+	Fusion.AddProcMix(c,true,true,aux.FilterBoolFunctionEx(Card.IsRace,RACE_DRAGON),s.matfilter)
+
+    local e00=Effect.CreateEffect(c)
+	e00:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e00:SetType(EFFECT_TYPE_SINGLE)
+	e00:SetCode(EFFECT_CANNOT_DISABLE)
+	c:RegisterEffect(e00)
+	
+	--Activate
+	local e0=Effect.CreateEffect(c)
+	e0:SetDescription(aux.Stringid(876330,0))
+	e0:SetCategory(CATEGORY_EQUIP)
+	e0:SetType(EFFECT_TYPE_ACTIVATE)
+	e0:SetCode(EVENT_FREE_CHAIN)
+	e0:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e0:SetTarget(s.target)
+	e0:SetOperation(s.operation)
+	c:RegisterEffect(e0)
+
+	--Equip this card to 1 Warrior Fusion Monster you control
 	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_ACTIVATE)
+	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetCategory(CATEGORY_EQUIP)
+	e1:SetType(EFFECT_TYPE_QUICK_O)
+	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetHintTiming(0,TIMING_ATTACK)
+	e1:SetRange(LOCATION_MZONE|LOCATION_GRAVE)
+	e1:SetCountLimit(1)
+	e1:SetHintTiming(0,TIMINGS_CHECK_MONSTER_E|TIMING_MAIN_END)
+	e1:SetTarget(s.eqtg)
+	e1:SetOperation(s.eqop)
 	c:RegisterEffect(e1)
-	--Procedure enhancement
-	-- local e2=Effect.CreateEffect(c)
-	-- e2:SetType(EFFECT_TYPE_FIELD)
-	-- e2:SetCode(id)
-	-- e2:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-	-- e2:SetTargetRange(1,0)
-	-- e2:SetRange(LOCATION_SZONE)
-	-- c:RegisterEffect(e2)
-	--Increase ATK
-	local e3=Effect.CreateEffect(c)
-	e3:SetCategory(CATEGORY_ATKCHANGE)
-	e3:SetDescription(aux.Stringid(id,0))
-	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e3:SetCode(EVENT_ATTACK_ANNOUNCE)
-	e3:SetRange(LOCATION_SZONE)
-	e3:SetCondition(s.atkcon)
-	e3:SetCost(s.atkcost)
-	e3:SetTarget(s.atktg)
-	e3:SetOperation(s.atkop)
+
+	--Equipped monster gains 700 ATK
+	local e2=Effect.CreateEffect(c)
+	e2:SetType(EFFECT_TYPE_EQUIP)
+	e2:SetCode(EFFECT_UPDATE_ATTACK)
+	--e2:SetCondition(s.eqcond)
+	e2:SetValue(700)
+	c:RegisterEffect(e2)
+	--Equipped monster can make a second attack
+	local e3=e2:Clone()
+	e3:SetCode(EFFECT_EXTRA_ATTACK)
+	e3:SetValue(1)
 	c:RegisterEffect(e3)
-	--Add to hand or special summon a monster from GY
+    
+	--Destroy 1 monster and inflict damage
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id,1))
-	e4:SetCategory(CATEGORY_TOHAND+CATEGORY_SPECIAL_SUMMON)
+	e4:SetCategory(CATEGORY_DESTROY+CATEGORY_DAMAGE)
 	e4:SetType(EFFECT_TYPE_QUICK_O)
-	e4:SetRange(LOCATION_SZONE)
 	e4:SetCode(EVENT_FREE_CHAIN)
+	e4:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e4:SetRange(LOCATION_SZONE)
 	e4:SetCountLimit(1)
-	e4:SetCost(s.spcost)
-	e4:SetTarget(s.sptg)
-	e4:SetOperation(s.spop)
+	e4:SetCondition(s.eqcond)
+	e4:SetTarget(s.destg)
+	e4:SetOperation(s.desop)
 	c:RegisterEffect(e4)
-end
-s.listed_names={6007213,32491822,69890967}
 
-function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
-	local tc=Duel.GetAttacker()
-	local dc=Duel.GetAttackTarget()
-	if (tc:IsCode(6007213) and tc:IsControler(tp))
-		then e:SetLabelObject(tc) return true
-	elseif (dc and dc:IsCode(6007213) and dc:IsControler(tp))
-		then e:SetLabelObject(dc) return true end
-	return false
+	--Double its ATK but destroy it during the End Phase
+	local e5=Effect.CreateEffect(c)
+	e5:SetDescription(aux.Stringid(id,2))
+	e5:SetCategory(CATEGORY_ATKCHANGE)
+	e5:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e5:SetRange(LOCATION_SZONE)
+	e5:SetCode(EVENT_BATTLE_START)
+	e5:SetCountLimit(1)
+	e5:SetCondition(s.hdcon)
+	e5:SetOperation(s.atkop)
+	c:RegisterEffect(e5)
 end
-function s.atkcfilter(c)
-	return c:IsType(TYPE_TRAP) and c:IsAbleToGraveAsCost()
+s.listed_names={282,CARD_FLAME_SWORDSMAN}
+
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsFaceup() and chkc~=e:GetHandler() end
+	if chk==0 then return true end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
+	Duel.SelectTarget(tp,Card.IsFaceup,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,e:GetHandler())
 end
-function s.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.atkcfilter,tp,LOCATION_HAND+LOCATION_DECK,0,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local tc=Duel.SelectMatchingCard(tp,s.atkcfilter,tp,LOCATION_HAND+LOCATION_DECK,0,1,1,nil):GetFirst()
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+	local tc=Duel.GetFirstTarget()
 	if not tc then return end
-	Duel.SendtoGrave(tc,REASON_COST)
-end
-function s.atktg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then return c:GetFlagEffect(id)==0 end
-	Duel.SetTargetCard(e:GetLabelObject())
-	e:SetLabelObject(nil)
-	c:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_DAMAGE_CAL,0,1)
+	if not c:IsRelateToEffect(e) or c:IsLocation(LOCATION_SZONE) or c:IsFacedown() then return end
+	if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 or tc:IsFacedown() or not tc:IsRelateToEffect(e) then
+		Duel.SendtoGrave(c,REASON_EFFECT)
+		return
+	end
+	Duel.Equip(tp,c,tc)
 end
-function s.atkfilter(c)
-	return c:IsType(TYPE_TRAP) and (c:IsFaceup() or c:IsLocation(LOCATION_GRAVE))
+
+function s.matfilter(c,scard,sumtype,tp)
+	return c:IsAttribute(ATTRIBUTE_FIRE,scard,sumtype,tp) and c:IsRace(RACE_WARRIOR,scard,sumtype,tp)
 end
-function s.atkval(e,c)
-	return Duel.GetMatchingGroupCount(s.atkfilter,c:GetControler(),LOCATION_GRAVE+LOCATION_ONFIELD,LOCATION_GRAVE+LOCATION_ONFIELD,nil)*1000
+function s.tgfilter(c)
+	return c:IsRace(RACE_WARRIOR) and c:IsType(TYPE_FUSION) and c:IsFaceup()
 end
-function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+function s.eqtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	local c=e:GetHandler()
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.tgfilter(chkc) and chkc~=c end
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>0
+		and Duel.IsExistingTarget(s.tgfilter,tp,LOCATION_MZONE,0,1,c) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
+	Duel.SelectTarget(tp,s.tgfilter,tp,LOCATION_MZONE,0,1,1,c)
+	Duel.SetOperationInfo(0,CATEGORY_EQUIP,c,1,tp,0)
+end
+function s.eqop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if not c:IsRelateToEffect(e) then return end
 	local tc=Duel.GetFirstTarget()
-	if tc and tc:IsFaceup() and tc:IsRelateToEffect(e) and tc:IsRelateToBattle() then
+	if tc:IsFaceup() and tc:IsRelateToEffect(e) and tc:IsControler(tp) and Duel.Equip(tp,c,tc) then
+		--Equip limit
 		local e1=Effect.CreateEffect(c)
-		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_SET_ATTACK_FINAL)
-		e1:SetValue(s.atkval)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-		tc:RegisterEffect(e1,true)
-		local e2=e1:Clone()
-		e2:SetCode(EFFECT_SET_DEFENSE_FINAL)
-		tc:RegisterEffect(e2,true)
+		e1:SetCode(EFFECT_EQUIP_LIMIT)
+		e1:SetLabelObject(tc)
+		e1:SetValue(function(e,c) return c==e:GetLabelObject() end)
+		e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+		c:RegisterEffect(e1)
 	end
 end
-function s.atkcfilter(c)
-	return c:IsType(TYPE_TRAP) and c:IsAbleToGraveAsCost()
+
+function s.eqcond(e)
+	local ec=e:GetHandler():GetEquipTarget()
+	return ec:IsCode(CARD_FLAME_SWORDSMAN) or ec:ListsCode(CARD_FLAME_SWORDSMAN)
 end
-function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsAbleToGraveAsCost,tp,LOCATION_HAND,0,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISCARD)
-	local tc=Duel.SelectMatchingCard(tp,Card.IsAbleToGraveAsCost,tp,LOCATION_HAND,0,1,1,nil):GetFirst()
-	if not tc then return end
-	Duel.SendtoGrave(tc,REASON_COST+REASON_DISCARD)
+
+function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) end
+	if chk==0 then return Duel.IsExistingTarget(nil,tp,0,LOCATION_MZONE,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
+	local g=Duel.SelectTarget(tp,nil,tp,0,LOCATION_MZONE,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
+	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,1-tp,500)
 end
-function s.filter(c,e,tp,ft)
-	return c:IsCode(6007213,32491822,69890967) and (c:IsAbleToHand() or (ft>0 and c:IsCanBeSpecialSummoned(e,0,tp,true,true)))
-end
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_GRAVE,0,1,nil,e,tp,ft) and e:GetHandler():GetFlagEffect(id+1)==0 end
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_GRAVE)
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE)
-	e:GetHandler():RegisterFlagEffect(id+1,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1)
-end
-function s.spop(e,tp,eg,ep,ev,re,r,rp)
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
-	local hc=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp,ft):GetFirst()
-	if hc then
-		aux.ToHandOrElse(hc,tp,s.spcheck(e,tp),s.spop2(tp),aux.Stringid(id,2))
+	if tc:IsRelateToEffect(e) and Duel.Destroy(tc,REASON_EFFECT)>0 then
+		Duel.Damage(1-tp,500,REASON_EFFECT)
 	end
 end
-function s.spcheck(e,tp)
-	return function(c)
-				return c:IsCanBeSpecialSummoned(e,0,tp,true,true) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-			end
+
+function s.hdcon(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():GetEquipTarget()==Duel.GetAttacker() or e:GetHandler():GetEquipTarget()==Duel.GetAttackTarget()
 end
-function s.spop2(tp)
-	return function(c)
-				c:CompleteProcedure()
-				return Duel.SpecialSummon(c,0,tp,tp,true,true,POS_FACEUP)
-			end
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:IsFaceup() and c:IsRelateToEffect(e) then
+		--Double its ATK until the end of this turn
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_EQUIP)
+		e1:SetCode(EFFECT_SET_ATTACK_FINAL)
+		e1:SetValue(e:GetHandler():GetEquipTarget():GetAttack()*2)
+		e1:SetReset(RESETS_STANDARD_DISABLE_PHASE_END)
+		c:RegisterEffect(e1)
+		--Destroy it during the End Phase of this turn
+		aux.DelayedOperation(c,PHASE_END,id,e,tp,function(cc) Duel.Destroy(cc,REASON_EFFECT) end)
+	end
 end

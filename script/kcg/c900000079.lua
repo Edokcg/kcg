@@ -76,23 +76,6 @@ function s.initial_effect(c)
 	e8:SetCode(EFFECT_CANNOT_DISABLE)
 	c:RegisterEffect(e8)
 end
-s.list={[CARD_ANCIENT_GEAR_GOLEM]=7171149,
-        [78658564]=15270885,
-        [10189126]=16392422,
-	    [CARD_DARK_MAGICIAN]=21296502,
-        [81480460]=28112535,
-		[5405694]=28711704,
-		[CARD_BLUEEYES_W_DRAGON]=53183600,
-		[CARD_REDEYES_B_DRAGON]=31733941,
-		[2964201]=38369349,
-		[69140098]=42386471,
-		[CARD_BUSTER_BLADER]=61190918,
-		[CARD_HARPIE_LADY]=64116319,
-		[65570596]=65458948,
-		[11384280]=79875176,
-		[CARD_CYBER_DRAGON]=83629030,
-		[CARD_DARK_MAGICIAN_GIRL]=90960358,
-		[CARD_SUMMONED_SKULL]=91842653}
 --------------------------------------------------------------------------------------------------
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.CheckLPCost(tp,1000) end
@@ -195,13 +178,15 @@ function s.cartoonize(e,tp,g)
 			elseif tc:IsOriginalType(TYPE_NORMAL) then
                 effcode=0
             end
-			if s.list[tcode] then piccode=s.list[tcode] end
+			if aux.cartoonlist[tcode] then piccode=aux.cartoonlist[tcode] end
 			if rrealcode>0 then
 				tc:SetEntityCode(code,nil,piccode,ss,TYPE_MONSTER|TYPE_EFFECT|TYPE_TOON,nil,nil,nil,nil,nil,nil,nil,nil,EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_OWNER_RELATE,RESET_EVENT+RESETS_STANDARD,c,false,838,effcode,838,tc)
 				local te1={tc:GetFieldEffect()}
 				local te2={tc:GetTriggerEffect()}
 				for _,te in ipairs(te1) do
-					if te:GetOwner()==tc then
+                    local resetflag,resetcount=te:GetReset()
+                    local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
+					if te:GetOwner()==tc and selfeffect then
 						local te2=te:Clone()
 						if te:IsHasProperty(EFFECT_FLAG_CLIENT_HINT) then
 							local prop=te:GetProperty()
@@ -212,7 +197,9 @@ function s.cartoonize(e,tp,g)
 					end
 				end
 				for _,te in ipairs(te2) do
-					if te:GetOwner()==tc then
+                    local resetflag,resetcount=te:GetReset()
+                    local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
+					if te:GetOwner()==tc and selfeffect then
 						local te2=te:Clone()
 						if te:IsHasProperty(EFFECT_FLAG_CLIENT_HINT) then
 							local prop=te:GetProperty()

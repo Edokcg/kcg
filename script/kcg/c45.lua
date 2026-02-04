@@ -1,15 +1,9 @@
 --ネオス·ワイズマン
-function c45.initial_effect(c)
+local s,id=GetID()
+function s.initial_effect(c)
 	c:EnableReviveLimit()
 	Fusion.AddProcCode2(c,89943723,78371393,true,true)
-
-	--spsummon condition
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-	e1:SetCode(EFFECT_SPSUMMON_CONDITION)
-	e1:SetValue(aux.fuslimit)
-	c:RegisterEffect(e1)
+	Fusion.AddContactProc(c,s.contactfil,s.contactop,s.splimit)
 
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE)
@@ -23,10 +17,10 @@ function c45.initial_effect(c)
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(5126490,0))
 	e3:SetCategory(CATEGORY_DAMAGE+CATEGORY_RECOVER)
-	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
-	e3:SetCode(EVENT_DAMAGE_STEP_END)
-	e3:SetTarget(c45.damtg)
-	e3:SetOperation(c45.damop)
+	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e3:SetCode(EVENT_BATTLE_CONFIRM)
+	e3:SetTarget(s.damtg)
+	e3:SetOperation(s.damop)
 	c:RegisterEffect(e3)
 
 	--Special summon
@@ -34,58 +28,62 @@ function c45.initial_effect(c)
 	e4:SetDescription(aux.Stringid(5438492,0))
 	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e4:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DELAY)
+	e4:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DELAY)
 	e4:SetCode(EVENT_LEAVE_FIELD)
-	e4:SetTarget(c45.sptg)
-	e4:SetOperation(c45.spop)
+	e3:SetCost(s.cost)
+	e4:SetTarget(s.sptg)
+	e4:SetOperation(s.spop)
 	c:RegisterEffect(e4)
 end
-c45.listed_names={CARD_NEOS,78371393}
+s.listed_names={CARD_NEOS,78371393}
 
-function c45.splimit(e,se,sp,st)
-	return bit.band(st,SUMMON_TYPE_FUSION)==SUMMON_TYPE_FUSION
+function s.contactfil(tp)
+	return Duel.GetMatchingGroup(Card.IsAbleToDeckOrExtraAsCost,tp,LOCATION_ONFIELD,0,nil)
+end
+function s.contactop(g,tp)
+	Duel.ConfirmCards(1-tp,g)
+	Duel.SendtoDeck(g,nil,SEQ_DECKSHUFFLE,REASON_COST|REASON_MATERIAL)
 end
 
-function c45.damtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetAttackTarget()~=nil end
+function s.damtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local bc=e:GetHandler():GetBattleTarget()
+	if chk==0 then return bc end
 	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,1-tp,bc:GetAttack())
 	Duel.SetOperationInfo(0,CATEGORY_RECOVER,nil,0,tp,bc:GetDefense())
 end
-function c45.damop(e,tp,eg,ep,ev,re,r,rp)
+function s.damop(e,tp,eg,ep,ev,re,r,rp)
 	local bc=e:GetHandler():GetBattleTarget()
 	local atk=bc:GetAttack()
 	local def=bc:GetDefense()
 	if atk<0 then atk=0 end
 	if def<0 then def=0 end
-	if Duel.Damage(1-tp,atk,REASON_EFFECT)>0 then
-	Duel.Recover(tp,def,REASON_EFFECT) end
+	Duel.Damage(1-tp,atk,REASON_EFFECT)
+	Duel.Recover(tp,def,REASON_EFFECT)
 end
 
-function c45.spfilter(c,e,tp)
-	local code=c:GetCode()
-	return code==89943723 and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsHasEffect(EFFECT_NECRO_VALLEY)
+function s.filter(c,e,tp)
+	return c:IsCode(CARD_NEOS) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
-function c45.spfilter2(c)
-	local code=c:GetCode()
-	return code==78371393 and c:IsAbleToRemoveAsCost()
+function s.cfilter(c)
+	return c:IsCode(CARD_YUBEL) and c:IsAbleToRemoveAsCost() and aux.SpElimFilter(c,true)
 end
-function c45.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and c45.spfilter(chkc,e,tp) end
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_MZONE|LOCATION_GRAVE,0,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+	local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_MZONE|LOCATION_GRAVE,0,1,1,nil)
+	Duel.Remove(g,POS_FACEUP,REASON_COST)
+end
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.filter(chkc,e,tp) end
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsExistingTarget(c45.spfilter,tp,LOCATION_GRAVE,0,1,nil,e,tp) 
-			and Duel.IsExistingTarget(c45.spfilter2,tp,LOCATION_GRAVE,0,1,nil) end
-	  Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	  local r=Duel.SelectMatchingCard(tp,c45.spfilter2,tp,LOCATION_GRAVE,0,1,1,nil)
-	  if #r<1 then return end
-	  Duel.Remove(r,POS_FACEUP,REASON_COST)
+		and Duel.IsExistingTarget(s.filter,tp,LOCATION_GRAVE,0,1,nil,e,tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectTarget(tp,c45.spfilter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,1,tp,LOCATION_GRAVE)
+	local g=Duel.SelectTarget(tp,s.filter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,#g,0,0)
 end
-function c45.spop(e,tp,eg,ep,ev,re,r,rp)
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then
+	if tc and tc:IsRelateToEffect(e) then
 		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
 	end
 end

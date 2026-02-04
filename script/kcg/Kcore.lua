@@ -38,6 +38,23 @@ Auxiliary.burstlist={
     [51447164] = 1355,
     [1534] = 1535,
 }
+Auxiliary.cartoonlist={[CARD_ANCIENT_GEAR_GOLEM]=7171149,
+        [78658564]=15270885,
+        [10189126]=16392422,
+	    [CARD_DARK_MAGICIAN]=21296502,
+        [81480460]=28112535,
+		[5405694]=28711704,
+		[CARD_BLUEEYES_W_DRAGON]=53183600,
+		[CARD_REDEYES_B_DRAGON]=31733941,
+		[2964201]=38369349,
+		[69140098]=42386471,
+		[CARD_BUSTER_BLADER]=61190918,
+		[CARD_HARPIE_LADY]=64116319,
+		[65570596]=65458948,
+		[11384280]=79875176,
+		[CARD_CYBER_DRAGON]=83629030,
+		[CARD_DARK_MAGICIAN_GIRL]=90960358,
+		[CARD_SUMMONED_SKULL]=91842653}
 Auxiliary.nolist = {
     [0] = 65305468,
     [1] = 15232745,
@@ -2271,30 +2288,9 @@ function(c,_type,filter,lv,desc,extrafil,extraop,matfilter,stage2,location,force
 end,"handler","lvtype","filter","lv","desc","extrafil","extraop","matfilter","stage2","location","forcedselection","customoperation","specificmatfilter","requirementfunc","sumpos","extratg","self","range","con","cost")
 
 
--- for additional registers
-Card.RegisterEffect=(function()
-	local oldf=Card.RegisterEffect
-	return function(c,e,forced,...)
-		local reg_e=oldf(c,e,forced)
-		if not reg_e or reg_e<=0 then return reg_e end
-
-        if c:IsType(TYPE_SKILL) and e:GetCode()==EVENT_STARTUP then
-            local mt=c:GetMetatable()
-            if not mt then return end
-            if mt.startop == nil then
-                mt.startop = {e}
-            else
-                table.insert(mt.startop, e)
-            end
-        end
-
-		return reg_e
-	end
-end)()
-
-function Auxiliary.EvilHeroLimit(e,se,sp,st)
-	return se:GetHandler():IsCode(CARD_DARK_FUSION) or (Duel.IsPlayerAffectedByEffect(e:GetHandlerPlayer(),SKILL_DARK_UNITY) and se:GetHandler():IsCode(CARD_SUPER_POLYMERIZATION))
-		or (Duel.IsPlayerAffectedByEffect(e:GetHandlerPlayer(),EFFECT_SUPREME_CASTLE) and st&SUMMON_TYPE_FUSION==SUMMON_TYPE_FUSION)
+local evilherolimit=Auxiliary.EvilHeroLimit
+function Auxiliary.EvilHeroLimit(e,se,...)
+	return evilherolimit(e,se,...)
         or se:GetHandler():IsHasEffect(23)
 end
 
@@ -2385,4 +2381,70 @@ function Card.HasLink(c)
         return false
     end
     return true
+end
+
+function aux.helmosequip(c,id,equipop,linkedeff)
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetProperty(EFFECT_FLAG2_MAJESTIC_MUST_COPY)
+	e1:SetCode(id)
+	e1:SetLabelObject(linkedeff)
+	e1:SetOperation(function(c,e,tp,tc) equipop(c,e,tp,tc) end)
+	c:RegisterEffect(e1)
+end
+
+function aux.ChangePlayerEffect(effs,c,id,tg)
+	local ge=Effect.CreateEffect(c)
+    ge:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    ge:SetCode(EVENT_ADJUST)
+    ge:SetCondition(aux.con(effs))
+    ge:SetOperation(aux.op(effs,c,id,tg))
+    Duel.RegisterEffect(ge,0)
+end
+function aux.con(effs)
+	return  function(e,tp,eg,ep,ev,re,r,rp) 
+        local chk=false
+        local teffs={}
+        for _,te in ipairs(effs) do
+            if Duel.IsPlayerAffectedByEffect(e:GetOwnerPlayer(),te) then 
+                local peffs = {Duel.GetPlayerEffect(e:GetOwnerPlayer(),te)}
+                for _, eff in ipairs(peffs) do
+                    local me=eff:GetLabelObject()
+                    if not (me and me:GetLabelObject()==eff) then
+                        chk=true
+                    end
+                end
+            end
+        end
+        return chk
+    end
+end
+function aux.op(effs,c,id,tg)
+    return  function(e,tp,eg,ep,ev,re,r,rp) 
+        local teffs={}
+        for _,te in ipairs(effs) do
+            if Duel.IsPlayerAffectedByEffect(e:GetOwnerPlayer(),te) then 
+                local peffs = {Duel.GetPlayerEffect(e:GetOwnerPlayer(),te)}
+                for _, eff in ipairs(peffs) do
+                    local me=eff:GetLabelObject()
+                    if not (me and me:GetLabelObject()==eff) then
+                        table.insert(teffs,eff)
+                        local ce=Effect.CreateEffect(c)
+                        ce:SetType(EFFECT_TYPE_SINGLE)
+                        ce:SetCode(id)
+                        ce:SetLabelObject(eff)
+                        c:RegisterEffect(ce)
+                    end
+                end
+            end
+        end
+        for _, eff in ipairs(teffs) do
+            if eff:GetLabel()~=id then
+                local target=eff:GetTarget()
+                eff:SetTarget(function(te,c,...) 
+                    return (not target or target(te,c,...)) 
+                        and not tg(te,c) end)
+            end
+        end
+    end
 end

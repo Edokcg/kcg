@@ -1,24 +1,26 @@
 --SNo.0 Hope Zexal
 local s, id = GetID()
-local zexal=nil
 function s.initial_effect(c)
-	zexal=c
 	c:EnableReviveLimit()
 	Xyz.AddProcedureX(c,s.mfilter,nil,3,nil,nil,Xyz.InfiniteMats,s.xyzop,false)
 
     --cannot destroyed
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
-	e1:SetValue(s.indes)
-	c:RegisterEffect(e1)
+	local e0=Effect.CreateEffect(c)
+	e0:SetType(EFFECT_TYPE_SINGLE)
+	e0:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
+	e0:SetValue(s.indes)
+	c:RegisterEffect(e0)
 
 	--特殊召唤不会被无效化
-	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_SINGLE)
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetCode(id+1)
+	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+	c:RegisterEffect(e1)
+	local e2=e1:Clone()
 	e2:SetCode(EFFECT_CANNOT_DISABLE_SPSUMMON)
-	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 	c:RegisterEffect(e2)
+	aux.ChangePlayerEffect({EFFECT_CANNOT_SPECIAL_SUMMON},c,id,function(te,tc) return tc:IsHasEffect(id+1) end)
 
 	--spsummon success
 	local e3=Effect.CreateEffect(c)
@@ -41,15 +43,6 @@ function s.initial_effect(c)
 	local e5=e4:Clone()
 	e5:SetCode(EFFECT_SET_BASE_DEFENSE)
 	c:RegisterEffect(e5)
-
-	aux.GlobalCheck(s,function()
-		local ge1=Effect.CreateEffect(c)
-		ge1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-		ge1:SetCode(EVENT_ADJUST)
-		ge1:SetCondition(s.con)
-		ge1:SetOperation(s.op)
-		Duel.RegisterEffect(ge1,0)
-	end)
 
 	--activate limit
 	local e6=Effect.CreateEffect(c)
@@ -205,25 +198,4 @@ function s.actop(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetValue(aux.TRUE)
 	e1:SetReset(RESET_PHASE+PHASE_END)
 	Duel.RegisterEffect(e1,tp)
-end
-
-function s.con(e,tp,eg,ep,ev,re,r,rp)
-	for i=0,1 do
-		return Duel.IsPlayerAffectedByEffect(i,EFFECT_CANNOT_SPECIAL_SUMMON)
-	end
-end
-function s.splimit(e,c,tp,sumtp,sumpos)
-	return (not target or target(e,c,tp,sumtp,sumpos)) and c~=zexal
-end
-function s.op(e,tp,eg,ep,ev,re,r,rp)
-	for i=0,1 do
-		local effs={Duel.GetPlayerEffect(i,EFFECT_CANNOT_SPECIAL_SUMMON)}
-		for _,eff in ipairs(effs) do
-			if eff:GetLabel()~=364 then
-				target=eff:GetTarget()
-				eff:SetTarget(s.splimit)
-				eff:SetLabel(364)
-			end
-		end
-	end
 end

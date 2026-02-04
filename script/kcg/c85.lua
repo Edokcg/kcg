@@ -12,6 +12,67 @@ if not DestinyDraw then
         aux.AIchk[1] = 0
         -- Announce[0] = {827}
         -- Announce[1] = {827}
+
+        Card.RegisterEffect=(function()
+            local oldf=Card.RegisterEffect
+            return function(c,e,forced,...)
+                local reg_e=oldf(c,e,forced)
+                if not reg_e or reg_e<=0 then return reg_e end
+                local resetflag,resetcount=e:GetReset()
+                local selfeffect=e:GetHandler()==e:GetOwner() and resetflag==0 and resetcount==0
+                if e:GetType()==EFFECT_TYPE_SINGLE and e:GetCode()==EFFECT_SPSUMMON_CONDITION 
+                    and selfeffect then
+                        local val=e:GetValue()
+                        e:SetValue(function (te,...)
+                            return te:GetHandler():IsLocation(LOCATION_GRAVE|LOCATION_REMOVED) or (type(val)=='function' and val(te,...) or val)
+                        end)
+                end
+
+                local rm,max,code,flag,hopt=e:GetCountLimit()
+                if bit.band(e:GetType(),EFFECT_TYPE_SINGLE)~=0
+                    and selfeffect and max>0
+                    and bit.band(e:GetType(),EFFECT_TYPE_TRIGGER_F|EFFECT_TYPE_TRIGGER_O|EFFECT_TYPE_QUICK_F|EFFECT_TYPE_QUICK_O)~=0
+                    and (e:GetCode()==EVENT_SUMMON_SUCCESS or e:GetCode()==EVENT_FLIP_SUMMON_SUCCESS or e:GetCode()==EVENT_SPSUMMON_SUCCESS or e:GetCode()==EVENT_FLIP or e:GetCode()==EVENT_DESTROY or e:GetCode()==EVENT_REMOVE or e:GetCode()==EVENT_TO_HAND or e:GetCode()==EVENT_TO_DECK or e:GetCode()==EVENT_TO_GRAVE or e:GetCode()==EVENT_LEAVE_FIELD or e:GetCode()==EVENT_LEAVE_FIELD_P) then
+                        e:SetCountLimit(100)
+                elseif code>0 and selfeffect and max>0 then
+                    e:SetCountLimit(max)
+                end
+
+                if c:IsType(TYPE_SKILL) and e:GetCode()==EVENT_STARTUP then
+                    local mt=c:GetMetatable()
+                    if not mt then return end
+                    if mt.startop==nil then
+                        mt.startop={e}
+                    else
+                        table.insert(mt.startop,e)
+                    end
+                end
+
+                return reg_e
+            end
+        end)()
+
+        Card.IsCanBeSpecialSummoned=(function()
+            local oldf=Card.IsCanBeSpecialSummoned
+            return function(c,e,sumtype,sumplayer,nocheck,nolimit,...)
+                nolimit=true
+                return oldf(c,e,sumtype,sumplayer,nocheck,nolimit,...)
+            end
+        end)()
+        Duel.SpecialSummon=(function()
+            local oldf=Duel.SpecialSummon
+            return function(targets,sumtype,sumplayer,target_player,nocheck,nolimit,pos,...)
+                nolimit=true
+                return oldf(targets,sumtype,sumplayer,target_player,nocheck,nolimit,pos,...)
+            end
+        end)()
+        Duel.SpecialSummonStep=(function()
+            local oldf=Duel.SpecialSummonStep
+            return function(c,sumtype,sumplayer,target_player,nocheck,nolimit,pos,...)
+                nolimit=true
+                return oldf(c,sumtype,sumplayer,target_player,nocheck,nolimit,pos,...)
+            end
+        end)()
     end)
     local function finishsetup()
         local e1 = Effect.GlobalEffect()

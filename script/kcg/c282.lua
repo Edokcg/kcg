@@ -40,7 +40,12 @@ s.list = {
     [74677422] = 288,
     [71625222] = 170000195,
     [110000110] = 290,
-    [30860696] = 291
+    [30860696] = 291,
+    [CARD_FLAME_SWORDSMAN] = 59,
+    [31924889] = 1133,
+    [64788463] = 1145,
+    [62015408] = 1155,
+    [64335804] = 1753
 }
 
 function s.filter(c, e, tp)
@@ -92,15 +97,19 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
             else
                 table.insert(ss,0xa1)
             end
+            local effcode=ocode
             local rrealcode,orcode,rrealalias=gc:GetRealCode()
             if rrealcode>0 then 
                 ocode=orcode
                 acode=orcode
+                effcode=0
+			elseif gc:IsOriginalType(TYPE_NORMAL) then
+                effcode=0
             end
             if rrealcode>0 then
-                tc:SetEntityCode(ocode,nil,ss,(gc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION|TYPE_SPELL|TYPE_EQUIP)&~TYPE_NORMAL&~TYPE_SPSUMMON,tc:GetOriginalLevel(),gc:GetOriginalAttribute(),gc:GetOriginalRace(),gc:GetTextAttack(),gc:GetTextDefense(),0,0,0,false,44,44,44,gc)
+                tc:SetEntityCode(ocode,nil,ss,(gc:GetOriginalType()|TYPE_MONSTER|TYPE_EFFECT|TYPE_FUSION|TYPE_SPELL|TYPE_EQUIP)&~TYPE_NORMAL&~TYPE_SPSUMMON,tc:GetOriginalLevel(),gc:GetOriginalAttribute(),gc:GetOriginalRace(),gc:GetTextAttack(),gc:GetTextDefense(),0,0,0,false,44,effcode,44,gc)
             else
-                tc:SetEntityCode(ocode,nil,ss,(gc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION|TYPE_SPELL|TYPE_EQUIP)&~TYPE_NORMAL&~TYPE_SPSUMMON,tc:GetOriginalLevel(),gc:GetOriginalAttribute(),gc:GetOriginalRace(),gc:GetTextAttack(),gc:GetTextDefense(),0,0,0,false,44,44,44)
+                tc:SetEntityCode(ocode,nil,ss,(gc:GetOriginalType()|TYPE_MONSTER|TYPE_EFFECT|TYPE_FUSION|TYPE_SPELL|TYPE_EQUIP)&~TYPE_NORMAL&~TYPE_SPSUMMON,tc:GetOriginalLevel(),gc:GetOriginalAttribute(),gc:GetOriginalRace(),gc:GetTextAttack(),gc:GetTextDefense(),0,0,0,false,44,effcode,44)
             end
             if addset then
                 local e1=Effect.CreateEffect(tc)
@@ -147,7 +156,7 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
                     tc:RegisterEffect(e1)
                 end
             else
-                if ran==1 then
+                -- if ran==1 then
                     local e3 = Effect.CreateEffect(tc)
                     e3:SetDescription(aux.Stringid(id,5),true)
                     e3:SetProperty(EFFECT_FLAG_CLIENT_HINT)
@@ -160,43 +169,68 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
                     e3:SetTarget(s.tar)
                     e3:SetOperation(s.act)
                     tc:RegisterEffect(e3,true)
-                else
+                -- else
                     local tec2 = {gc:GetTriggerEffect()}
                     if tec2 then
                         local count=0
                         for _, te in ipairs(tec2) do
+                            local resetflag,resetcount=te:GetReset()
+                            local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
                             if (bit.band(te:GetType(), EFFECT_TYPE_QUICK_O) ~= 0 or bit.band(te:GetType(), EFFECT_TYPE_TRIGGER_O) ~= 0 or bit.band(te:GetType(), EFFECT_TYPE_IGNITION) ~= 0)
+                            and selfeffect
                             and te:GetOperation() then
                                 local te2 = te:Clone()
                                 te2:SetOwner(tc)
                                 te2:SetCountLimit(1)
-                                if te:GetRange() then
+                                if te:GetRange() and bit.band(te:GetRange(),LOCATION_MZONE)~=0 then
                                     te2:SetRange(LOCATION_SZONE)
                                 end
                                 tc:RegisterEffect(te2, true)
                             end
                         end
-                        local e1=Effect.CreateEffect(tc)
-                        e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
-                        e1:SetDescription(aux.Stringid(id,8),true,0,0,0,0,code)
-                        e1:SetType(EFFECT_TYPE_SINGLE)
-                        e1:SetCode(id)
-                        tc:RegisterEffect(e1)
+                        -- local e1=Effect.CreateEffect(tc)
+                        -- e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
+                        -- e1:SetDescription(aux.Stringid(id,8),true,0,0,0,0,code)
+                        -- e1:SetType(EFFECT_TYPE_SINGLE)
+                        -- e1:SetCode(id)
+                        -- tc:RegisterEffect(e1)
                     end
-                end
+                -- end
             end
-            local e1=Effect.CreateEffect(tc)
-            e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-            e1:SetType(EFFECT_TYPE_SINGLE)
-            e1:SetCode(EFFECT_CANNOT_DISABLE)
-            tc:RegisterEffect(e1)
+            local e0=Effect.CreateEffect(tc)
+            e0:SetDescription(aux.Stringid(876330,0))
+            e0:SetCategory(CATEGORY_EQUIP)
+            e0:SetType(EFFECT_TYPE_ACTIVATE)
+            e0:SetCode(EVENT_FREE_CHAIN)
+            e0:SetProperty(EFFECT_FLAG_CARD_TARGET)
+            e0:SetTarget(s.eqtarget)
+            e0:SetOperation(s.eqoperation)
+            tc:RegisterEffect(e0)
+            local e5=Effect.CreateEffect(tc)
+            e5:SetCategory(CATEGORY_EQUIP)
+            e5:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
+            e5:SetCode(EVENT_SPSUMMON_SUCCESS)
+            e5:SetProperty(EFFECT_FLAG_CARD_TARGET)
+            e5:SetTarget(s.eqtarget)
+            e5:SetOperation(s.eqoperation)
+            tc:RegisterEffect(e5)
         else
-            tc:SetEntityCode(ttcode,nil,nil,(tc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION|TYPE_SPELL|TYPE_EQUIP)&~TYPE_NORMAL&~TYPE_SPSUMMON,nil,nil,nil,nil,nil,nil,nil,nil,false,ttcode,ttcode,44,false,true)
+            tc:SetEntityCode(ttcode,nil,nil,(tc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION|TYPE_SPELL|TYPE_EQUIP)&~TYPE_NORMAL&~TYPE_SPSUMMON,nil,nil,nil,nil,nil,nil,nil,nil,false)
         end
         Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
         local et=Duel.SelectTarget(tp,Card.IsFaceup,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,gc):GetFirst()
         Duel.Equip(tp,tc,et)
-        tc:CompleteProcedure()
+		if ttcode~=1133 and ttcode~=1145 and ttcode~=1155 and ttcode~=1753 then
+			local e1=Effect.CreateEffect(tc)
+			e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
+			e1:SetDescription(aux.Stringid(282,0),true)
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetCode(EFFECT_CANNOT_DISABLE)
+			tc:RegisterEffect(e1)
+        else
+            local eff=tc:GetCardEffect(id)
+            eff:GetOperation()(tc,eff:GetLabelObject(),tp,et)
+		end
         -- Equip limit
         local e2 = Effect.CreateEffect(tc)
         e2:SetType(EFFECT_TYPE_SINGLE)
@@ -210,6 +244,23 @@ function s.costrand(ran2)
 	if ran2==1 then return s.discost
 	elseif ran2==2 then return s.discost2 
     else return s.descost end
+end
+function s.eqtarget(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsFaceup() and chkc~=e:GetHandler() end
+	if chk==0 then return true end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
+	Duel.SelectTarget(tp,Card.IsFaceup,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,e:GetHandler())
+end
+function s.eqoperation(e,tp,eg,ep,ev,re,r,rp)
+	local tc=Duel.GetFirstTarget()
+	if not tc then return end
+	local c=e:GetHandler()
+	if not c:IsRelateToEffect(e) or c:IsLocation(LOCATION_SZONE) or c:IsFacedown() then return end
+	if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 or tc:IsFacedown() or not tc:IsRelateToEffect(e) then
+		Duel.SendtoGrave(c,REASON_EFFECT)
+		return
+	end
+	Duel.Equip(tp,c,tc)
 end
 
 function s.value(e, c)

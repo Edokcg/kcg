@@ -109,7 +109,10 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
             local tec = {rg:GetFirst():GetTriggerEffect()}
             if tec then
                 for _, te in ipairs(tec) do
+                    local resetflag,resetcount=te:GetReset()
+                    local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
                     if (bit.band(te:GetType(), EFFECT_TYPE_QUICK_O) ~= 0 or bit.band(te:GetType(), EFFECT_TYPE_TRIGGER_O) ~= 0 or bit.band(te:GetType(), EFFECT_TYPE_ACTIVATE) ~= 0)
+                    and selfeffect
                     and te:GetOperation() then
                         local cost=te:GetCost()
                         local target=te:GetTarget()
@@ -117,7 +120,7 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
                         te2:SetOwner(tc)
                         te2:SetCost(function(...) return true end)
                         te2:SetCountLimit(1)
-                        if te:GetRange() then
+                        if te:GetRange() and bit.band(te:GetRange(),LOCATION_SZONE)~=0 then
                             te2:SetRange(LOCATION_MZONE)
                         end
                         local equip=false
@@ -172,7 +175,7 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
             e1:SetCode(EFFECT_CANNOT_DISABLE)
             tc:RegisterEffect(e1)
         else
-            tc:SetEntityCode(ttcode,nil,nil,tc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION,nil,nil,nil,nil,nil,nil,nil,nil,false,ttcode,ttcode,43,false,true)
+            tc:SetEntityCode(ttcode,nil,nil,tc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION,nil,nil,nil,nil,nil,nil,nil,nil,false)
         end
         Duel.SpecialSummon(tc,SUMMON_TYPE_FUSION,tp,tp,true,false,POS_FACEUP)
         tc:CompleteProcedure()

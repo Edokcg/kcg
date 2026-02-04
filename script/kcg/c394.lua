@@ -12,13 +12,24 @@ function s.initial_effect(c)
 	--Return monsters to hand
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,0))
+	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetCategory(CATEGORY_TOHAND)
-	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
-	e2:SetCode(EVENT_BATTLE_DESTROYED)
+	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e2:SetCode(EVENT_TO_GRAVE)
 	e2:SetCondition(s.thcon)
 	e2:SetTarget(s.thtg)
 	e2:SetOperation(s.thop)
 	c:RegisterEffect(e2)
+	
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+	e3:SetType(EFFECT_TYPE_IGNITION)
+	e3:SetRange(LOCATION_MZONE)
+	e3:SetCost(s.cost)
+	e3:SetTarget(s.target)
+	e3:SetOperation(s.activate)
+	c:RegisterEffect(e3)
 
     local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id,1))
@@ -30,10 +41,10 @@ function s.initial_effect(c)
 	e4:SetOperation(s.activate2)
 	c:RegisterEffect(e4)
 end
-s.listed_series={0x4a}
+s.listed_series={SET_TIMELORD}
 
 function s.filter(c)
-	return c:IsFaceup() and c:IsSetCard(0x4a)
+	return c:IsFaceup() and c:IsSetCard(SET_TIMELORD)
 end
 function s.spcon(e,c)
 	if c==nil then return true end
@@ -42,7 +53,7 @@ function s.spcon(e,c)
 end
 
 function s.thcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsLocation(LOCATION_GRAVE) and e:GetHandler():GetBattlePosition()==POS_FACEUP_ATTACK
+	return e:GetHandler():IsPreviousLocation(LOCATION_ONFIELD) and e:GetHandler():IsPreviousLocation(POS_FACEUP)
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
@@ -54,8 +65,28 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.SendtoHand(g,nil,REASON_EFFECT)
 end
 
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:GetHandler():IsReleasable() end
+	Duel.Release(e:GetHandler(),REASON_COST)
+end
+function s.filter3(c)
+	return c:IsSetCard(SET_TIMELORD) and c:IsType(TYPE_MONSTER) and c:IsAbleToHand()
+end
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.filter3,tp,LOCATION_DECK,0,1,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
+end
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	local g=Duel.SelectMatchingCard(tp,s.filter3,tp,LOCATION_DECK,0,1,1,nil)
+	if #g>0 then
+		Duel.SendtoHand(g,nil,REASON_EFFECT)
+		Duel.ConfirmCards(1-tp,g)
+	end
+end
+
 function s.filter2(c)
-	return c:ListsArchetype(0x4a) and c:IsSpellTrap()  and c:IsAbleToHand()
+	return ((c:IsSetCard(SET_TIMELORD) and c:IsMonster()) or c:ListsArchetype(SET_TIMELORD)) and c:IsAbleToHand()
 end
 function s.target2(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.filter2,tp,LOCATION_DECK,0,1,nil) end

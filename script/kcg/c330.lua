@@ -32,7 +32,9 @@ function s.efop(e,tp,eg,ep,ev,re,r,rp)
             local te1={eqc:GetFieldEffect()}
             local te2={eqc:GetTriggerEffect()}
             for _,te in ipairs(te1) do
-                if te:GetOwner()==eqc then
+                local resetflag,resetcount=te:GetReset()
+                local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
+                if te:GetOwner()==eqc and selfeffect then
                     local te2=te:Clone()
                     te2:SetOwner(tc2)
                     if te:IsHasProperty(EFFECT_FLAG_CLIENT_HINT) then
@@ -43,7 +45,9 @@ function s.efop(e,tp,eg,ep,ev,re,r,rp)
                 end
             end
             for _,te in ipairs(te2) do
-                if te:GetOwner()==eqc then
+                local resetflag,resetcount=te:GetReset()
+                local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
+                if te:GetOwner()==eqc and selfeffect then
                     local te2=te:Clone()
                     te2:SetOwner(tc2)
                     if te:IsHasProperty(EFFECT_FLAG_CLIENT_HINT) then

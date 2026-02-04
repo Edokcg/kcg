@@ -31,17 +31,13 @@ function s.initial_effect(c)
 	--特殊召唤不会被无效化
 	local e6=Effect.CreateEffect(c)
 	e6:SetType(EFFECT_TYPE_SINGLE)
-	e6:SetCode(EFFECT_CANNOT_DISABLE_SPSUMMON)
+	e6:SetCode(365)
 	e6:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 	c:RegisterEffect(e6)
-	aux.GlobalCheck(s,function()
-		local ge1=Effect.CreateEffect(c)
-		ge1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-		ge1:SetCode(EVENT_ADJUST)
-		ge1:SetCondition(s.con)
-		ge1:SetOperation(s.op)
-		Duel.RegisterEffect(ge1,0)
-	end)
+	local e7=e6:Clone()
+	e7:SetCode(EFFECT_CANNOT_DISABLE_SPSUMMON)
+	c:RegisterEffect(e7)
+	aux.ChangePlayerEffect({EFFECT_CANNOT_SPECIAL_SUMMON},c,364,function(te,tc) return tc:IsHasEffect(365) end)
 
 	--Your opponent's monsters cannot target monsters for attacks, except this one
 	local e3=Effect.CreateEffect(c)
@@ -82,27 +78,6 @@ s.xyz_number=0
 function s.xyzcheck(g,tp,xyz)
 	local mg=g:Filter(function(c) return not c:IsHasEffect(EFFECT_EQUIP_SPELL_XYZ_MAT) end,nil)
 	return mg:GetClassCount(Card.GetRank)==1
-end
-
-function s.con(e,tp,eg,ep,ev,re,r,rp)
-	for i=0,1 do
-		return Duel.IsPlayerAffectedByEffect(i,EFFECT_CANNOT_SPECIAL_SUMMON)
-	end
-end
-function s.splimit(e,c,tp,sumtp,sumpos)
-	return (not target or target(e,c,tp,sumtp,sumpos)) and c~=zexal
-end
-function s.op(e,tp,eg,ep,ev,re,r,rp)
-	for i=0,1 do
-		local effs={Duel.GetPlayerEffect(i,EFFECT_CANNOT_SPECIAL_SUMMON)}
-		for _,eff in ipairs(effs) do
-			if eff:GetLabel()~=364 then
-				target=eff:GetTarget()
-				eff:SetTarget(s.splimit)
-				eff:SetLabel(364)
-			end
-		end
-	end
 end
 
 function s.ctcon(e,tp,eg,ep,ev,re,r,rp)

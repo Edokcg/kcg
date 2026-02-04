@@ -74,7 +74,9 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
             local te1={rg:GetFieldEffect()}
             local te2={rg:GetTriggerEffect()}
             for _,te in ipairs(te1) do
-                if te:GetOwner()==rg then
+                local resetflag,resetcount=te:GetReset()
+                local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
+                if te:GetOwner()==rg and selfeffect then
                     local te2=te:Clone()
                     te2:SetOwner(tc)
                     if te:IsHasProperty(EFFECT_FLAG_CLIENT_HINT) then
@@ -86,7 +88,9 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
             end
             local te2count=0
             for _,te in ipairs(te2) do
-                if te:GetOwner()==rg then
+                local resetflag,resetcount=te:GetReset()
+                local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
+                if te:GetOwner()==rg and selfeffect then
                     local te2=te:Clone()
                     if (bit.band(te:GetType(),EFFECT_TYPE_QUICK_O)~=0 or bit.band(te:GetType(),EFFECT_TYPE_TRIGGER_O)~=0 or bit.band(te:GetType(),EFFECT_TYPE_IGNITION)~=0) and te:GetCondition() and te:GetOperation()
                     and ((te:GetRange()&LOCATION_PZONE)==0 and not te:IsHasType(EFFECT_TYPE_ACTIVATE)) then
@@ -114,7 +118,9 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
             local tec2 = {tc:GetTriggerEffect()}
             local te2count=0
             for _,te in ipairs(tec2) do
-                if te:GetOwner()==tc then
+                local resetflag,resetcount=te:GetReset()
+                local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
+                if te:GetOwner()==tc and selfeffect then
                     if (bit.band(te:GetType(),EFFECT_TYPE_QUICK_O)~=0 or bit.band(te:GetType(),EFFECT_TYPE_TRIGGER_O)~=0 or bit.band(te:GetType(),EFFECT_TYPE_IGNITION)~=0) and te:GetCondition() and te:GetOperation()
                     and ((te:GetRange()&LOCATION_PZONE)==0 and not te:IsHasType(EFFECT_TYPE_ACTIVATE)) then
                         local te2=te:Clone()

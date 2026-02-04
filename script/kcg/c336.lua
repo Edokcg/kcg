@@ -79,7 +79,9 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
             local te1={rc:GetFieldEffect()}
             local te2={rc:GetTriggerEffect()}
             for _,te in ipairs(te1) do
-                if te:GetOwner()==rc then
+				local resetflag,resetcount=te:GetReset()
+				local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
+                if te:GetOwner()==rc and selfeffect then
                     local te2=te:Clone()
                     te2:SetOwner(tc2)
                     if te:IsHasProperty(EFFECT_FLAG_CLIENT_HINT) then
@@ -90,7 +92,9 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
                 end
             end
             for _,te in ipairs(te2) do
-                if te:GetOwner()==rc then
+				local resetflag,resetcount=te:GetReset()
+				local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
+                if te:GetOwner()==rc and selfeffect then
                     local te2=te:Clone()
                     te2:SetOwner(tc2)
                     if te:IsHasProperty(EFFECT_FLAG_CLIENT_HINT) then

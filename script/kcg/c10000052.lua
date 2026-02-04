@@ -20,7 +20,7 @@ function s.initial_effect(c)
 	e2:SetCondition(s.spcon)
 	c:RegisterEffect(e2)
 	
-	--可以把手牌和墓地时械神尽可能特殊召唤并加攻击
+	--可以把手牌和墓地时械神尽可能特殊召唤
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(10000052,2))
 	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
@@ -67,6 +67,15 @@ function s.initial_effect(c)
 	e7:SetTarget(s.desreptg)
 	e7:SetOperation(s.repop)
 	c:RegisterEffect(e7)
+
+	local e9=Effect.CreateEffect(c)
+	e9:SetType(EFFECT_TYPE_FIELD)
+	e9:SetCode(EFFECT_SET_ATTACK)
+	e9:SetRange(LOCATION_MZONE)
+	e9:SetTargetRange(LOCATION_MZONE,0)
+	e9:SetTarget(s.atktg)
+	e9:SetValue(4000)
+	c:RegisterEffect(e9)
 end
 s.listed_series={0x4a}
 s.listed_names={72883039}
@@ -99,18 +108,19 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND,0,ft,ft,nil,e,tp)
 	if g:GetCount()<1 then return end
-	local tc=g:GetFirst()
-	while tc do
-		Duel.SpecialSummonStep(tc, 0, tp, tp, false, false, POS_FACEUP)
-		local e1=Effect.CreateEffect(c)
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_SET_ATTACK)
-		e1:SetValue(4000)
-		e1:SetReset(RESET_EVENT+0x1fe0000)
-		tc:RegisterEffect(e1)
-		tc=g:GetNext()
-	end
-	Duel.SpecialSummonComplete()
+	Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+	-- local tc=g:GetFirst()
+	-- while tc do
+	-- 	Duel.SpecialSummonStep(tc, 0, tp, tp, false, false, POS_FACEUP)
+	-- 	local e1=Effect.CreateEffect(c)
+	-- 	e1:SetType(EFFECT_TYPE_SINGLE)
+	-- 	e1:SetCode(EFFECT_SET_ATTACK)
+	-- 	e1:SetValue(4000)
+	-- 	e1:SetReset(RESET_EVENT+0x1fe0000)
+	-- 	tc:RegisterEffect(e1)
+	-- 	tc=g:GetNext()
+	-- end
+	-- Duel.SpecialSummonComplete()
 end
 -----------------------------------------------------------------------------------------------
 function s.vfilter(c)
@@ -207,4 +217,8 @@ function s.repop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESREPLACE)
 	local g=Duel.SelectMatchingCard(tp,s.repfilter,tp,LOCATION_MZONE,0,1,1,e:GetHandler())
 	Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
+end
+
+function s.atktg(e,c)
+	return c~=e:GetHandler() and c:IsSetCard(SET_TIMELORD)
 end

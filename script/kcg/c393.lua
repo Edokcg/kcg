@@ -13,13 +13,15 @@ function s.initial_effect(c)
 	e1:SetRange(LOCATION_FZONE)
 	e1:SetValue(aux.indoval)
 	c:RegisterEffect(e1)
+	
 	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_FIELD)
-	e2:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-	e2:SetCode(EFFECT_ORICA)
+	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e2:SetRange(LOCATION_FZONE)
-	e2:SetTargetRange(1,0)
+	e2:SetCondition(s.spcondition)
+	e2:SetOperation(s.spop)
 	c:RegisterEffect(e2)
+
 	local e3=Effect.CreateEffect(c)
 	e3:SetType(EFFECT_TYPE_FIELD)
 	e3:SetRange(LOCATION_FZONE)
@@ -37,25 +39,28 @@ function s.initial_effect(c)
 	e5:SetCode(EVENT_FREE_CHAIN)
 	e5:SetCountLimit(1)
 	e5:SetRange(LOCATION_FZONE)
-	e5:SetCondition(s.condition2)
+	--e5:SetCondition(s.condition2)
 	e5:SetTarget(s.target4)
 	e5:SetOperation(s.operation2)
 	c:RegisterEffect(e5)
-
+	
 	local e6=Effect.CreateEffect(c)
-	e6:SetDescription(aux.Stringid(id,1))
-	e6:SetCategory(CATEGORY_TODECK)
-	e6:SetType(EFFECT_TYPE_QUICK_O)
-	e6:SetCode(EVENT_FREE_CHAIN)
-	e6:SetRange(LOCATION_FZONE)
-	e6:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e6:SetCountLimit(1)
-	e6:SetCondition(s.condition1)
-	e6:SetTarget(s.tdtg)
-	e6:SetOperation(s.tdop)
+	e6:SetType(EFFECT_TYPE_FIELD)
+	e6:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
+	e6:SetRange(LOCATION_SZONE)
+	e6:SetTargetRange(LOCATION_ONFIELD,0)
+	e6:SetTarget(aux.OR(aux.TargetBoolFunction(Card.ListsArchetype,SET_TIMELORD),aux.OR(aux.TargetBoolFunction(Card.IsSetCard,SET_TIMELORD))))
+	e6:SetValue(1)
 	c:RegisterEffect(e6)
+
+	local e7=Effect.CreateEffect(c)
+	e7:SetType(EFFECT_TYPE_FIELD)
+	e7:SetCode(EFFECT_TRAP_ACT_IN_HAND)
+	e7:SetRange(LOCATION_FZONE)
+	e7:SetTargetRange(LOCATION_HAND,0)
+	c:RegisterEffect(e7)
 end
-s.listed_series = {0x4a}
+s.listed_series = {SET_TIMELORD}
 s.listed_names = {9409625}
 
 function s.effectfilter(e,ct)
@@ -72,7 +77,7 @@ function s.target4(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 end
 function s.filter2(c)
-	return c:IsSetCard(0x4a) and c:IsAbleToHand() and c:IsType(TYPE_MONSTER)
+	return ((c:IsSetCard(SET_TIMELORD) and c:IsMonster()) or c:ListsArchetype(SET_TIMELORD)) and c:IsAbleToHand()
 end
 function s.operation2(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -86,34 +91,33 @@ function s.operation2(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
-function s.condition1(e, tp, eg, ep, ev, re, r, rp)
-	return Duel.IsTurnPlayer(1-tp)
+function s.spcondition(e,tp,eg,ep,ev,re,r,rp)
+	return eg:IsExists(Card.IsSetCard,1,nil,SET_TIMELORD)
 end
-function s.tdfilter(c)
-	return c:IsSetCard(0x4a) and c:IsType(TYPE_MONSTER) and c:IsAbleToDeck()
+function s.tfilter(c)
+	return c:IsSetCard(SET_TIMELORD) and c:IsMonster() and c:IsFaceup()
 end
-function s.tdtg(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
-	if chkc then
-		return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.tdfilter(chkc)
-	end
-	if chk == 0 then
-		return Duel.IsExistingTarget(s.tdfilter, tp, LOCATION_GRAVE, 0, 1, nil)
-	end
-	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_TODECK)
-	local g = Duel.SelectTarget(tp, s.tdfilter, tp, LOCATION_GRAVE, 0, 1, 1, nil)
-	Duel.SetOperationInfo(0, CATEGORY_TODECK, g, 1, 0, 0)
-end
-function s.setfilter(c)
-	return c:IsCode(9409625) and c:IsSSetable()
-end
-function s.tdop(e, tp, eg, ep, ev, re, r, rp)
-	local tc = Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) and Duel.SendtoDeck(tc, nil, 2, REASON_EFFECT) ~= 0 then
-		local g = Duel.GetMatchingGroup(s.setfilter, tp, LOCATION_HAND + LOCATION_DECK, 0, nil)
-		if #g > 0 and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
-			local sc = g:Select(tp, 1, 1, nil):GetFirst()
-			Duel.SSet(tp, sc)
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local sg=eg:Filter(Card.IsSetCard,nil,SET_TIMELORD)
+	for tc in aux.Next(sg) do
+		local tec={tc:GetTriggerEffect()}
+		for _, te in ipairs(tec) do
+			local resetflag,resetcount=te:GetReset()
+			local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
+			if bit.band(te:GetType(),EFFECT_TYPE_SINGLE|EFFECT_TYPE_TRIGGER_F)~=0 and te:GetCode()==EVENT_BATTLED and selfeffect then
+				local g=Duel.GetMatchingGroup(s.tfilter,tp,LOCATION_MZONE,0,tc)
+				g:Merge(sg)
+				g:RemoveCard(tc)
+				for tc2 in aux.Next(g) do
+					local te2=te:Clone()
+					te2:SetDescription(aux.Stringid(tc:GetOriginalCode(), 3))
+					te2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CLIENT_HINT)
+					te2:SetOwner(c)
+					te2:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
+					tc2:RegisterEffect(te2)
+				end
+			end
 		end
 	end
 end
-

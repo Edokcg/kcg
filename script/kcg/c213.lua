@@ -54,7 +54,9 @@ function s.thop2(e,tp,eg,ep,ev,re,r,rp)
         local te1={tc:GetFieldEffect()}
         local te2={tc:GetTriggerEffect()}
         for _,te in ipairs(te1) do
-            if te:GetOwner()==tc then
+            local resetflag,resetcount=te:GetReset()
+            local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
+            if te:GetOwner()==tc and selfeffect then
                 local te2=te:Clone()
                 te2:SetOwner(c)
                 if te:IsHasProperty(EFFECT_FLAG_CLIENT_HINT) then
@@ -66,7 +68,9 @@ function s.thop2(e,tp,eg,ep,ev,re,r,rp)
         end
         local te2count=0
         for _,te in ipairs(te2) do
-            if te:GetOwner()==tc then
+            local resetflag,resetcount=te:GetReset()
+            local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
+            if te:GetOwner()==tc and selfeffect then
                 local te2=te:Clone()
                 if (bit.band(te:GetType(),EFFECT_TYPE_QUICK_O)~=0 or bit.band(te:GetType(),EFFECT_TYPE_TRIGGER_O)~=0 or bit.band(te:GetType(),EFFECT_TYPE_IGNITION)~=0) and te:GetCondition() and te:GetOperation() then
                     te2:SetCondition(function(...) return true end)
@@ -93,7 +97,9 @@ function s.thop2(e,tp,eg,ep,ev,re,r,rp)
         local tec2 = {c:GetTriggerEffect()}
         local te2count=0
         for _, te in ipairs(tec2) do
-            if te:GetOwner()==c then
+            local resetflag,resetcount=te:GetReset()
+            local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
+            if te:GetOwner()==c and selfeffect then
                 if (bit.band(te:GetType(),EFFECT_TYPE_QUICK_O)~=0 or bit.band(te:GetType(),EFFECT_TYPE_TRIGGER_O)~=0 or bit.band(te:GetType(),EFFECT_TYPE_IGNITION)~=0) and te:GetCondition() and te:GetOperation() then
                     local te2=te:Clone()
                     te:Reset()

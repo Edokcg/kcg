@@ -18,6 +18,7 @@ function s.initial_effect(c)
 	e2:SetTarget(s.eqtg)
 	e2:SetOperation(s.eqop)
 	c:RegisterEffect(e2)
+	aux.helmosequip(c,282,s.equipop,e2)
 end
 s.material_race=RACE_WARRIOR
 function s.eqtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
@@ -44,6 +45,12 @@ function s.eqop(e,tp,eg,ep,ev,re,r,rp)
 	e0:SetLabelObject(tc)
 	e0:SetReset(RESET_EVENT+RESETS_STANDARD)
 	c:RegisterEffect(e0)
+	s.equipop(c,e,tp,tc)
+end
+function s.eqlimit(e,c)
+	return c==e:GetLabelObject()
+end
+function s.equipop(c,e,tp,tc)
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_EQUIP)
 	e1:SetCode(EFFECT_UPDATE_DEFENSE)
@@ -83,9 +90,7 @@ function s.eqop(e,tp,eg,ep,ev,re,r,rp)
 	e5:SetOperation(s.thop)
 	c:RegisterEffect(e5)
 end
-function s.eqlimit(e,c)
-	return c==e:GetLabelObject()
-end
+
 function s.acop(e,tp,eg,ep,ev,re,r,rp)
 	if e:GetHandler():GetFlagEffect(1)>0 and re:GetActivateLocation()==LOCATION_MZONE then
 		e:GetHandler():AddCounter(COUNTER_SPELL,1)

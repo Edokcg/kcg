@@ -17,6 +17,7 @@ function s.initial_effect(c)
 	e2:SetTarget(s.eqtg)
 	e2:SetOperation(s.eqop)
 	c:RegisterEffect(e2)
+	aux.helmosequip(c,282,s.equipop,e2)
 end
 s.material_race=RACE_ZOMBIE
 function s.eqtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
@@ -43,7 +44,12 @@ function s.eqop(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetLabelObject(tc)
 	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 	c:RegisterEffect(e1)
-
+	s.equipop(c,e,tp,tc)
+end
+function s.eqlimit(e,c)
+	return c==e:GetLabelObject()
+end
+function s.equipop(c,e,tp,tc)
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,0))
 	e3:SetType(EFFECT_TYPE_IGNITION)
@@ -52,9 +58,7 @@ function s.eqop(e,tp,eg,ep,ev,re,r,rp)
 	e3:SetOperation(s.operation)
 	c:RegisterEffect(e3)
 end
-function s.eqlimit(e,c)
-	return c==e:GetLabelObject()
-end
+
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetFieldGroupCount(tp,LOCATION_EXTRA,0)>0 end
 end

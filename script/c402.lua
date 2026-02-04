@@ -9,18 +9,19 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 	--Prevent battle damage
 	local e2=e1:Clone()
-	e2:SetCode(EFFECT_AVOID_BATTLE_DAMAGE)
+	e2:SetCode(EFFECT_REFLECT_BATTLE_DAMAGE)
 	c:RegisterEffect(e2)
+
 	--Special Summon 1 "Yubel" from your hand/Deck/GY/banished cards
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,0))
-	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetCode(EVENT_DESTROYED)
 	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
 	c:RegisterEffect(e3)
+
 	--Special Summon this card from your hand
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id,1))
@@ -32,6 +33,7 @@ function s.initial_effect(c)
 	e4:SetTarget(s.hsptg)
 	e4:SetOperation(s.hspop)
 	c:RegisterEffect(e4)
+
 	--Add 1 Spell/Trap that mentions "Yubel" to the hand or Set it to the field
 	local e5=Effect.CreateEffect(c)
 	e5:SetDescription(aux.Stringid(id,2))
@@ -43,23 +45,45 @@ function s.initial_effect(c)
 	e5:SetOperation(s.thop)
 	c:RegisterEffect(e5)
 end
-s.listed_names={CARD_YUBEL}
+s.listed_names={CARD_YUBEL,20}
+
 function s.spfilter(c,e,tp)
 	return c:IsCode(CARD_YUBEL) and (c:IsFaceup() or c:IsLocation(LOCATION_HAND|LOCATION_DECK)) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_HAND|LOCATION_DECK|LOCATION_GRAVE|LOCATION_REMOVED,0,1,nil,e,tp) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_HAND|LOCATION_DECK|LOCATION_GRAVE|LOCATION_REMOVED)
-end
-function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.spfilter),tp,LOCATION_HAND|LOCATION_DECK|LOCATION_GRAVE|LOCATION_REMOVED,0,1,1,nil,e,tp)
-	if #g>0 then
-		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+	local c=e:GetHandler()
+	local b1=c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	local b2=Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_HAND|LOCATION_DECK|LOCATION_GRAVE|LOCATION_REMOVED,0,1,nil,e,tp)
+	if chk==0 then return b1 or b2 end
+	local op=Duel.SelectEffect(tp,
+		{b1,aux.Stringid(id,5)},
+		{b2,aux.Stringid(id,0)})
+	e:SetLabel(op)
+	if op==1 then
+		e:SetCategory(CATEGORY_SPECIAL_SUMMON)
+		Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,tp,0)
+	elseif op==2 then
+		Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_HAND|LOCATION_DECK|LOCATION_GRAVE|LOCATION_REMOVED)
 	end
 end
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local op=e:GetLabel()
+	if op==1 then
+		if not Duel.SpecialSummonStep(c,0,tp,tp,false,false,POS_FACEUP) then return end
+		c:SetEntityCode(20, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true)
+		Duel.SpecialSummonComplete()
+	elseif op==2 then
+		if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+		local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.spfilter),tp,LOCATION_HAND|LOCATION_DECK|LOCATION_GRAVE|LOCATION_REMOVED,0,1,1,nil,e,tp)
+		if #g>0 then
+			Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+		end
+	end
+end
+
 function s.hsptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
@@ -72,6 +96,7 @@ function s.hspop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
 	end
 end
+
 function s.thfilter(c)
 	return c:IsSpellTrap() and c:ListsCode(CARD_YUBEL) and (c:IsAbleToHand() or c:IsSSetable())
 end

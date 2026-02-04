@@ -82,7 +82,9 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
             local te1={g:GetFieldEffect()}
             local te2={g:GetTriggerEffect()}
             for _,te in ipairs(te1) do
-                if te:GetOwner()==g then
+                local resetflag,resetcount=te:GetReset()
+                local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
+                if te:GetOwner()==g and selfeffect then
                     local te2=te:Clone()
                     te2:SetOwner(c)
                     if te:IsHasProperty(EFFECT_FLAG_CLIENT_HINT) then
@@ -93,7 +95,9 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
                 end
             end
             for _,te in ipairs(te2) do
-                if te:GetOwner()==g then
+                local resetflag,resetcount=te:GetReset()
+                local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
+                if te:GetOwner()==g and selfeffect then
                     local te2=te:Clone()
                     te2:SetOwner(c)
                     if te:IsHasProperty(EFFECT_FLAG_CLIENT_HINT) then
@@ -107,6 +111,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
             c:SetEntityCode(ocode,nil,ss,TYPE_MONSTER+TYPE_EFFECT+TYPE_SPSUMMON,nil,nil,nil,nil,nil,nil,nil,nil,true,id,effcode,102)
         else
             c:SetEntityCode(aux.sinlist[acode],nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
+            if c:IsCode(9433350) then Duel.SetLP(0,1) end
             return
         end
         if addset then
@@ -231,7 +236,9 @@ function s.thop2(e,tp,eg,ep,ev,re,r,rp)
         local te1={g:GetFieldEffect()}
         local te2={g:GetTriggerEffect()}
         for _,te in ipairs(te1) do
-            if te:GetOwner()==g then
+            local resetflag,resetcount=te:GetReset()
+            local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
+            if te:GetOwner()==g and selfeffect then
                 local te2=te:Clone()
                 te2:SetOwner(c)
                 if te:IsHasProperty(EFFECT_FLAG_CLIENT_HINT) then
@@ -242,7 +249,9 @@ function s.thop2(e,tp,eg,ep,ev,re,r,rp)
             end
         end
         for _,te in ipairs(te2) do
-            if te:GetOwner()==g then
+            local resetflag,resetcount=te:GetReset()
+            local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
+            if te:GetOwner()==g and selfeffect then
                 local te2=te:Clone()
                 te2:SetOwner(c)
                 if te:IsHasProperty(EFFECT_FLAG_CLIENT_HINT) then

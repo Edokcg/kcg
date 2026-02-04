@@ -67,6 +67,19 @@ function s.initial_effect(c)
 	e7:SetTarget(s.sumtg)
 	e7:SetOperation(s.sumop)
 	c:RegisterEffect(e7)
+	--synchro effect
+	local e8=Effect.CreateEffect(c)
+	e8:SetDescription(aux.Stringid(50091196,1))
+	e8:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_UNCOPYABLE)  
+	e8:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e8:SetType(EFFECT_TYPE_QUICK_O)
+	e8:SetCode(EVENT_FREE_CHAIN)
+	e8:SetHintTiming(0,TIMING_END_PHASE+TIMING_MAIN_END)  
+	e8:SetRange(LOCATION_EXTRA)
+	e8:SetCondition(s.sccon)
+	e8:SetTarget(s.sctarg)
+	e8:SetOperation(s.scop)
+	c:RegisterEffect(e8)
 end
 s.synchro_tuner_required=1
 s.synchro_nt_required=2
@@ -140,4 +153,18 @@ function s.sumop(e,tp,eg,ep,ev,re,r,rp)
 	if tg then
 		Duel.SpecialSummon(tg,0,tp,tp,false,false,POS_FACEUP)
 	end
+end
+
+function s.sccon(e,tp,eg,ep,ev,re,r,rp)
+	return not e:GetHandler():IsStatus(STATUS_CHAINING) and Duel.GetTurnPlayer()~=tp
+end
+function s.sctarg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:GetHandler():IsSynchroSummonable(nil) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,tp,LOCATION_EXTRA)
+end
+function s.scop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:IsRelateToEffect(e) then
+		Duel.SynchroSummon(tp,c,nil)
+	end 
 end

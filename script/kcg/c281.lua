@@ -142,7 +142,9 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
                 local te1={gc:GetFieldEffect()}
                 local te2={gc:GetTriggerEffect()}
                 for _,te in ipairs(te1) do
-                    if te:GetOwner()==gc then
+                    local resetflag,resetcount=te:GetReset()
+                    local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
+                    if te:GetOwner()==gc and selfeffect then
                         local te2=te:Clone()
                         te2:SetOwner(tc)
                         if te:IsHasProperty(EFFECT_FLAG_CLIENT_HINT) then
@@ -153,7 +155,9 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
                     end
                 end
                 for _,te in ipairs(te2) do
-                    if te:GetOwner()==gc then
+                    local resetflag,resetcount=te:GetReset()
+                    local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
+                    if te:GetOwner()==gc and selfeffect then
                         local te2=te:Clone()
                         te2:SetOwner(tc)
                         if te:IsHasProperty(EFFECT_FLAG_CLIENT_HINT) then
@@ -461,7 +465,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
             else
                 table.insert(ss,0xa1)
             end
-			tc:SetEntityCode(ttcode,nil,ss,tc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION,nil,nil,nil,nil,nil,nil,nil,nil,false,ttcode,ttcode,42,false,true)
+			tc:SetEntityCode(ttcode,nil,ss,tc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION,nil,nil,nil,nil,nil,nil,nil,nil,false)
             if addset then
                 local e1=Effect.CreateEffect(tc)
                 e1:SetType(EFFECT_TYPE_SINGLE)
