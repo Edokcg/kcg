@@ -53,7 +53,7 @@ function s.cfilter(c,tp)
 	return c:IsOnField() and c:IsMonster() and c:IsControler(tp)
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.IsChainNegatable(ev) then return false end
+	if not Duel.IsChainNegatable(ev) then return false end
 	local ex,tg,tc=Duel.GetOperationInfo(ev,CATEGORY_DESTROY)
 	return ex and tg~=nil and tc+tg:FilterCount(s.cfilter,nil,tp)-#tg>0
 end
