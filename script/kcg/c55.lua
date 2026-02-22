@@ -229,9 +229,11 @@ function s.penop(e,tp,eg,ep,ev,re,r,rp)
         if sg:GetCount()<1 then return end
         Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)
         Duel.BreakEffect()
-        Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOHAND)
+        Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
         local g=Duel.SelectMatchingCard(tp,s.sppfilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,1,nil)
-        if g:GetCount()<1 then return end
-        Duel.SendtoHand(g, tp, REASON_EFFECT)
+        if #g>0 then
+			Duel.SendtoHand(g,nil,REASON_EFFECT)
+			Duel.ConfirmCards(1-tp,g)
+		end
 	end
 end

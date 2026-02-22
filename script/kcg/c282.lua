@@ -360,8 +360,6 @@ function s.aactivate(e,tp,eg,ep,ev,re,r,rp)
             e3:SetValue(1000)
             tc:RegisterEffect(e3)
             Duel.ConfirmCards(1-tp,g)
-        else
-            Duel.GoatConfirm(tp,LOCATION_DECK)
         end
 	end
 end

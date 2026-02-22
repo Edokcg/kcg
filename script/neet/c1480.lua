@@ -31,7 +31,7 @@ function s.initial_effect(c)
 	e3:SetOperation(s.op)
 	c:RegisterEffect(e3)
 end
-s.listed_series={0x13,0x3013}
+s.listed_series={0x13,SET_MEKLORD_EMPEROR}
 function s.spcfilter(c,tp)
 	return c:IsReason(REASON_BATTLE+REASON_EFFECT) and c:IsFaceup()
 		and c:IsPreviousControler(tp) and c:IsPreviousLocation(LOCATION_ONFIELD) and Duel.GetFieldGroupCount(c:GetControler(),LOCATION_MZONE,0,nil)==0 and c:IsSetCard(0x13) and not c:IsCode(id)
@@ -57,7 +57,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.filter(c,e,tp)
-	return c:IsType(TYPE_MONSTER) and c:IsSetCard(0x3013) and c:IsCanBeSpecialSummoned(e,0,tp,true,false) and not Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsAttribute,c:GetAttribute()),tp,LOCATION_MZONE,0,1,nil)
+	return c:IsType(TYPE_MONSTER) and c:IsSetCard(SET_MEKLORD_EMPEROR) and c:IsCanBeSpecialSummoned(e,0,tp,true,false) and not Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsAttribute,c:GetAttribute()),tp,LOCATION_MZONE,0,1,nil)
 end
 function s.tg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_HAND+LOCATION_DECK,0,1,nil,e,tp) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 end

@@ -22,7 +22,7 @@ function s.initial_effect(c)
 	e2:SetOperation(s.lvop)
 	c:RegisterEffect(e2)
 end
-s.listed_series={0x13,0x3013}
+s.listed_series={0x13,SET_MEKLORD_EMPEROR}
 
 function s.thfilter(c)
 	return c:IsSetCard(0x505) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToHand()

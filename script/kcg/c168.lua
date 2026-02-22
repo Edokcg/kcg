@@ -37,7 +37,7 @@ function s.initial_effect(c)
 	e4:SetOperation(s.spop)
 	c:RegisterEffect(e4)
 end
-s.listed_series={0x13,0x3013}
+s.listed_series={0x13,SET_MEKLORD_EMPEROR}
 s.listed_names={178,179,180,181,182}
 
 function s.valcon(e,re,r,rp)

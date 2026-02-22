@@ -34,7 +34,7 @@ function s.synkillOperation(e, tp, eg, ep, ev, re, r, rp)
         Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_TARGET)
         local g1 = Duel.SelectMatchingCard(tp, nil, tp, LOCATION_DECK, 0, 1, 1, nil):GetFirst()
         if not g1 then return end
-        Duel.Hint(HINT_SELECTMSG, ttp, HINTMSG_TARGET)
+        Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_TARGET)
         local g2 = Duel.SelectMatchingCard(tp, nil, tp, LOCATION_HAND, 0, 1, 1, nil):GetFirst()
         if not g2 then return end
         Duel.ShuffleDeck(tp)

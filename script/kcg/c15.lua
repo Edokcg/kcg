@@ -1,5 +1,4 @@
 --機皇帝ワイゼル∞
-Duel.LoadScript("c420.lua")
 local s, id = GetID()
 function s.initial_effect(c)
 	--special summon
@@ -49,15 +48,6 @@ function s.initial_effect(c)
 	e4:SetOperation(s.eqop)
 	c:RegisterEffect(e4)
 
-	--   local e10=Effect.CreateEffect(c)
-	--   e10:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
-	--   e10:SetCode(EVENT_DESTROYED)
-	--   e10:SetCategory(CATEGORY_DESTROY)
-	--   e10:SetCondition(s.descon2)
-	--   e10:SetTarget(s.destg)
-	--   e10:SetOperation(s.desop)
-	--   c:RegisterEffect(e10)
-
 	local e9=Effect.CreateEffect(c)
 	e9:SetType(EFFECT_TYPE_FIELD)
 	e9:SetRange(LOCATION_MZONE)
@@ -67,7 +57,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e9)
 end
 s.listed_names={100000051,100000052,100000053,100000054}
-s.listed_series={SET_MEKLORD,0x560,0x549,0x524}
+s.listed_series={0x525,0x507,0x557,0x50d}
 
 function s.filter0(c,tp)
 	return c:IsMonster() and (c:GetReason()&(REASON_DESTROY|REASON_EFFECT))==(REASON_DESTROY|REASON_EFFECT) and c:IsPreviousControler(tp)
@@ -108,48 +98,19 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.filter(c)
-	return c:IsFaceup() and (c:IsWisel() or c:IsSkiel() or c:IsGranel()) and not c:IsSetCard(0x3013)
+	return c:IsFaceup() and (c:IsSetCard(0x525) or c:IsSetCard(0x507) or c:IsSetCard(0x557) or c:IsSetCard(0x50d))
 end
-function s.eqfilter2(c)
-	return c:IsFaceup() 
-	--and bit.band(c:GetOriginalType(),TYPE_SYNCHRO)~=0
+function s.operation(e,c)
+	return Duel.GetMatchingGroup(s.filter,c:GetControler(),LOCATION_MZONE,0,c):GetSum(Card.GetAttack)
 end
 function s.operation1(e,c)
-	local wup=0
-	local wg=Duel.GetMatchingGroup(s.filter,c:GetControler(),LOCATION_MZONE,0,c)
-	local wbc=wg:GetFirst()
-	while wbc do
-		wup=wup+wbc:GetAttack()
-		wbc=wg:GetNext()
-	end
-
-	local g=e:GetHandler():GetEquipGroup():Filter(s.eqfilter2,nil)
-	local tatk=0
-	if g:GetCount()>0 then
-		local tc=g:GetFirst()
-		while tc do
-		local atk=tc:GetTextAttack()
-		tatk=tatk+atk
-		tc=g:GetNext() end
-	end
-
-	return wup+tatk
-end
-
-function s.operation(e,c)
-	local wup=0
-	local wg=Duel.GetMatchingGroup(s.filter,c:GetControler(),LOCATION_MZONE,0,c)
-	local wbc=wg:GetFirst()
-	while wbc do
-		wup=wup+wbc:GetAttack()
-		wbc=wg:GetNext()
-	end
-	return wup
+	return Duel.GetMatchingGroup(s.filter,c:GetControler(),LOCATION_MZONE,0,c):GetSum(Card.GetAttack)+e:GetHandler():GetEquipGroup():GetSum(Card.GetAttack)
 end
 
 function s.efr(e,re)
 	return re:GetHandlerPlayer()~=e:GetHandlerPlayer()
 end
+
 function s.eqfilter(c)
 	return c:IsFaceup() and c:IsType(TYPE_SYNCHRO) and c:IsAbleToChangeControler()
 end
@@ -193,40 +154,6 @@ function s.eqop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
-function s.exfilter(c,fid)
-	return c:IsFaceup() and c:IsSetCard(0x3013) and (fid==nil or c:GetFieldID()<fid)
-end
-function s.excon(e)
-	local c=e:GetHandler()
-	return Duel.IsExistingMatchingCard(s.exfilter,c:GetControler(),LOCATION_ONFIELD,0,1,nil)
-end
-function s.splimit(e,se,sp,st,spos,tgp)
-	if bit.band(spos,POS_FACEDOWN)~=0 then return true end
-	return not Duel.IsExistingMatchingCard(s.exfilter,tgp,LOCATION_ONFIELD,0,1,nil)
-end
-function s.descon(e)
-	local c=e:GetHandler()
-	return Duel.IsExistingMatchingCard(s.exfilter,c:GetControler(),LOCATION_ONFIELD,0,1,nil,c:GetFieldID())
-end
-
-function s.descon2(e)
-	local c=e:GetHandler()
-	return c:GetPreviousLocation()==LOCATION_ONFIELD and c:GetPreviousPosition()==POS_FACEUP
-end
-function s.desfilter(c)
-	return (c:IsWisel() or c:IsSkiel() or c:IsGranel()) and not c:IsSetCard(0x3013) and c:IsDestructable()
-end
-function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
-	local sg=Duel.GetMatchingGroup(s.desfilter,tp,LOCATION_MZONE,0,c)
-	Duel.SetOperationInfo(0,CATEGORY_DESTROY,sg,#sg,0,0)
-end
-function s.desop(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	local sg=Duel.GetMatchingGroup(s.desfilter,tp,LOCATION_MZONE,0,c)
-	Duel.Destroy(sg,REASON_EFFECT)
-end
-
 function s.atkfilter(e,c)
-	return (c:IsWisel() or c:IsSkiel() or c:IsGranel()) and not c:IsSetCard(0x3013) and c~=e:GetHandler() 
+	return (c:IsSetCard(0x525) or c:IsSetCard(0x507) or c:IsSetCard(0x557) or c:IsSetCard(0x50d))
 end

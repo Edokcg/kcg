@@ -9,14 +9,14 @@ function s.initial_effect(c)
 	e2:SetOperation(s.operation)
 	c:RegisterEffect(e2)
 end
-s.listed_series={0x3013}
+s.listed_series={SET_MEKLORD_EMPEROR}
 
 function s.catktg(e,c)
 	return e:GetHandler()~=c
 end
 
 function s.filter(c)
-	return c:IsSetCard(0x3013) and c:IsMonster()
+	return c:IsSetCard(SET_MEKLORD_EMPEROR) and c:IsMonster()
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -47,7 +47,7 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	until #g<=0
 end
 function s.codefilter(c,code)
-	return c:IsOriginalCode(code) and c:IsSetCard(0x3013)
+	return c:IsOriginalCode(code) and c:IsSetCard(SET_MEKLORD_EMPEROR)
 end
 function s.codefilterchk(c,sc)
 	return sc:GetFlagEffect(c:GetOriginalCode())>0

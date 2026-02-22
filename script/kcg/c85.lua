@@ -149,7 +149,7 @@ if not DestinyDraw then
                     and Duel.GetMatchingGroupCount(Card.IsSetCard, ttp, LOCATION_DECK + LOCATION_HAND, 0, nil, 0x507) > 0  
                     and Duel.GetMatchingGroupCount(Card.IsSetCard, ttp, LOCATION_DECK + LOCATION_HAND, 0, nil, 0x50d) > 0 
                     and Duel.GetMatchingGroupCount(Card.IsSetCard, ttp, LOCATION_DECK + LOCATION_HAND, 0, nil, 0x557) > 0  
-                    and Duel.GetMatchingGroupCount(Card.IsSetCard, ttp, LOCATION_DECK + LOCATION_HAND, 0, nil, 0x3013) > 0) --meklord
+                    and Duel.GetMatchingGroupCount(Card.IsSetCard, ttp, LOCATION_DECK + LOCATION_HAND, 0, nil, SET_MEKLORD_EMPEROR) > 0) --meklord
                         
                 local sel = 0
                 local off = 1
