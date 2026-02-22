@@ -25,14 +25,15 @@ function s.checkop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.RegisterFlagEffect(1,id,RESET_PHASE|PHASE_END,0,1,ct)
 	else
 		local ct1=Duel.GetFlagEffectLabel(0,id)
-		local ct2=Duel.GetFlagEffectLabel(0,id)
+		local ct2=Duel.GetFlagEffectLabel(1,id)
 		Duel.SetFlagEffectLabel(0,id,ct1+ct)
 		Duel.SetFlagEffectLabel(1,id,ct2+ct)
 	end
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
-	if Duel.GetFlagEffect(tp,id)~=0 then
+	local ct=Duel.GetFlagEffectLabel(tp,id)
+	if Duel.GetFlagEffect(tp,id)~=0 and ct>=1 then
 		e:SetCategory(CATEGORY_SPECIAL_SUMMON)
 		Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK)
 		e:SetLabel(1)
@@ -42,13 +43,15 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	end
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
-	if e:GetLabel()==1
+	local ct=Duel.GetFlagEffectLabel(tp,id)
+	if e:GetLabel()==1 and ct>=1
 		and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp)
 		and Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp)
 		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+		Duel.SetFlagEffectLabel(tp,id,ct-1)
 	else
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
