@@ -79,11 +79,11 @@ function s.initial_effect(c)
 	--Salvage "Nonexistance"
 	local e8=Effect.CreateEffect(c)
 	e8:SetDescription(aux.Stringid(id,4))
-	e8:SetCategory(CATEGORY_TOHAND)
+	e8:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
 	e8:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
 	e8:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e8:SetCode(EVENT_TO_GRAVE)
-	e8:SetCondition(s.thcon)
+	--e8:SetCondition(s.thcon)
 	e8:SetTarget(s.thtg)
 	e8:SetOperation(s.thop)
 	c:RegisterEffect(e8)
@@ -98,7 +98,7 @@ function s.initial_effect(c)
 	aux.ChangePlayerEffect({EFFECT_CANNOT_SPECIAL_SUMMON,EFFECT_CANNOT_SUMMON,EFFECT_CANNOT_FLIP_SUMMON},c,id-1,function(te,tc) return Duel.GetPlayerEffect(te:GetOwnerPlayer(),id-1) and tc:IsSetCard(SET_TIMELORD) end)
 end
 s.listed_series = {SET_TIMELORD}
-s.listed_names={9409625,36894320,8967776}
+s.listed_names={393,36894320,8967776}
 
 function s.acfilter(c)
 	return c:IsFaceup() and c:IsCode(36894320) and c:IsAbleToGraveAsCost()
@@ -236,13 +236,13 @@ function s.thcon(e,tp,eg,ep,ev,re,r,rp)
 	return c:IsPreviousLocation(LOCATION_ONFIELD) and c:IsPreviousPosition(POS_FACEUP)
 end
 function s.thfilter(c)
-	return c:IsCode(9409625) and c:IsAbleToHand()
+	return c:IsCode(393) and c:IsAbleToHand()
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.thfilter(chkc) end
+	if chkc then return chkc:IsLocation(LOCATION_DECK|LOCATION_GRAVE) and chkc:IsControler(tp) and s.thfilter(chkc) end
 	if chk==0 then return true end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-	local g=Duel.SelectTarget(tp,s.thfilter,tp,LOCATION_GRAVE,0,1,1,nil)
+	local g=Duel.SelectTarget(tp,s.thfilter,tp,LOCATION_DECK|LOCATION_GRAVE,0,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,#g,0,0)
 end
 function s.thop(e,tp,eg,ep,ev,re,r,rp)

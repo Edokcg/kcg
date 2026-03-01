@@ -1,10 +1,19 @@
 local s,id=GetID()
 function s.initial_effect(c)
 	local e4=Effect.GlobalEffect()
-	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e4:SetCode(EVENT_EQUIP)
-	e4:SetOperation(s.op4)
-	Duel.RegisterEffect(e4,0)
+	aux.GlobalCheck(s,function()
+		e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+		e4:SetCode(EVENT_EQUIP)
+		e4:SetOperation(s.op4)
+		Duel.RegisterEffect(e4,0)
+		local e5=Effect.GlobalEffect()
+		e5:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+		e5:SetCode(EVENT_TURN_END)
+		e5:SetCountLimit(1)
+		e5:SetLabelObject(e4)
+		e5:SetOperation(s.op5)
+		Duel.RegisterEffect(e5,0)
+	end)
 
 	--Add to hand or Special Summon 3 "Meklord" monsters with different names in your GY
 	local e1=Effect.CreateEffect(c)
@@ -43,6 +52,13 @@ function s.op4(e,tp,eg,ep,ev,re,r,rp)
 		tc:RegisterFlagEffect(id,RESET_PHASE|PHASE_END,0,1)
 	end
 	e:SetLabel(count)
+end
+function s.op5(e,tp,eg,ep,ev,re,r,rp)
+	local te=e:GetLabelObject()
+	if not te then return end
+	local val=te:GetLabel()
+	if not val then return end
+	te:SetLabel(0)
 end
 
 function s.eqedfilter(c)

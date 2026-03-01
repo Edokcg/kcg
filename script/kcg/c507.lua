@@ -25,6 +25,14 @@ function s.initial_effect(c)
 	e3:SetOperation(s.eqop)
 	c:RegisterEffect(e3)
 	aux.AddEREquipLimit(c,nil,s.eqval,s.equipop,e3)
+	
+	local e2=Effect.CreateEffect(c)
+	e2:SetType(EFFECT_TYPE_SINGLE)
+	e2:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+	e2:SetRange(LOCATION_MZONE)
+	e2:SetCode(EFFECT_UPDATE_ATTACK)
+	e2:SetValue(s.operation1)
+	c:RegisterEffect(e2)
 
 	--damage
 	local e4=Effect.CreateEffect(c)
@@ -46,7 +54,7 @@ function s.initial_effect(c)
 	e5:SetType(EFFECT_TYPE_QUICK_O)
 	e5:SetCode(EVENT_FREE_CHAIN)
 	e5:SetRange(LOCATION_MZONE)
-	e5:SetCondition(function(_,tp) return Duel.IsTurnPlayer(tp) end)
+	e5:SetCountLimit(1)
 	e5:SetCost(s.effcost)
 	e5:SetTarget(s.efftg)
 	e5:SetOperation(s.effop)
@@ -63,7 +71,7 @@ end
 s.listed_series={SET_MEKLORD,0x557,0x507,0x525,0x50d}
 
 function s.spfilter(c)
-	return c:IsMonster() and c:IsSetCard(SET_MEKLORD) and c:IsAbleToGraveAsCost()
+	return c:IsMonster() and c:ListsArchetype(SET_MEKLORD) and c:IsAbleToGraveAsCost()
 end
 function s.spcon(e,c)
 	if c==nil then return true end
@@ -104,32 +112,39 @@ function s.eqtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local g=Duel.SelectTarget(tp,s.eqfilter,tp,0,LOCATION_MZONE,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_EQUIP,g,1,0,0)
 end
-function s.equipop(c,e,tp,tc)
-	local atk=tc:GetTextAttack()
-	if atk<0 then atk=0 end
-	if not c:EquipByEffectAndLimitRegister(e,tp,tc,id) then return end
-	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_EQUIP)
-	e2:SetCode(EFFECT_UPDATE_ATTACK)
-	e2:SetReset(RESET_EVENT+RESETS_STANDARD)
-	e2:SetValue(atk)
-	tc:RegisterEffect(e2)
+function s.eqlimit(e,c)
+	local tc2=e:GetLabelObject()
+	return c==tc2
+	--return e:GetOwner()==c
 end
 function s.eqop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
 	if tc and tc:IsFaceup() and tc:IsRelateToEffect(e) and tc:IsMonster() then
 		if c:IsFaceup() and c:IsRelateToEffect(e) then
-			s.equipop(c,e,tp,tc)
-		else Duel.SendtoGrave(tc,REASON_EFFECT) end
+			if not Duel.Equip(tp,tc,c,false) then return end
+			--Add Equip limit
+			local e1=Effect.CreateEffect(c)
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetProperty(EFFECT_FLAG_COPY_INHERIT)
+			e1:SetCode(EFFECT_EQUIP_LIMIT)
+			e1:SetReset(RESET_EVENT+0x1fe0000)
+			e1:SetValue(s.eqlimit)
+			e1:SetLabelObject(c)
+			tc:RegisterEffect(e1)
+		end
 	end
+end
+
+function s.operation1(e,c)
+	return e:GetHandler():GetEquipGroup():GetSum(Card.GetAttack)
 end
 
 function s.damcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsTurnPlayer(tp)
 end
 function s.dcfilter(c)
-	return c:GetFlagEffect(id)~=0 and c:IsAbleToGraveAsCost()
+	return c:IsAbleToGraveAsCost()
 end
 function s.damcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():GetEquipGroup():IsExists(s.dcfilter,1,nil) end
@@ -160,36 +175,37 @@ end
 function s.effcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_HAND,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_HAND,0,1,1,nil)
+	local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_HAND,0,1,99,nil)
 	Duel.SendtoGrave(g,REASON_COST)
 	e:SetLabelObject(g:GetFirst())
 end
 function s.efftg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
-	local tc=e:GetLabelObject()
-	Duel.SetTargetCard(tc)
+	local g=e:GetLabelObject()
+	Duel.SetTargetCard(g)
 end
 function s.effop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local tc=Duel.GetFirstTarget()
-	if c:IsRelateToEffect(e) and tc then
+	local g=Duel.GetTargetCards(e)
+	if not c:IsRelateToEffect(e) or #g<1 then return end
+	for tc in aux.Next(g) do
 		c:CopyEffect(tc:GetOriginalCode(),RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,1)
 	end
 end
 
-function s.repfilter(c)
-	return s.filter(c) and c:IsAbleToRemove() and aux.SpElimFilter(c,true)
+function s.repfilter(c,e)
+	return c:IsRace(RACE_MACHINE) and c~=e:GetHandler() and c:IsAbleToRemove() and aux.SpElimFilter(c,true)
 end
 function s.desreptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	if chk==0 then return not c:IsReason(REASON_REPLACE)
-		and Duel.IsExistingMatchingCard(s.repfilter,tp,LOCATION_MZONE|LOCATION_GRAVE,0,1,nil) end
+		and Duel.IsExistingMatchingCard(s.repfilter,tp,LOCATION_MZONE|LOCATION_GRAVE,0,1,nil,e) end
 	if Duel.SelectEffectYesNo(tp,e:GetHandler(),96) then
 		return true
 	else return false end
 end
 function s.repop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,s.repfilter,tp,LOCATION_MZONE|LOCATION_GRAVE,0,1,1,nil)
+	local g=Duel.SelectMatchingCard(tp,s.repfilter,tp,LOCATION_MZONE|LOCATION_GRAVE,0,1,1,nil,e)
 	Duel.Remove(g,POS_FACEUP,REASON_EFFECT+REASON_REPLACE)
 end

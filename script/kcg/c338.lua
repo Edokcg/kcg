@@ -70,7 +70,7 @@ function s.initial_effect(c)
 	e9:SetTarget(s.atkfilter)
 	c:RegisterEffect(e9)
 end
-s.listed_series={SET_MEKLORD,0x560,0x549,0x524}
+s.listed_series={SET_MEKLORD,0x525,0x507,0x557,0x50d}
 
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsTurnPlayer(1-tp)
@@ -90,17 +90,20 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
 end
 function s.spfilter(c,e,tp)
-	return c:IsCode(100000051,100000052,100000053,100000054,100000048,100000049,100000047,100000309) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return (c:IsSetCard(0x525) or c:IsSetCard(0x507) or c:IsSetCard(0x557) or c:IsSetCard(0x50d)) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.rescon(sg,e,tp,mg)
-	return (sg:IsExists(Card.IsCode,1,nil,100000051) or sg:IsExists(Card.IsCode,1,nil,100000049)) and (sg:IsExists(Card.IsCode,1,nil,100000052) or sg:IsExists(Card.IsCode,1,nil,100000049) or sg:IsExists(Card.IsCode,1,nil,100000309)) and (sg:IsExists(Card.IsCode,1,nil,100000053) or sg:IsExists(Card.IsCode,1,nil,100000047)) and sg:IsExists(Card.IsCode,1,nil,100000054)
+	return sg:IsExists(Card.IsSetCard,1,nil,0x525) and sg:IsExists(Card.IsSetCard,1,nil,0x507) and sg:IsExists(Card.IsSetCard,1,nil,0x557) and sg:IsExists(Card.IsSetCard,1,nil,0x50d)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,true,false,POS_FACEUP)~0 then
+	if not c:IsRelateToEffect(e) then return end
+	local sg=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_MZONE,0,nil)
+	Duel.Destroy(sg,REASON_EFFECT)
+	if Duel.SpecialSummon(c,0,tp,tp,true,false,POS_FACEUP)~0 then
 		c:CompleteProcedure()
         local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
-        if ft<=0 or (ft>1 and Duel.IsPlayerAffectedByEffect(tp,CARD_BLUEEYES_SPIRIT)) then return end
+        if ft<4 or (ft>1 and Duel.IsPlayerAffectedByEffect(tp,CARD_BLUEEYES_SPIRIT)) then return end
         Duel.BreakEffect()
         local sg=Duel.GetMatchingGroup(s.spfilter,tp,LOCATION_DECK|LOCATION_HAND|LOCATION_GRAVE,0,nil,e,tp)
         if not s.rescon(sg) then return end
@@ -206,44 +209,15 @@ function s.negop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.filter(c)
-	return c:IsFaceup() and (c:IsWisel() or c:IsSkiel() or c:IsGranel()) and not c:IsSetCard(0x3013)
-end
-function s.eqfilter2(c)
-	return c:IsFaceup() 
-	--and bit.band(c:GetOriginalType(),TYPE_SYNCHRO)~=0
-end
-function s.operation1(e,c)
-	local wup=0
-	local wg=Duel.GetMatchingGroup(s.filter,c:GetControler(),LOCATION_MZONE,0,c)
-	local wbc=wg:GetFirst()
-	while wbc do
-		wup=wup+wbc:GetAttack()
-		wbc=wg:GetNext()
-	end
-
-	local g=e:GetHandler():GetEquipGroup():Filter(s.eqfilter2,nil)
-	local tatk=0
-	if g:GetCount()>0 then
-		local tc=g:GetFirst()
-		while tc do
-		local atk=tc:GetTextAttack()
-		tatk=tatk+atk
-		tc=g:GetNext() end
-	end
-
-	return wup+tatk
+	return c:IsFaceup() and (c:IsSetCard(0x525) or c:IsSetCard(0x507) or c:IsSetCard(0x557) or c:IsSetCard(0x50d))
 end
 function s.operation(e,c)
-	local wup=0
-	local wg=Duel.GetMatchingGroup(s.filter,c:GetControler(),LOCATION_MZONE,0,c)
-	local wbc=wg:GetFirst()
-	while wbc do
-		wup=wup+wbc:GetAttack()
-		wbc=wg:GetNext()
-	end
-	return wup
+	return Duel.GetMatchingGroup(s.filter,c:GetControler(),LOCATION_MZONE,0,c):GetSum(Card.GetAttack)
+end
+function s.operation1(e,c)
+	return Duel.GetMatchingGroup(s.filter,c:GetControler(),LOCATION_MZONE,0,c):GetSum(Card.GetAttack)+e:GetHandler():GetEquipGroup():GetSum(Card.GetAttack)
 end
 
 function s.atkfilter(e,c)
-	return (c:IsWisel() or c:IsSkiel() or c:IsGranel()) and not c:IsSetCard(0x3013) and c~=e:GetHandler() 
+	return (c:IsSetCard(0x525) or c:IsSetCard(0x507) or c:IsSetCard(0x557) or c:IsSetCard(0x50d))
 end

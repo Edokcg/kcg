@@ -7,17 +7,6 @@ function s.initial_effect(c)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	c:RegisterEffect(e1)
 
-	--untargetable
-	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_FIELD)
-	e2:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
-	e2:SetRange(LOCATION_FZONE)
-	e2:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
-	e2:SetTargetRange(LOCATION_MZONE,0)
-	e2:SetTarget(aux.TargetBoolFunction(Card.IsSetCard,0x3013))
-	e2:SetValue(s.effval)
-	c:RegisterEffect(e2)
-
 	local e3=Effect.CreateEffect(c)
 	e3:SetType(EFFECT_TYPE_FIELD)
 	e3:SetCode(EFFECT_ADD_TYPE)
@@ -46,11 +35,7 @@ function s.initial_effect(c)
 	e5:SetOperation(s.thop)
 	c:RegisterEffect(e5)
 end
-s.listed_series={0x3013,0x525,0x507,0x557,0x50d}
-
-function s.effval(e,re,rp)
-	return re:GetHandler():IsType(TYPE_SYNCHRO)
-end
+s.listed_series={SET_MEKLORD_EMPEROR,0x525,0x507,0x557,0x50d}
 
 function s.efilterr(e,te)
 	return te:IsActiveType(TYPE_SYNCHRO)
@@ -58,24 +43,22 @@ end
 
 function s.thcon(e,tp,eg,ep,ev,re,r,rp)
 	local atker=Duel.GetAttacker()
-	return atker:IsControler(tp) and atker:IsSetCard(0x3013)
+	return atker:IsControler(tp) and atker:IsSetCard(SET_MEKLORD_EMPEROR)
 end
 function s.filter(c)
-	return (c:IsSetCard(0x3013) or c:IsSetCard(0x525) or c:IsSetCard(0x507) or c:IsSetCard(0x557) or c:IsSetCard(0x50d)) and c:IsAbleToGrave()
+	return (c:IsSetCard(0x525) or c:IsSetCard(0x507) or c:IsSetCard(0x557) or c:IsSetCard(0x50d)) and c:IsAbleToGrave()
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local sg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_DECK+LOCATION_HAND,0,nil)
-	if chk==0 then return s.rescon(sg) end
-	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,5,tp,LOCATION_HAND+LOCATION_DECK)
+	if chk==0 then return #sg>0 end
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,4,tp,LOCATION_HAND+LOCATION_DECK)
 end
 function s.rescon(sg,e,tp,mg)
-	return sg:IsExists(Card.IsSetCard,1,nil,0x3013) and sg:IsExists(Card.IsSetCard,1,nil,0x525) and sg:IsExists(Card.IsSetCard,1,nil,0x507) and sg:IsExists(Card.IsSetCard,1,nil,0x557) and sg:IsExists(Card.IsSetCard,1,nil,0x50d)
+	return sg:IsExists(Card.IsSetCard,1,nil,0x525) and sg:IsExists(Card.IsSetCard,1,nil,0x507) and sg:IsExists(Card.IsSetCard,1,nil,0x557) and sg:IsExists(Card.IsSetCard,1,nil,0x50d)
 end
 function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	local sg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_DECK+LOCATION_HAND,0,nil)
-	if not s.rescon(sg) then return end
-	local spg=aux.SelectUnselectGroup(sg,e,tp,5,5,s.rescon,1,tp,HINTMSG_TOGRAVE)
-	if #spg==5 then
-		Duel.SendtoGrave(spg,REASON_EFFECT)
-	end
+	if #sg<1 then return end
+	local spg=sg:Select(tp,1,4)
+	Duel.SendtoGrave(spg,REASON_EFFECT)
 end

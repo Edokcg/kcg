@@ -335,7 +335,7 @@ function s.aactivate(e,tp,eg,ep,ev,re,r,rp)
         Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
         local g=Duel.SelectMatchingCard(tp,s.setfilter,tp,LOCATION_DECK,0,1,1,nil)
 	    if #g>0 then
-            Duel.SSet(tp,g,tp,true)
+            Duel.SSet(tp,g)
             Duel.ConfirmCards(1-tp,g)
 	    end
     end
