@@ -1,6 +1,17 @@
 --ワイゼルＧ5
 local s,id=GetID()
 function s.initial_effect(c)
+	--Activate
+	local e01=Effect.CreateEffect(c)
+	e01:SetDescription(aux.Stringid(id,2))
+	e01:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e01:SetType(EFFECT_TYPE_ACTIVATE)
+	e01:SetCode(EVENT_FREE_CHAIN)
+	e01:SetCost(s.actcost)
+	e01:SetTarget(s.acttarget)
+	e01:SetOperation(s.actactivate)
+	c:RegisterEffect(e01)
+
 	--search
 	local e7=Effect.CreateEffect(c)
 	e7:SetDescription(aux.Stringid(id,1))
@@ -14,6 +25,7 @@ function s.initial_effect(c)
 
 	--special summon
 	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,4))
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetCode(EFFECT_SPSUMMON_PROC)
 	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
@@ -56,6 +68,32 @@ function s.initial_effect(c)
 end
 s.listed_series={SET_MEKLORD_EMPEROR,0x525,0x507,0x557,0x50d}
 
+function s.actcostfilter(c,ft)
+	return c:IsFaceup() and c:IsSetCard(0x525) and c:IsAbleToGraveAsCost() and (ft>0 or c:GetSequence()<5)
+end
+function s.actcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	e:SetLabel(1)
+	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	if chk==0 then return ft>-1 and Duel.IsExistingMatchingCard(s.actcostfilter,tp,LOCATION_MZONE,0,1,nil,ft) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+	local g=Duel.SelectMatchingCard(tp,s.actcostfilter,tp,LOCATION_MZONE,0,1,1,nil,ft)
+	Duel.SendtoGrave(g,REASON_COST)
+end
+function s.acttarget(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	if chk==0 then
+		if e:GetLabel()==0 and Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return false end
+		e:SetLabel(0)
+		return c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,tp,0)
+end
+function s.actactivate(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
+	Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+end
+
 function s.thfilter3(c)
 	return (c:IsSetCard(0x525) or c:IsSetCard(0x507) or c:IsSetCard(0x557) or c:IsSetCard(0x50d)) and c:IsAbleToHand()
 end
@@ -64,8 +102,9 @@ function s.thtg3(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 end
 function s.thop3(e,tp,eg,ep,ev,re,r,rp,chk)
-	local tg=Duel.GetFirstMatchingCard(s.thfilter3,tp,LOCATION_DECK,0,nil)
-	if tg then
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	local tg=Duel.SelectMatchingCard(tp,s.thfilter3,tp,LOCATION_DECK,0,1,1,nil)
+	if #tg>0 then
 		Duel.SendtoHand(tg,nil,REASON_EFFECT)
 		Duel.ConfirmCards(1-tp,tg)
 	end

@@ -74,7 +74,9 @@ function s.thfilter(c)
 end
 function s.spcon(e,c)
 	if c==nil then return true end
-	return Duel.IsExistingMatchingCard(s.thfilter,c:GetControler(),LOCATION_DECK,0,1,nil)
+	local tp=c:GetControler()
+	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,c)
 	local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)

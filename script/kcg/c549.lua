@@ -39,7 +39,7 @@ function s.initial_effect(c)
 	e2:SetOperation(s.desop)
 	c:RegisterEffect(e2)
 end
-s.listed_series={SET_MEKLORD,SET_MEKLORD_ASTRO}
+s.listed_series={SET_MEKLORD}
 
 function s.eqfilter(c)
 	local ec=c:GetEquipTarget()
@@ -90,20 +90,18 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	if #g<1 then return end
 	local tc2=g:GetFirst()
 	local count=0
-	if tc2:IsFaceup() then
-		for tc in aux.Next(eqg) do
-			if not Duel.Equip(tp,tc,tc2,false) then return end
-			--Add Equip limit
-			local e1=Effect.CreateEffect(c)
-			e1:SetType(EFFECT_TYPE_SINGLE)
-			e1:SetProperty(EFFECT_FLAG_COPY_INHERIT)
-			e1:SetCode(EFFECT_EQUIP_LIMIT)
-			e1:SetReset(RESET_EVENT+0x1fe0000)
-			e1:SetValue(s.eqlimit)
-			e1:SetLabelObject(tc2)
-			tc:RegisterEffect(e1)
-			count=count+1
-		end
+	for tc in aux.Next(eqg) do
+		if not Duel.Equip(tp,tc,tc2,false) then return end
+		--Add Equip limit
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetProperty(EFFECT_FLAG_COPY_INHERIT)
+		e1:SetCode(EFFECT_EQUIP_LIMIT)
+		e1:SetReset(RESET_EVENT+0x1fe0000)
+		e1:SetValue(s.eqlimit)
+		e1:SetLabelObject(tc2)
+		tc:RegisterEffect(e1)
+		count=count+1
 	end
 	Duel.BreakEffect()
 	local te=e:GetLabelObject()
@@ -122,13 +120,13 @@ function s.thfilter1(c)
 	return c:IsMonster() and c:ListsArchetype(SET_MEKLORD) and c:IsAbleToHand()
 end
 function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter1,tp,LOCATION_GRAVE,0,1,nil) end
-	local g=Duel.GetMatchingGroup(s.thfilter1,tp,LOCATION_GRAVE,0,nil)
+	if chk==0 then return Duel.IsExistingMatchingCard(aux.NecroValleyFilter(s.thfilter1),tp,LOCATION_GRAVE,0,1,nil) end
+	local g=Duel.GetMatchingGroup(aux.NecroValleyFilter(s.thfilter1),tp,LOCATION_GRAVE,0,nil)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,#g,tp,LOCATION_GRAVE)
 end
 function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-	local g=Duel.SelectMatchingCard(tp,s.thfilter1,tp,LOCATION_GRAVE,0,1,99,nil)
+	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.thfilter1),tp,LOCATION_GRAVE,0,1,99,nil)
 	if #g>0 then
 		Duel.SendtoHand(g,nil,REASON_EFFECT)
 		Duel.ConfirmCards(1-tp,g)

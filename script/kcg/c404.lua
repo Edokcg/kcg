@@ -1,19 +1,31 @@
 --ワイゼルＧ5
 local s,id=GetID()
 function s.initial_effect(c)
+	--Activate
+	local e01=Effect.CreateEffect(c)
+	e01:SetDescription(aux.Stringid(id,1))
+	e01:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e01:SetType(EFFECT_TYPE_ACTIVATE)
+	e01:SetCode(EVENT_FREE_CHAIN)
+	e01:SetCost(s.actcost)
+	e01:SetTarget(s.acttarget)
+	e01:SetOperation(s.actactivate)
+	c:RegisterEffect(e01)
+
 	--search
 	local e7=Effect.CreateEffect(c)
 	e7:SetDescription(aux.Stringid(id,2))
-	e7:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+	e7:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e7:SetType(EFFECT_TYPE_IGNITION)
 	e7:SetRange(LOCATION_HAND)
-	e7:SetCost(Cost.SelfDiscard)
+	e7:SetCost(Cost.SelfReveal)
 	e7:SetTarget(s.thtg3)
 	e7:SetOperation(s.thop3)
 	c:RegisterEffect(e7)
 
 	--special summon
 	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,3))
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetCode(EFFECT_SPSUMMON_PROC)
 	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
@@ -51,20 +63,62 @@ function s.initial_effect(c)
 	e5:SetOperation(s.damop)
 	c:RegisterEffect(e5)
 end
-s.listed_series={SET_MEKLORD_EMPEROR,SET_MEKLORD,0x525,0x507,0x557,0x50d}
+s.listed_series={SET_MEKLORD_EMPEROR,SET_MEKLORD,0x50d}
 
-function s.thfilter3(c)
-	return (c:IsSetCard(0x525) or c:IsSetCard(0x507) or c:IsSetCard(0x557) or c:IsSetCard(0x50d)) and c:IsAbleToHand()
+function s.actcostfilter(c,ft)
+	return c:IsFaceup() and c:IsSetCard(0x50d) and c:IsAbleToGraveAsCost() and (ft>0 or c:GetSequence()<5)
+end
+function s.actcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	e:SetLabel(1)
+	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	if chk==0 then return ft>-1 and Duel.IsExistingMatchingCard(s.actcostfilter,tp,LOCATION_MZONE,0,1,nil,ft) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+	local g=Duel.SelectMatchingCard(tp,s.actcostfilter,tp,LOCATION_MZONE,0,1,1,nil,ft)
+	Duel.SendtoGrave(g,REASON_COST)
+end
+function s.acttarget(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	if chk==0 then
+		if e:GetLabel()==0 and Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return false end
+		e:SetLabel(0)
+		return c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,tp,0)
+end
+function s.actactivate(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
+	Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+end
+
+function s.spfilter(c,e,tp)
+	return c:IsSetCard(SET_MEKLORD_EMPEROR) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+end
+function s.spfilter2(c,e,tp)
+	return c:ListsArchetype(SET_MEKLORD_EMPEROR) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.thtg3(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter3,tp,LOCATION_DECK,0,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>1 and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false)
+		and Duel.IsExistingMatchingCard(aux.NecroValleyFilter(s.spfilter),tp,LOCATION_DECK|LOCATION_HAND|LOCATION_GRAVE,0,1,nil,e,tp) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK|LOCATION_HAND|LOCATION_GRAVE)
 end
-function s.thop3(e,tp,eg,ep,ev,re,r,rp,chk)
-	local tg=Duel.GetFirstMatchingCard(s.thfilter3,tp,LOCATION_DECK,0,nil)
-	if tg then
-		Duel.SendtoHand(tg,nil,REASON_EFFECT)
-		Duel.ConfirmCards(1-tp,tg)
+function s.rescon(sg,e,tp,mg)
+	return sg:IsContains(e:GetHandler())
+end
+function s.thop3(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local g=Duel.GetMatchingGroup(s.spfilter2,tp,LOCATION_HAND,0,nil,e,tp)
+	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	if ft<2 or not Duel.IsExistingMatchingCard(aux.NecroValleyFilter(s.spfilter),tp,LOCATION_DECK|LOCATION_HAND|LOCATION_GRAVE,0,1,nil,e,tp) or #g<1 or not g:IsContains(c) then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local sg=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.spfilter),tp,LOCATION_DECK|LOCATION_HAND|LOCATION_GRAVE,0,1,1,nil,e,tp)
+	if #sg<1 then return end
+	if Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)~=0 then
+		ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+		if Duel.IsPlayerAffectedByEffect(tp,CARD_BLUEEYES_SPIRIT) then ft=1 end
+		if ft<1 or not aux.SelectUnselectGroup(g,e,tp,1,ft,s.rescon,0) then return end
+		local sg2=aux.SelectUnselectGroup(g,e,tp,1,ft,s.rescon,1,tp,HINTMSG_SPSUMMON,s.rescon)
+		Duel.SpecialSummon(sg2,0,tp,tp,false,false,POS_FACEUP)
 	end
 end
 

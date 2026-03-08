@@ -98,7 +98,7 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc and tc:IsRelateToEffect(e) and tc:IsFaceup() then
 		local e5=Effect.CreateEffect(c)
-		e5:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_DAMAGE_STEP)
+		e5:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_CANNOT_DISABLE)
 		e5:SetDescription(aux.Stringid(id,2))
 		e5:SetType(EFFECT_TYPE_QUICK_O)
 		e5:SetCode(EVENT_FREE_CHAIN)

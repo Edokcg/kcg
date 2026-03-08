@@ -63,21 +63,46 @@ end
 function s.descond(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard,SET_MEKLORD_ASTRO),tp,LOCATION_MZONE,0,1,nil)
 end
+function s.cfilter2(c)
+	return c:IsFaceup() and c:IsSetCard(SET_MEKLORD)
+end
+function s.eqfilter(c)
+	return c:IsFaceup() and c:IsAbleToChangeControler()
+end
 function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local g=Duel.GetMatchingGroup(aux.FaceupFilter(Card.IsType,TYPE_SYNCHRO),tp,0,LOCATION_MZONE,nil)
-	if chk==0 then return #g>0 end
-	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,tp,0)
+	local g=Duel.GetMatchingGroup(s.eqfilter,tp,0,LOCATION_MZONE,nil)
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>0
+		and Duel.IsExistingMatchingCard(s.eqfilter,tp,0,LOCATION_MZONE,1,nil) 
+		and Duel.IsExistingMatchingCard(s.cfilter2,tp,LOCATION_MZONE,0,1,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_EQUIP,nil,1,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,1-tp,0)
 end
+function s.eqlimit(e,c)
+	  local tc2=e:GetLabelObject()
+	  return c==tc2
+end
 function s.desop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local tc=Duel.SelectMatchingCard(tp,aux.FaceupFilter(Card.IsType,TYPE_SYNCHRO),tp,0,LOCATION_MZONE,1,1,nil):GetFirst()
-	if not tc then return end
-	Duel.HintSelection(tc,true)
-	if Duel.Destroy(tc,REASON_EFFECT)>0 then
-		local value=tc:GetBaseAttack()
-		if value>0 then
-			Duel.Damage(1-tp,value,REASON_EFFECT)
-		end
+	local c=e:GetHandler()
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
+	local eqg=Duel.SelectMatchingCard(tp,s.eqfilter,tp,0,LOCATION_MZONE,1,1,nil)
+	if #eqg<1 then return end
+	local tc=eqg:GetFirst()
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
+	local g=Duel.SelectMatchingCard(tp,s.cfilter2,tp,LOCATION_MZONE,0,1,1,nil)
+	if #g<1 then return end
+	local tc2=g:GetFirst()
+	if not Duel.Equip(tp,tc,tc2,false) then return end
+	--Add Equip limit
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetProperty(EFFECT_FLAG_COPY_INHERIT)
+	e1:SetCode(EFFECT_EQUIP_LIMIT)
+	e1:SetReset(RESET_EVENT+0x1fe0000)
+	e1:SetValue(s.eqlimit)
+	e1:SetLabelObject(tc2)
+	tc:RegisterEffect(e1)
+	local value=tc:GetBaseAttack()
+	if value>0 then
+		Duel.Damage(1-tp,value,REASON_EFFECT)
 	end
 end

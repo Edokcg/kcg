@@ -51,11 +51,12 @@ function s.initial_effect(c)
 	--Activate Traps
 	local e2=Effect.CreateEffect(c)
 	e2:SetCategory(CATEGORY_REMOVE)
-	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_DAMAGE_STEP)
+	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
 	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_MZONE)
+	e2:SetCost(s.applycost)
 	e2:SetTarget(s.tg)
 	e2:SetOperation(s.op)
 	e2:SetCountLimit(1)
@@ -116,150 +117,61 @@ function s.con(e,tp,eg,ep,ev,re,r,rp)
     ((e:GetHandler()==Duel.GetAttacker() and e:GetHandler():GetBattleTarget()~=nil)
 	or (e:GetHandler()==Duel.GetAttackTarget() and e:GetHandler():GetBattleTarget()~=nil))
 end
-function s.filter1(c, e, tp, eg, ep, ev, re, r, rp, chain, chk)
-    local te = c:GetActivateEffect()
-    if not c:IsType(TYPE_TRAP) or not c:IsAbleToRemove() then return false end
-    local condition = te:GetCondition()
-    local cost = te:GetCost()
-    local target = te:GetTarget()
-    if te:GetCode() == EVENT_CHAINING then
-        if chain <= 0 then
-            return false
-        end
-        local te2 = Duel.GetChainInfo(chain, CHAININFO_TRIGGERING_EFFECT)
-        local tc = te2:GetHandler()
-        local g = Group.FromCards(tc)
-        local p = tc:GetControler()
-        return (not condition or condition(e, tp, g, p, chain, te2, REASON_EFFECT, p)) and
-                   (not cost or cost(e, tp, g, p, chain, te2, REASON_EFFECT, p, 0)) and
-                   (not target or target(e, tp, g, p, chain, te2, REASON_EFFECT, p, 0))
-    else
-        -- if (te:GetCode()==EVENT_SPSUMMON or te:GetCode()==EVENT_SUMMON or te:GetCode()==EVENT_FLIP_SUMMON) and chk then copychain=1 end
-        return (not condition or condition(e, tp, eg, ep, ev, re, r, rp)) and
-                   (not cost or cost(e, tp, eg, ep, ev, re, r, rp, 0)) and
-                   (not target or target(e, tp, eg, ep, ev, re, r, rp, 0))
-        -- elseif te:GetCode()==e:GetCode() then
-        -- 	if te:GetCode()==EVENT_SPSUMMON and chk then copychain=1 end
-        -- 	return (not condition or condition(e,tp,eg,ep,ev,re,r,rp)) and (not cost or cost(e,tp,eg,ep,ev,re,r,rp,0))
-        -- 		and (not target or target(e,tp,eg,ep,ev,re,r,rp,0))
-        -- else
-        -- 	return false
-    end
+function s.applycost(e,tp,eg,ep,ev,re,r,rp,chk)
+	e:SetLabel(1)
+	return true
+end
+function s.applyfilter(c)
+	return c:IsTrap() and c:IsAbleToRemoveAsCost() and c:CheckActivateEffect(false,false,false,true)
 end
 function s.tg(e,tp,eg,ep,ev,re,r,rp,chk)
-    local chain = Duel.GetCurrentChain()
-    if chk == 0 then
-        return Duel.IsExistingMatchingCard(s.filter1, tp, LOCATION_GRAVE,LOCATION_GRAVE, 1, nil, e, tp, eg, ep, ev, re, r, rp, chain)
-    end
-    chain = Duel.GetCurrentChain() - 1
-    Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_REMOVE)
-    local g = Duel.SelectMatchingCard(tp, s.filter1, tp, LOCATION_GRAVE,LOCATION_GRAVE, 1, 1, nil, e, tp, eg, ep, ev, re, r, rp, chain)
-    if g:GetCount() > 0 then
-        Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
-        local tc = g:GetFirst()
-        local chain = Duel.GetCurrentChain() - 1
-        local te = tc:GetActivateEffect()
-        if te == nil then
-            return false
-        end
-        e:SetLabelObject(g)
-        local tep = tc:GetControler()
-        local cost = te:GetCost()
-        Duel.ClearTargetCard()
-        local tg = te:GetTarget()
-        e:SetDescription(te:GetDescription())
-        e:SetCategory(te:GetCategory())
-        e:SetProperty(te:GetProperty())
-        tc:CreateEffectRelation(te)
-        if te:GetCode() == EVENT_CHAINING then
-            local te2 = Duel.GetChainInfo(chain, CHAININFO_TRIGGERING_EFFECT)
-            local tc = te2:GetHandler()
-            local g = Group.FromCards(tc)
-            local p = tc:GetControler()
-            if cost then
-                cost(e, tp, g, p, chain, te2, REASON_EFFECT, p, 1)
-            end
-            if tg then
-                tg(e, tp, g, p, chain, te2, REASON_EFFECT, p, 1)
-            end
-        else
-            if cost then
-                cost(e, tp, eg, ep, ev, re, r, rp, 1)
-            end
-            if tg then
-                tg(e, tp, eg, ep, ev, re, r, rp, 1)
-            end
-        end
-        local gg = Duel.GetChainInfo(0, CHAININFO_TARGET_CARDS)
-        if gg then
-            local etc = gg:GetFirst()
-            while etc do
-                etc:CreateEffectRelation(te)
-                etc = gg:GetNext()
-            end
-        end
-    end
+    if chk==0 then 
+		if e:GetLabel()==0 then return false end
+		e:SetLabel(0)
+		return Duel.IsExistingMatchingCard(aux.NecroValleyFilter(s.applyfilter),tp,LOCATION_GRAVE,0,1,nil)
+	end
+	e:SetLabel(0)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.applyfilter),tp,LOCATION_GRAVE,0,1,1,nil)
+	if g:GetCount()<1 then return end
+	Duel.Remove(g,POS_FACEUP,REASON_COST)
+	local tc=g:GetFirst()
+    Duel.ClearOperationInfo(0)
+	local te,ceg,cep,cev,cre,cr,crp=tc:CheckActivateEffect(false,false,true,true)
+	local ctp=te:GetHandlerPlayer()
+	local cost = te:GetCost()
+	local tg = te:GetTarget()
+	e:SetDescription(te:GetDescription())
+	e:SetCategory(te:GetCategory())
+	e:SetProperty(te:GetProperty())
+	tc:CreateEffectRelation(te)
+	if cost then cost(te,ctp,ceg,cep,cev,cre,cr,crp,1) end
+	if tg then tg(te,ctp,ceg,cep,cev,cre,cr,crp,1) end
+	te:SetLabelObject(e:GetLabelObject())
+	e:SetLabelObject(te)
+	local gg = Duel.GetChainInfo(0, CHAININFO_TARGET_CARDS)
+	if gg then
+		local etc = gg:GetFirst()
+		while etc do
+			etc:CreateEffectRelation(te)
+			etc = gg:GetNext()
+		end
+	end
 end
 function s.op(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
-    local cg = e:GetLabelObject()
-    if not cg then
-        return
-    end
-    local tc = cg:GetFirst()
-    local chain = Duel.GetCurrentChain() - 1
-    copychain = 0
-    if tc then
-        local te = tc:GetActivateEffect()
-        local op = te:GetOperation()
-        if not op then
-            cg:DeleteGroup()
-            local gg = Duel.GetChainInfo(0, CHAININFO_TARGET_CARDS)
-            if gg then
-                local etc = gg:GetFirst()
-                while etc do
-                    etc:ReleaseEffectRelation(te)
-                    etc = gg:GetNext()
-                end
-            end
-            return
-        end
-        if te:GetCode() == EVENT_CHAINING then
-            local te2 = Duel.GetChainInfo(chain, CHAININFO_TRIGGERING_EFFECT)
-            local tc = te2:GetHandler()
-            local g = Group.FromCards(tc)
-            local p = tc:GetControler()
-            if op then
-                op(e, tp, g, p, chain, te2, REASON_EFFECT, p)
-            end
-        else
-            if op then
-                op(e, tp, eg, ep, ev, re, r, rp)
-            end
-        end
-        local gg = Duel.GetChainInfo(0, CHAININFO_TARGET_CARDS)
-        if gg then
-            local etc = gg:GetFirst()
-            while etc do
-                etc:ReleaseEffectRelation(te)
-                etc = gg:GetNext()
-            end
-        end
-
-        if te:GetCode()~=EVENT_FREE_CHAIN and bit.band(te:GetType(), EFFECT_TYPE_IGNITION)==0 and op then
-           local te2 = te:Clone()
-           te2:SetOwner(c)
-           te2:SetRange(LOCATION_MZONE)
-           if bit.band(te:GetType(), EFFECT_TYPE_ACTIVATE) ~= 0 then
-                if te:GetCode()==EVENT_CHAINING then
-                    te2:SetType(EFFECT_TYPE_QUICK_O)
-                else
-                    te2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-                end
-           end
-           te2:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
-           c:RegisterEffect(te2, true)
-        end
-    end
-    cg:DeleteGroup()
+	local te=e:GetLabelObject()
+	if not te then return end
+	local ctp=te:GetHandlerPlayer()
+	e:SetLabelObject(te:GetLabelObject())
+	local op=te:GetOperation()
+	if op then op(te,ctp,eg,ep,ev,re,r,rp) end
+	local gg = Duel.GetChainInfo(0, CHAININFO_TARGET_CARDS)
+	if gg then
+		local etc = gg:GetFirst()
+		while etc do
+			etc:ReleaseEffectRelation(te)
+			etc = gg:GetNext()
+		end
+	end
 end

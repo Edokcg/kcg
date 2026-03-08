@@ -25,7 +25,7 @@ function s.sdcon(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.filter(c)
-	return c:IsSetCard(0x557) and c:IsMonster()
+	return c:IsSetCard(0x557) and c:IsMonster() and c:IsLevel(5)
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

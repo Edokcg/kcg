@@ -10,6 +10,7 @@ function s.initial_effect(c)
 
 	--untargetable
 	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(id,2))
 	e2:SetType(EFFECT_TYPE_FIELD)
 	e2:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
 	e2:SetRange(LOCATION_FZONE)
@@ -45,7 +46,7 @@ end
 s.listed_series={SET_MEKLORD_EMPEROR,SET_MEKLORD}
 
 function s.effval(e,re,rp)
-	return re:GetHandler():IsType(TYPE_SYNCHRO)
+	return aux.tgoval(e,re,rp) and re:IsMonsterEffect()
 end
 function s.thcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -66,15 +67,17 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
-function s.thfilter1(c)
-	return c:IsMonster() and c:IsFaceup() and c:ListsArchetype(SET_MEKLORD_EMPEROR) and c:IsAbleToGraveAsCost()
+function s.thfilter1(c,ft)
+	return c:IsMonster() and c:IsFaceup() and c:ListsArchetype(SET_MEKLORD_EMPEROR) and c:IsAbleToGraveAsCost() and (ft>0 or c:GetSequence()<5)
 end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	local a= Duel.IsExistingMatchingCard(s.thfilter1,tp,LOCATION_MZONE,0,1,nil)
+	e:SetLabel(1)
+	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	local a= ft>-1 and Duel.IsExistingMatchingCard(s.thfilter1,tp,LOCATION_MZONE,0,1,nil,ft)
 	if chk==0 then return e:GetHandler():IsAbleToRemoveAsCost() and a end
 	Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_COST)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local g=Duel.SelectMatchingCard(tp,s.thfilter1,tp,LOCATION_MZONE,0,1,1,nil)
+	local g=Duel.SelectMatchingCard(tp,s.thfilter1,tp,LOCATION_MZONE,0,1,1,nil,ft)
 	if #g>0 then
 		Duel.SendtoGrave(g,REASON_COST)
 	end
@@ -83,7 +86,11 @@ function s.thfilter(c,e,tp)
 	return c:IsMonster() and c:ListsArchetype(SET_MEKLORD_EMPEROR) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.thtg2(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(aux.NecroValleyFilter(s.thfilter),tp,LOCATION_DECK|LOCATION_GRAVE,0,1,nil,e,tp) end
+	if chk==0 then 
+		if e:GetLabel()==0 and Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return false end
+		e:SetLabel(0)
+		return Duel.IsExistingMatchingCard(aux.NecroValleyFilter(s.thfilter),tp,LOCATION_DECK|LOCATION_GRAVE,0,1,nil,e,tp) 
+	end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK|LOCATION_GRAVE)
 end
 function s.thop2(e,tp,eg,ep,ev,re,r,rp)

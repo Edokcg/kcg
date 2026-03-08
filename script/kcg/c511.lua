@@ -91,7 +91,7 @@ end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local ct=Duel.GetMatchingGroupCount(Card.IsCode,tp,LOCATION_GRAVE,0,nil,id)-1
 	local a= ct>=0 and Duel.IsExistingMatchingCard(s.thfilter1,tp,LOCATION_DECK|LOCATION_GRAVE,0,1,nil)
-	local b= ct>=1 and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.IsExistingMatchingCard(s.thfilter2,tp,LOCATION_DECK|LOCATION_GRAVE,0,1,e:GetHandler())
+	local b= ct>=1 and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.IsExistingMatchingCard(s.thfilter2,tp,LOCATION_DECK,0,1,e:GetHandler())
 	local c= ct>=2 and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(aux.NecroValleyFilter(s.thfilter3),tp,LOCATION_DECK|LOCATION_GRAVE,0,1,e:GetHandler(),e,tp)
 	if chk==0 then return e:GetHandler():IsAbleToRemoveAsCost() and (a or b or c) end
 	Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_COST)
@@ -108,17 +108,17 @@ end
 function s.target2(e,tp,eg,ep,ev,re,r,rp,chk)
 	local ct=Duel.GetMatchingGroupCount(Card.IsCode,tp,LOCATION_GRAVE,0,nil,id)
 	local a= ct>=0 and Duel.IsExistingMatchingCard(s.thfilter1,tp,LOCATION_DECK,0,1,nil)
-	local b= ct>=1 and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.IsExistingMatchingCard(s.thfilter2,tp,LOCATION_DECK|LOCATION_GRAVE,0,1,e:GetHandler())
+	local b= ct>=1 and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.IsExistingMatchingCard(s.thfilter2,tp,LOCATION_DECK,0,1,e:GetHandler())
 	local c= ct>=2 and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(aux.NecroValleyFilter(s.thfilter3),tp,LOCATION_DECK|LOCATION_GRAVE,0,1,e:GetHandler(),e,tp)
 	if chk==0 then return a or b or c end
 	Duel.SetPossibleOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
-	Duel.SetPossibleOperationInfo(0,CATEGORY_SET,nil,1,tp,LOCATION_DECK|LOCATION_GRAVE)
+	Duel.SetPossibleOperationInfo(0,CATEGORY_SET,nil,1,tp,LOCATION_DECK)
 	Duel.SetPossibleOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK|LOCATION_GRAVE)
 end
 function s.activate2(e,tp,eg,ep,ev,re,r,rp)
 	local ct=Duel.GetMatchingGroupCount(Card.IsCode,tp,LOCATION_GRAVE,0,nil,id)
 	local a= ct>=0 and Duel.IsExistingMatchingCard(s.thfilter1,tp,LOCATION_DECK,0,1,nil)
-	local b= ct>=1 and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.IsExistingMatchingCard(s.thfilter2,tp,LOCATION_DECK|LOCATION_GRAVE,0,1,e:GetHandler())
+	local b= ct>=1 and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.IsExistingMatchingCard(s.thfilter2,tp,LOCATION_DECK,0,1,e:GetHandler())
 	local c= ct>=2 and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(aux.NecroValleyFilter(s.thfilter3),tp,LOCATION_DECK|LOCATION_GRAVE,0,1,e:GetHandler(),e,tp)
 	if ct==0 and a then 
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
@@ -135,9 +135,10 @@ function s.activate2(e,tp,eg,ep,ev,re,r,rp)
 				Duel.SendtoGrave(g,REASON_EFFECT,tp)
 			end
 		end
+		b= ct>=1 and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.IsExistingMatchingCard(s.thfilter2,tp,LOCATION_DECK,0,1,e:GetHandler())
 		if b and (not chk or Duel.SelectYesNo(tp,aux.Stringid(id,4))) then
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
-			local g=Duel.SelectMatchingCard(tp,s.thfilter2,tp,LOCATION_DECK|LOCATION_GRAVE,0,1,1,e:GetHandler())
+			local g=Duel.SelectMatchingCard(tp,s.thfilter2,tp,LOCATION_DECK,0,1,1,e:GetHandler())
 			Duel.SSet(tp,g)
 		end
 	end
@@ -151,14 +152,17 @@ function s.activate2(e,tp,eg,ep,ev,re,r,rp)
 				Duel.SendtoGrave(g,REASON_EFFECT,tp)
 			end
 		end
+		b= ct>=1 and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.IsExistingMatchingCard(s.thfilter2,tp,LOCATION_DECK,0,1,e:GetHandler())
+		c= ct>=2 and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(aux.NecroValleyFilter(s.thfilter3),tp,LOCATION_DECK|LOCATION_GRAVE,0,1,e:GetHandler(),e,tp)
 		if b then
 			if (not chk and not c) or Duel.SelectYesNo(tp,aux.Stringid(id,4)) then
 				chk=true
 				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
-				local g=Duel.SelectMatchingCard(tp,s.thfilter2,tp,LOCATION_DECK|LOCATION_GRAVE,0,1,1,e:GetHandler())
+				local g=Duel.SelectMatchingCard(tp,s.thfilter2,tp,LOCATION_DECK,0,1,1,e:GetHandler())
 				Duel.SSet(tp,g)
 			end
 		end
+		c= ct>=2 and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(aux.NecroValleyFilter(s.thfilter3),tp,LOCATION_DECK|LOCATION_GRAVE,0,1,e:GetHandler(),e,tp)
 		if c and (not chk or Duel.SelectYesNo(tp,aux.Stringid(id,5))) then
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 			local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.thfilter3),tp,LOCATION_DECK|LOCATION_GRAVE,0,1,1,e:GetHandler(),e,tp)

@@ -47,7 +47,8 @@ s.listed_names={433}
 function s.spcon(e,c)
 	if c==nil then return true end
 	local tp=c:GetControler()
-	return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard,SET_MEKLORD_EMPEROR),tp,LOCATION_MZONE,0,1,nil)
+	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard,SET_MEKLORD_EMPEROR),tp,LOCATION_MZONE,0,1,nil)
 end
 
 function s.sdcon(e)
@@ -82,7 +83,7 @@ end
 function s.thtg2(e,tp,eg,ep,ev,re,r,rp,chk)
 	local b1=Duel.IsExistingMatchingCard(s.thfilter2,tp,LOCATION_GRAVE,0,1,nil)
 	local b2=Duel.GetLocationCount(tp,LOCATION_SZONE)>0
-		and Duel.IsExistingMatchingCard(s.thfilter4,tp,LOCATION_DECK,0,1,nil)
+		and Duel.IsExistingMatchingCard(s.thfilter4,tp,LOCATION_GRAVE,0,1,nil)
 	if chk==0 then return b1 or b2 end
 	local op=Duel.SelectEffect(tp,
 		{b1,aux.Stringid(id,2)},
@@ -93,7 +94,7 @@ function s.thtg2(e,tp,eg,ep,ev,re,r,rp,chk)
 	end
 	if op==2 then
 		e:SetCategory(CATEGORY_SET)
-		Duel.SetOperationInfo(0,CATEGORY_SET,nil,1,tp,LOCATION_DECK)
+		Duel.SetOperationInfo(0,CATEGORY_SET,nil,1,tp,LOCATION_GRAVE)
 	end
 	Duel.SetTargetParam(op)
 end
@@ -110,7 +111,7 @@ function s.thop2(e,tp,eg,ep,ev,re,r,rp)
 	if op==2 then
 		if Duel.GetLocationCount(tp,LOCATION_SZONE)<1 then return end
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
-		local g=Duel.SelectMatchingCard(tp,s.thfilter4,tp,LOCATION_DECK,0,1,1,nil)
+		local g=Duel.SelectMatchingCard(tp,s.thfilter4,tp,LOCATION_GRAVE,0,1,1,nil)
 		if #g>0 then
 			Duel.SSet(tp,g)
 		end

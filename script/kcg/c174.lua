@@ -61,9 +61,20 @@ function s.initial_effect(c)
 	e4:SetTarget(s.tdtg)
 	e4:SetOperation(s.tdop)
 	c:RegisterEffect(e4)
+	
+	local e7=Effect.CreateEffect(c)
+	e7:SetDescription(aux.Stringid(id,4))
+	e7:SetCategory(CATEGORY_TOHAND)
+	e7:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
+	e7:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e7:SetCode(EVENT_TO_GRAVE)
+	--e7:SetCondition(s.thcon)
+	e7:SetTarget(s.thtg)
+	e7:SetOperation(s.thop)
+	c:RegisterEffect(e7)
 end
 s.listed_series={SET_TIMELORD}
-s.listed_names={36894320}
+s.listed_names={36894320,72883039}
 
 function s.valcon(e,re,r,rp)
 	return (r&REASON_EFFECT)~=0 and rp==1-e:GetHandlerPlayer()
@@ -183,5 +194,27 @@ function s.tdop(e,tp,eg,ep,ev,re,r,rp)
 			local sc=g:Select(tp,1,1,nil):GetFirst()
 			Duel.SSet(tp,sc)
 		end
+	end
+end
+
+function s.thcon(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	return c:IsPreviousLocation(LOCATION_ONFIELD) and c:IsPreviousPosition(POS_FACEUP)
+end
+function s.thfilter(c)
+	return c:IsCode(72883039) and c:IsAbleToHand()
+end
+function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.thfilter(chkc) end
+	if chk==0 then return true end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	local g=Duel.SelectTarget(tp,s.thfilter,tp,LOCATION_GRAVE,0,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,#g,0,0)
+end
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
+	local tc=Duel.GetFirstTarget()
+	if tc and tc:IsRelateToEffect(e) then
+		Duel.SendtoHand(tc,nil,REASON_EFFECT)
+		Duel.ConfirmCards(1-tp,tc)
 	end
 end

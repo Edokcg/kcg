@@ -8,9 +8,9 @@ function s.initial_effect(c)
 	e1:SetCategory(CATEGORY_DESTROY+CATEGORY_SPECIAL_SUMMON)
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
 	e1:SetCode(EVENT_DESTROYED)
-	e1:SetCondition(s.spcon)
-	e1:SetTarget(s.sptg)
-	e1:SetOperation(s.spop)
+	e1:SetCondition(s.descon)
+	e1:SetTarget(s.destg)
+	e1:SetOperation(s.desop)
 	c:RegisterEffect(e1)
 
 	--battle indes
@@ -42,10 +42,10 @@ function s.valcon(e,re,r,rp)
 	return r&REASON_BATTLE~=0
 end
 
-function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+function s.descon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsReason(REASON_EFFECT)
 end
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
 	local sg=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_MZONE,0,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,sg,#sg,0,0)
@@ -57,7 +57,7 @@ end
 function s.rescon(sg,e,tp,mg)
 	return sg:IsExists(Card.IsCode,1,nil,68140974) and sg:IsExists(Card.IsCode,1,nil,100000051) and sg:IsExists(Card.IsCode,1,nil,100000052) and sg:IsExists(Card.IsCode,1,nil,100000053) and sg:IsExists(Card.IsCode,1,nil,100000054)
 end
-function s.spop(e,tp,eg,ep,ev,re,r,rp)
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local sg=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_MZONE,0,nil)
 	Duel.Destroy(sg,REASON_EFFECT)
@@ -71,6 +71,40 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
+function s.thfilter(c)
+	return c:IsMonster() and c:ListsArchetype(SET_MEKLORD) and c:IsAbleToGrave()
+end
+function s.spcon(e,c)
+	if c==nil then return true end
+	local tp=c:GetControler()
+	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil)
+end
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,c)
+	local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
+	if g then
+		g:KeepAlive()
+		e:SetLabelObject(g)
+	return true
+	end
+	return false
+end
+function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
+	local g=e:GetLabelObject()
+	if not g then return end
+	Duel.SendtoGrave(g,REASON_EFFECT)
+	g:DeleteGroup()
+	e:GetHandler():RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD-RESET_TOFIELD+RESET_PHASE+PHASE_END,0,1)
+	local e1=Effect.CreateEffect(e:GetHandler())
+	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
+	e1:SetCode(EVENT_PHASE+PHASE_END)
+	e1:SetReset(RESET_PHASE+PHASE_END)
+	e1:SetCountLimit(1)
+	e1:SetCondition(s.sdescon)
+	e1:SetOperation(s.sdesop)
+	Duel.RegisterEffect(e1,tp)
+end
 function s.sdescon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetOwner()
 	if c:GetFlagEffect(id)==0 then
