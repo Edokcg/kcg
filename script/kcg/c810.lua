@@ -66,6 +66,7 @@ function s.initial_effect(c)
 
 	--不会被卡的效果破坏、除外、返回手牌和卡组
 	local e6=Effect.CreateEffect(c)
+	e6:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
 	e6:SetType(EFFECT_TYPE_FIELD)
 	e6:SetRange(LOCATION_FZONE)
 	e6:SetCode(EFFECT_IMMUNE_EFFECT)
@@ -81,8 +82,11 @@ end
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_GRAVE,0,1,nil)
 end
-function s.condition2(e,tp,eg,ep,ev,re,r,rp)
-	return not Duel.IsExistingMatchingCard(s.cfilter,e:GetHandlerPlayer(),LOCATION_GRAVE,0,1,nil)
+function s.cfilter2(c)
+	return c:GetEquipTarget() and c:IsRace(RACE_FIEND) and c:IsFaceup()
+end
+function s.condition2(e)
+	return not Duel.IsExistingMatchingCard(s.cfilter,e:GetHandlerPlayer(),LOCATION_GRAVE,0,1,nil) and not Duel.IsExistingMatchingCard(s.cfilter2,e:GetHandlerPlayer(),LOCATION_SZONE,LOCATION_SZONE,1,nil)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(Card.IsFaceup,tp,0,LOCATION_MZONE,nil)
@@ -239,5 +243,5 @@ function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.efilterr(e,te)
-	return te:GetOwner()~=e:GetOwner()
+	return te:GetOwnerPlayer()~=e:GetOwnerPlayer()
 end

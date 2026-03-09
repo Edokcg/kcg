@@ -4,13 +4,11 @@ function s.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
-	e1:SetCategory(CATEGORY_TODECK)
+	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.activate)
-	c:RegisterEffect(e1)	
-	if not GhostBelleTable then GhostBelleTable={} end
-	table.insert(GhostBelleTable,e1)
+	c:RegisterEffect(e1)
 
 	--Cannot draw
 	local e2=Effect.CreateEffect(c)
@@ -56,7 +54,7 @@ function s.initial_effect(c)
 	e9:SetCode(EFFECT_CANNOT_DRAW)
 	e9:SetRange(LOCATION_SZONE)
 	e9:SetTargetRange(1,0)
-	e9:SetCondition(aux.AND(s.plasmacon,s.drawcon))
+	e9:SetCondition(s.drawcon)
 	c:RegisterEffect(e9)
 	local e10=Effect.CreateEffect(c)
 	e10:SetType(EFFECT_TYPE_FIELD)
@@ -64,7 +62,6 @@ function s.initial_effect(c)
 	e10:SetCode(EFFECT_DRAW_COUNT)
 	e10:SetRange(LOCATION_SZONE)
 	e10:SetTargetRange(1,0)
-	e10:SetCondition(s.plasmacon)
 	e10:SetValue(0)
 	c:RegisterEffect(e10)
 
@@ -82,8 +79,7 @@ function s.initial_effect(c)
 	e6:SetCode(EFFECT_UPDATE_ATTACK)
 	e6:SetRange(LOCATION_SZONE)
 	e6:SetTargetRange(LOCATION_MZONE,0)
-	e6:SetCondition(s.plasmacon)
-	e6:SetTarget(aux.TargetBoolFunction(Card.IsCode,83965310))
+	e6:SetTarget(s.plasmafilter)
 	e6:SetValue(s.val)
 	c:RegisterEffect(e6)
 	local e7=e6:Clone()
@@ -93,8 +89,9 @@ function s.initial_effect(c)
 	local e8=e6:Clone()
 	e8:SetCode(EFFECT_EXTRA_ATTACK)
 	e8:SetValue(1)
-	c:RegisterEffect(e8)	
+	c:RegisterEffect(e8)
 end
+s.listed_series={SET_DESTINY_HERO}
 s.listed_names={83965310}
 
 function s.thfilter(c)
@@ -102,7 +99,13 @@ function s.thfilter(c)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
-	Duel.SetOperationInfo(0,CATEGORY_TODECK,e:GetHandler(),1,0,0)
+	local c=e:GetHandler()
+	local b1=c:IsAbleToDeck()
+	if b1 then
+		e:SetCategory(CATEGORY_TODECK+CATEGORY_TOHAND+CATEGORY_SEARCH)
+		Duel.SetPossibleOperationInfo(0,CATEGORY_TODECK,e:GetHandler(),1,0,0)
+	end
+	Duel.SetPossibleOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK|LOCATION_GRAVE)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -117,7 +120,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	end
 	c:CancelToGrave()
 	local opt=Duel.SelectOption(tp, false, aux.Stringid(id,1), aux.Stringid(id,2))
-	if opt==1 then
+	if opt==0 then
 		Duel.SendtoDeck(c,nil,0,REASON_EFFECT)
 		c:ReverseInDeck()
 	end
@@ -168,8 +171,11 @@ function s.drawcon(e)
 	return Duel.GetCurrentPhase()==PHASE_DRAW
 end
 
+function s.plasmafilter(e,c)
+	return c:IsCode(83965310) or (c:IsLevelAbove(8) and c:IsSetCard(SET_DESTINY_HERO))
+end
 function s.plasmacon(e)
-	return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,83965310),e:GetHandlerPlayer(),LOCATION_MZONE,0,1,nil)
+	return Duel.IsExistingMatchingCard(aux.FaceupFilter(s.plasmafilter),e:GetHandlerPlayer(),LOCATION_MZONE,0,1,nil)
 end
 
 function s.val(e,c)

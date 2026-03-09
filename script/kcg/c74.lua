@@ -36,7 +36,15 @@ function s.initial_effect(c)
 	e5:SetCode(EFFECT_IMMUNE_EFFECT)
 	e5:SetValue(s.efilter)
 	c:RegisterEffect(e5)
-		
+	
+	--disable
+	local e4=Effect.CreateEffect(c)
+	e4:SetType(EFFECT_TYPE_FIELD)
+	e4:SetRange(LOCATION_MZONE)
+	e4:SetTargetRange(0,LOCATION_MZONE)
+	e4:SetCode(EFFECT_DISABLE)
+	c:RegisterEffect(e4)
+	
 	local e100=Effect.CreateEffect(c)
 	e100:SetType(EFFECT_TYPE_SINGLE)
 	e100:SetProperty(EFFECT_FLAG_SINGLE_RANGE+EFFECT_FLAG_CANNOT_DISABLE)
