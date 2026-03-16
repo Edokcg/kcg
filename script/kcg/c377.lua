@@ -25,7 +25,7 @@ end
 s.listed_series={0x13,SET_MEKLORD_EMPEROR}
 
 function s.thfilter(c)
-	return c:IsSetCard(0x505) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToHand()
+	return c:IsSetCard(IsAstral) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToHand()
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end
@@ -41,7 +41,7 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.filter(c)
-	return c:IsFaceup() and c:GetLevel()>0 and c:IsSetCard(0x505)
+	return c:IsFaceup() and c:GetLevel()>0 and c:IsSetCard(IsAstral)
 end
 function s.lvtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.filter(chkc) end

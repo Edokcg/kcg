@@ -26,18 +26,14 @@ function s.initial_effect(c)
 	e2:SetOperation(s.cbop)
 	c:RegisterEffect(e2)
 end
-s.listed_series={0x505}
+s.listed_series={IsAstral}
 
 function s.atcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetTurnCount()~=1 and Duel.GetCurrentPhase()==PHASE_MAIN1
 		and not Duel.IsPlayerAffectedByEffect(tp,EFFECT_CANNOT_BP)
 end
-function s.atcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
-end
 function s.filter(c)
-	return c:IsFaceup() and c:IsSetCard(0x505) and c:GetEffectCount(EFFECT_EXTRA_ATTACK)==0
+	return c:IsFaceup() and c:IsSetCard(IsAstral) and c:GetEffectCount(EFFECT_EXTRA_ATTACK)==0
 end
 function s.attg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.filter(chkc) end

@@ -5,15 +5,17 @@ function s.initial_effect(c)
 	aux.EnableCheckRankUp(c,nil,nil,48739166)
 	Xyz.AddProcedure(c,nil,5,3)
 	c:EnableReviveLimit()
-	  --cannot destroyed
-		local e0=Effect.CreateEffect(c)
-	  e0:SetType(EFFECT_TYPE_SINGLE)
-	  e0:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
-	  e0:SetValue(s.indes)
-	  c:RegisterEffect(e0)
+
+	--cannot destroyed
+	local e0=Effect.CreateEffect(c)
+	e0:SetType(EFFECT_TYPE_SINGLE)
+	e0:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
+	e0:SetValue(s.indes)
+	c:RegisterEffect(e0)
+
 	--material
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(12744567,0))
+	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetType(EFFECT_TYPE_IGNITION)
 	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetRange(LOCATION_MZONE)
@@ -21,9 +23,10 @@ function s.initial_effect(c)
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.operation)
 	c:RegisterEffect(e1)
+
 	--spsummon
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(12744567,1))
+	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_RECOVER)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e2:SetProperty(EFFECT_FLAG_DAMAGE_STEP)
@@ -32,16 +35,15 @@ function s.initial_effect(c)
 	e2:SetTarget(s.sptg)
 	e2:SetOperation(s.spop)
 	c:RegisterEffect(e2)
+
 	--spsummon no.101
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(13718,12))
-	--e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e3:SetDescription(aux.Stringid(id,2))
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e3:SetCountLimit(1)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetCondition(s.spcon2)
-	--e3:SetCost(s.cost)
 	e3:SetTarget(s.sptg2)
 	e3:SetOperation(s.spop2)
 	e3:SetLabel(RESET_EVENT+RESETS_STANDARD)
@@ -49,14 +51,7 @@ function s.initial_effect(c)
 	e4:SetType(EFFECT_TYPE_SINGLE)
 	e4:SetCode(EFFECT_RANKUP_EFFECT)
 	e4:SetLabelObject(e3)
-	c:RegisterEffect(e4)	
-	--   local e4=Effect.CreateEffect(c)
-	-- e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)	  
-	-- e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
-	--   e4:SetCode(EVENT_SPSUMMON_SUCCESS)
-	--   e4:SetCondition(s.con)
-	--   e4:SetOperation(s.op)
-	--   c:RegisterEffect(e4)
+	c:RegisterEffect(e4)
 end
 s.xyz_number=101
 s.listed_series = {0x48}
@@ -93,6 +88,7 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Overlay(c,tc)
 	end
 end
+
  function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsReason(REASON_DESTROY) and e:GetHandler():GetOverlayCount()>0
 end
@@ -116,12 +112,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 end
 
  function s.spcon2(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():GetOverlayCount()>0 
-	--and e:GetHandler():GetFlagEffect(96)~=0
-end
-function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,e:GetHandler():GetOverlayCount(),REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,e:GetHandler():GetOverlayCount(),e:GetHandler():GetOverlayCount(),REASON_COST)
+	return e:GetHandler():GetOverlayCount()>0
 end
 function s.spovfilter(c,e,tp)
 	return c:IsCode(48739166) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsHasEffect(EFFECT_NECRO_VALLEY)
@@ -129,7 +120,7 @@ end
 function s.sptg2(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 		and e:GetHandler():CheckRemoveOverlayCard(tp,e:GetHandler():GetOverlayCount(),REASON_EFFECT) end
-	--Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g:GetFirst(),1,0,0)
+	Duel.SetPossibleOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g:GetFirst(),1,0,0)
 end
 function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 	e:GetHandler():RemoveOverlayCard(tp,e:GetHandler():GetOverlayCount(),e:GetHandler():GetOverlayCount(),REASON_EFFECT)
@@ -140,12 +131,4 @@ function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 	if g and g:IsFaceup() and not g:IsImmuneToEffect(e) then
 	  Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
 	end
-end
-
- function s.con(e,tp,eg,ep,ev,re,r,rp)
-	  return e:GetHandler():GetSummonType()==SUMMON_TYPE_XYZ and
-	  e:GetHandler():GetOverlayGroup():IsExists(Card.IsCode,1,nil,48739166) 
-end
-function s.op(e,tp,eg,ep,ev,re,r,rp)
-	  e:GetHandler():RegisterFlagEffect(96,RESET_EVENT+0x1ff0000,0,1)
 end

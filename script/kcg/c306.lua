@@ -64,10 +64,6 @@ function s.valcheck(e,c)
 	end
 end
 
-function s.cost(e,tp,ep,eg,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
-end
 function s.filter(c,e)
 	return c:HasNonZeroAttack() and (not e or not c:IsImmuneToEffect(e))
 end

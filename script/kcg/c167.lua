@@ -23,7 +23,7 @@ function s.initial_effect(c)
 	e2:SetOperation(s.thop)
 	c:RegisterEffect(e2)	
 end
-s.listed_series={0x48,0x1048}
+s.listed_series={0x48,0x1048,0x95,0x177}
 
 function s.filter1(c,e,tp)
 	local pg=aux.GetMustBeMaterialGroup(tp,Group.FromCards(c),tp,nil,nil,REASON_XYZ)
@@ -46,7 +46,7 @@ function s.rescon(sg,e,tp,mg)
 	return Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,tp,sg,g)
 end
 function s.copfilter(c)
-	return c:IsAbleToGraveAsCost() and c:IsSetCard(0x95) and c:GetType()==TYPE_SPELL
+	return c:IsAbleToGraveAsCost() and (c:IsSetCard(0x95) or c:IsSetCard(0x177)) and c:GetType()==TYPE_SPELL
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local mg=Duel.GetMatchingGroup(Card.IsCanBeSpecialSummoned,tp,LOCATION_DECK,0,nil,e,0,tp,false,false)

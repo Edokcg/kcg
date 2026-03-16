@@ -6,22 +6,6 @@ function s.initial_effect(c)
 	--Xyz Summon procedure: 2 Level 4 water monsters
 	Xyz.AddProcedure(c,aux.FilterBoolFunctionEx(Card.IsAttribute,ATTRIBUTE_WATER),4,2)
 
-	--Cannot be destroyed by battle with non-"Number" monsters
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
-	e1:SetValue(aux.NOT(aux.TargetBoolFunction(Card.IsSetCard,SET_NUMBER)))
-	c:RegisterEffect(e1)
-	
-	--All monsters on the field becomes WATER
-	local e5=Effect.CreateEffect(c)
-	e5:SetType(EFFECT_TYPE_FIELD)
-	e5:SetRange(LOCATION_MZONE)
-	e5:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
-	e5:SetCode(EFFECT_CHANGE_ATTRIBUTE)
-	e5:SetValue(ATTRIBUTE_WATER)
-	c:RegisterEffect(e5)
-
 	--Destroy 1 face-up WATER monster on the field and damage controller
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,0))
@@ -54,9 +38,7 @@ function s.initial_effect(c)
 	e4:SetLabelObject(e3)
 	c:RegisterEffect(e4)
 end
-s.listed_series={SET_NUMBER}
 s.listed_names={67557908,94942656} --Number 4: Stealth Kragen, Kragen Spawn (OCG: Stealth Kragen Spawn)
-s.xyz_number=4
 
 function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsAttribute,ATTRIBUTE_WATER),tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end

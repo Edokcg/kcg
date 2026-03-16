@@ -20,12 +20,12 @@ function s.filter1(c,e,tp)
 	    and Duel.IsPlayerCanSpecialSummonCount(tp,2)
 		and (aux.CheckSummonGate(tp,2) or not c:IsLocation(LOCATION_EXTRA))
 		and no and no>=101 and no<=107 and c:IsSetCard(0x48) and not c:IsSetCard(0x1048) and not c:IsSetCard(0x2048)
-		and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,true) and not c:IsHasEffect(EFFECT_NECRO_VALLEY)
+		and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false) and not c:IsHasEffect(EFFECT_NECRO_VALLEY)
 		and Duel.IsExistingMatchingCard(s.filter2,tp,LOCATION_EXTRA,0,1,nil,e,tp,no,c)
 end
 function s.filter2(c,e,tp,no,tc)
 	if c.rum_limit and not c.rum_limit(tc,e) then return false end
-	return c.xyz_number==no and c:IsSetCard(0x1048) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,true) and tc:IsCanBeXyzMaterial(c) and Duel.GetLocationCountFromEx(tp,tp,tc,c)>0
+	return c.xyz_number==no and c:IsSetCard(0x1048) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false) and tc:IsCanBeXyzMaterial(c) and Duel.GetLocationCountFromEx(tp,tp,tc,c)>0
 end
 function s.filter3(c,e,tp)
 	local no=c.xyz_number
@@ -38,7 +38,7 @@ function s.filter5(c,e,tp)
 	local pg=aux.GetMustBeMaterialGroup(tp,Group.FromCards(c),tp,nil,nil,REASON_XYZ)
 	return (#pg<=0 or (#pg==1 and pg:IsContains(c))) 
 	    and no and no>=101 and no<=107 and c:IsSetCard(0x48) and not c:IsSetCard(0x1048) and not c:IsSetCard(0x2048)
-		and ((not c:IsLocation(LOCATION_MZONE) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,true)    
+		and ((not c:IsLocation(LOCATION_MZONE) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false)    
 		    and not c:IsHasEffect(EFFECT_NECRO_VALLEY) and Duel.GetLocationCountFromEx(tp,tp,nil,TYPE_XYZ)>0
 		    and (aux.CheckSummonGate(tp,2) or not c:IsLocation(LOCATION_EXTRA))) 
 		  or (c:IsLocation(LOCATION_MZONE) and Duel.GetLocationCountFromEx(tp,tp,c)>0)) 
@@ -66,7 +66,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local tc1=g1:GetFirst()
 	if tc1 then
 		if not tc1:IsLocation(LOCATION_MZONE) then
-		if Duel.SpecialSummonStep(tc1,SUMMON_TYPE_XYZ,tp,tp,false,true,POS_FACEUP) then
+		if Duel.SpecialSummonStep(tc1,SUMMON_TYPE_XYZ,tp,tp,false,false,POS_FACEUP) then
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_DISABLE)
@@ -90,7 +90,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 			  end 
 			  tc2:SetMaterial(g1)
 			Duel.Overlay(tc2,g1)
-			Duel.SpecialSummon(tc2,SUMMON_TYPE_XYZ,tp,tp,false,true,POS_FACEUP)
+			Duel.SpecialSummon(tc2,SUMMON_TYPE_XYZ,tp,tp,false,false,POS_FACEUP)
 			tc2:CompleteProcedure()
 		end
 	end

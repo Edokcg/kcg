@@ -25,7 +25,7 @@ function s.initial_effect(c)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetHintTiming(0,TIMING_MAIN_END+TIMINGS_CHECK_MONSTER)
-	e2:SetCost(s.cost)
+	e2:SetCost(Cost.DetachFromSelf(function(e) return e:GetHandler():GetOverlayCount() end,function(e) return e:GetHandler():GetOverlayCount() end,function(e,og) e:SetLabel(#og) end))
 	e2:SetTarget(s.sptg)
 	e2:SetOperation(s.attop)
 	c:RegisterEffect(e2)
@@ -34,15 +34,6 @@ s.listed_series={0x48}
 
 function s.indcon(e)
 	return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard,0x48),0,LOCATION_MZONE,LOCATION_MZONE,1,nil)
-end
-function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	local g=e:GetHandler():GetOverlayGroup()
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	local count=0
-	if e:GetHandler():RemoveOverlayCard(tp,#g,#g,REASON_COST) then
-		count=g:FilterCount(Card.IsAttribute,nil,ATTRIBUTE_WATER)
-	end
-	e:SetLabel(count)
 end
 function s.attfilter1(c,e,tp)
 	local no=c.xyz_number

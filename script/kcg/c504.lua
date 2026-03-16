@@ -26,11 +26,6 @@ function s.initial_effect(c)
 end
 s.listed_series={0x107e,0x207e,0x48,0x7f}
 
-function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if chk==0 then return c:CheckRemoveOverlayCard(tp,2,REASON_COST) end
-	c:RemoveOverlayCard(tp,2,2,REASON_COST)
-end
 function s.spfilter(c,e,tp)
 	return (c:IsSetCard(0x107e) or c:IsSetCard(0x207e))
 		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)

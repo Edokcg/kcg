@@ -88,10 +88,6 @@ function s.descon(e)
 	return Duel.IsExistingMatchingCard(s.desfilter,c:GetControler(),0,LOCATION_MZONE,1,c)
 end
 
-function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
-end
 function s.filter(c)
 	return c:IsFaceup() and not c:IsDisabled()
 end
@@ -120,18 +116,8 @@ function s.negop(e,tp,eg,ep,ev,re,r,rp)
 			tc:RegisterEffect(e3)
 		end
 	end
-	local g2=Duel.GetMatchingGroup(s.retfilter,tp,0x7f,0x7f,c)
+	local g2=Duel.GetMatchingGroup(aux.TRUE,tp,0x7f,0x7f,c)
 	for rc in aux.Next(g2) do
-        local e1=Effect.CreateEffect(c)
-        e1:SetType(EFFECT_TYPE_SINGLE)
-        e1:SetCode(EFFECT_DISABLE)
-        e1:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
-        rc:RegisterEffect(e1)
-        local e2=Effect.CreateEffect(c)
-        e2:SetType(EFFECT_TYPE_SINGLE)
-        e2:SetCode(EFFECT_DISABLE_EFFECT)
-        e2:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
-        rc:RegisterEffect(e2)
 		if rc:GetFlagEffectLabel(511010208)==LOCATION_HAND then
 			Duel.SendtoHand(rc,rc:GetFlagEffectLabel(511010209),REASON_EFFECT)
 		elseif rc:GetFlagEffectLabel(511010208)==LOCATION_GRAVE then
@@ -160,10 +146,19 @@ function s.negop(e,tp,eg,ep,ev,re,r,rp)
 				Duel.ChangePosition(rc,rc:GetFlagEffectLabel(511010210),rc:GetFlagEffectLabel(511010210),rc:GetFlagEffectLabel(511010210),rc:GetFlagEffectLabel(511010210),true,true)
 			end
 		end
+	end
+	local g2=Duel.GetMatchingGroup(s.retfilter,tp,0x7f,0x7f,c)
+	for rc in aux.Next(g2) do
+        local e1=Effect.CreateEffect(c)
+		e1:SetDescription(aux.Stringid(id,4))
+		e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE+EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_CANNOT_TRIGGER)
+        e1:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
+        rc:RegisterEffect(e1)
 		Duel.NegateRelatedChain(rc,RESET_TURN_SET)
 	end
 	local e5=Effect.CreateEffect(c)
-	e5:SetDescription(aux.Stringid(13718,11))
 	e5:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e5:SetCode(EVENT_CHAINING)
 	e5:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
@@ -215,7 +210,7 @@ end
 end
 function s.disop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=re:GetHandler()
-	if not Duel.SelectYesNo(tp,aux.Stringid(13718,11)) then
+	if not Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 		if Duel.NegateActivation(ev) then
 			tc:CancelToGrave()
 			if re:IsHasType(EFFECT_TYPE_ACTIVATE) then Duel.ChangePosition(tc,POS_FACEDOWN)

@@ -131,10 +131,6 @@ function s.recop(e,tp,eg,ep,ev,re,r,rp)
 	  e:GetLabelObject():SetLabel(0)
 end
 
-function s.discost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
-end
 function s.filter(c)
 	return c:IsFaceup() and (c:IsLocation(LOCATION_SZONE) or c:IsType(TYPE_EFFECT))
 end
@@ -223,10 +219,6 @@ end
 
 function s.rmcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():GetFlagEffect(250)~=0
-end
-function s.rmcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
 end
 function s.rmfilter(c,e)
 	return c:IsAbleToRemove() and c:GetRealFieldID()>e:GetHandler():GetFieldID()

@@ -10,7 +10,7 @@ function c372.initial_effect(c)
 end
 
 function c372.filter(c,e,tp)
-	return c:IsFaceup() and c:IsSetCard(0x505)
+	return c:IsFaceup() and c:IsSetCard(IsAstral)
 	  --and Duel.IsExistingMatchingCard(c372.filter1,tp,LOCATION_EXTRA,0,1,nil,c:GetLevel(),e,tp,c) 
 end
 function c372.target(e,tp,eg,ep,ev,re,r,rp,chk)

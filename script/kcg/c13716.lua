@@ -172,10 +172,6 @@ end
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	return tp~=Duel.GetTurnPlayer() 
 end
-function s.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
-end
 function s.atktarget(e,tp,eg,ep,ev,re,r,rp,chk)
 	local tg=Duel.GetAttacker()
 	if chk==0 then return tg:IsOnField() end
@@ -195,12 +191,6 @@ end
 function s.filter2(c, e)
     local tpp = c:GetControler()
     return c:IsDestructable()
-end
-function s.cost(e, tp, eg, ep, ev, re, r, rp, chk)
-    if chk == 0 then
-        return e:GetHandler():CheckRemoveOverlayCard(tp, 1, REASON_COST)
-    end
-    e:GetHandler():RemoveOverlayCard(tp, 1, 1, REASON_COST)
 end
 function s.target(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
     if chkc then

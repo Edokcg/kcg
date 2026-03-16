@@ -38,7 +38,7 @@ function s.initial_effect(c)
 	e4:SetRange(LOCATION_MZONE)
 	e4:SetCountLimit(1)
 	e4:SetCondition(s.discon)
-	e4:SetCost(s.discost)
+	e4:SetCost(Cost.DetachFromSelf(1))
 	e4:SetTarget(s.distg)
 	e4:SetOperation(s.disop)
 	c:RegisterEffect(e4)
@@ -91,11 +91,6 @@ end
 
 function s.discon(e,tp,eg,ep,ev,re,r,rp)
 	return ep~=tp and re:IsActiveType(TYPE_MONSTER) and Duel.IsChainNegatable(ev)
-end
-function s.discost(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if chk==0 then return c:CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	c:RemoveOverlayCard(tp,1,1,REASON_COST)
 end
 function s.distg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end

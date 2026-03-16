@@ -1,5 +1,6 @@
 --カオス・フィールド
-function c457.initial_effect(c)
+local s,id=GetID()
+function s.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
@@ -12,10 +13,10 @@ function c457.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_FZONE)
 	e2:SetCountLimit(1)
-	e2:SetCondition(c457.condition)
-	e2:SetTarget(c457.target)
-	e2:SetCost(c457.cost)
-	e2:SetOperation(c457.operation)
+	e2:SetCondition(s.condition)
+	e2:SetTarget(s.target)
+	e2:SetCost(s.cost)
+	e2:SetOperation(s.operation)
 	c:RegisterEffect(e2)
 	--XYZ
 	local e3=Effect.CreateEffect(c)
@@ -24,33 +25,33 @@ function c457.initial_effect(c)
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetRange(LOCATION_FZONE)
 	e3:SetCountLimit(1)
-	e3:SetTarget(c457.target2)
-	e3:SetOperation(c457.activate)
+	e3:SetTarget(s.target2)
+	e3:SetOperation(s.activate)
 	c:RegisterEffect(e3)	
 end
 
-function c457.filter(c,e,tp)
+function s.filter(c,e,tp)
 	return c:IsSetCard(0x48) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,true,false)
 end
-function c457.condition(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(c457.filter,tp,0,LOCATION_EXTRA,1,nil,e,tp)
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.IsExistingMatchingCard(s.filter,tp,0,LOCATION_EXTRA,1,nil,e,tp)
 end
-function c457.ofilter(c)
-	return c:GetOverlayCount()~=0 and c:IsSetCard(0x1048) and c:IsFaceup()
+function s.ofilter(c,tp)
+	return c:CheckRemoveOverlayCard(tp,1,REASON_COST) and c:IsSetCard(0x1048) and c:IsFaceup()
 end
-function c457.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingTarget(c457.ofilter,tp,LOCATION_MZONE,0,1,nil) end
-	local g=Duel.SelectMatchingCard(tp,c457.ofilter,tp,LOCATION_MZONE,0,1,1,nil):GetFirst()
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.ofilter,tp,LOCATION_MZONE,0,1,nil,tp) end
+	local g=Duel.SelectMatchingCard(tp,s.ofilter,tp,LOCATION_MZONE,0,1,1,nil,tp):GetFirst()
 	g:RemoveOverlayCard(tp,1,1,REASON_COST)
 end
-function c457.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chk==0 then return Duel.GetLocationCountFromEx(tp,tp,nil,TYPE_XYZ)>0 end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
-function c457.operation(e,tp,eg,ep,ev,re,r,rp)
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if not c:IsRelateToEffect(e) or Duel.GetLocationCountFromEx(tp,tp,nil,TYPE_XYZ)<1 then return end
-	local xyzg=Duel.GetMatchingGroup(c457.filter,tp,0,LOCATION_EXTRA,nil,e,tp)
+	local xyzg=Duel.GetMatchingGroup(s.filter,tp,0,LOCATION_EXTRA,nil,e,tp)
 	if xyzg:GetCount()>0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local xyz=xyzg:RandomSelect(tp,1):GetFirst()
@@ -71,7 +72,7 @@ function c457.operation(e,tp,eg,ep,ev,re,r,rp)
 			e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 			e3:SetRange(LOCATION_MZONE)
 			e3:SetCode(EVENT_PHASE+PHASE_END)
-			e3:SetOperation(c457.desop)
+			e3:SetOperation(s.desop)
 			e3:SetReset(RESET_EVENT+0x1fe0000)
 			e3:SetCountLimit(1)
 			xyz:RegisterEffect(e3,true)
@@ -84,31 +85,31 @@ function c457.operation(e,tp,eg,ep,ev,re,r,rp)
 		xyz:CompleteProcedure()
 	end 
 end
-function c457.desop(e,tp,eg,ep,ev,re,r,rp)
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Destroy(e:GetHandler(),REASON_EFFECT)
 end
 
-function c457.filter3(c,e,tp)
+function s.filter3(c,e,tp)
 	local rank=c:GetRank()
 	local pg=aux.GetMustBeMaterialGroup(tp,Group.FromCards(c),tp,nil,nil,REASON_XYZ)
 	return (#pg<=0 or (#pg==1 and pg:IsContains(c))) 
 	    and c:IsFaceup() and c:IsType(TYPE_XYZ) and c:GetFlagEffect(111011002)~=0 
 		and Duel.GetLocationCountFromEx(tp,tp,c,TYPE_XYZ)>0
-		and Duel.IsExistingMatchingCard(c457.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,rank,e,tp,c)
+		and Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,rank,e,tp,c)
 end
-function c457.xyzfilter(c,rank,e,tp,tc)
+function s.xyzfilter(c,rank,e,tp,tc)
 	if c:IsCode(6165656) and tc:GetCode()~=48995978 then return false end
 	return c:GetRank()==rank+1 and (c:IsSetCard(0x1048) or c:IsSetCard(0x1073))
 	 and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,true,false) and tc:IsCanBeXyzMaterial(c)
 end
-function c457.target2(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and c457.filter3(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(c457.filter3,tp,LOCATION_MZONE,0,1,nil,e,tp) end
+function s.target2(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and s.filter3(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(s.filter3,tp,LOCATION_MZONE,0,1,nil,e,tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-	Duel.SelectTarget(tp,c457.filter3,tp,LOCATION_MZONE,0,1,1,nil,e,tp)
+	Duel.SelectTarget(tp,s.filter3,tp,LOCATION_MZONE,0,1,1,nil,e,tp)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
-function c457.activate(e,tp,eg,ep,ev,re,r,rp)
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if not c:IsRelateToEffect(e) then return end
 	local tc=Duel.GetFirstTarget()
@@ -117,7 +118,7 @@ function c457.activate(e,tp,eg,ep,ev,re,r,rp)
 	local rank=tc:GetRank()
 	sg:AddCard(tc)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local xyz=Duel.SelectMatchingCard(tp,c457.xyzfilter,tp,LOCATION_EXTRA,0,1,1,nil,rank,e,tp,tc):GetFirst()
+	local xyz=Duel.SelectMatchingCard(tp,s.xyzfilter,tp,LOCATION_EXTRA,0,1,1,nil,rank,e,tp,tc):GetFirst()
 	if not xyz then return end
 	local mg=tc:GetOverlayGroup()
 	xyz:SetMaterial(sg)

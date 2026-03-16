@@ -91,7 +91,7 @@ function s.tnop(e,tp,eg,ep,ev,re,r,rp)
         e1:SetRange(LOCATION_MZONE)
         e1:SetHintTiming(TIMING_DAMAGE_STEP)
         e1:SetCondition(s.atkcon)
-        e1:SetCost(s.atkcost)
+        e1:SetCost(Cost.DetachFromSelf(1))
         e1:SetTarget(s.atktg)
         e1:SetOperation(s.atkop)
         e1:SetReset(RESET_EVENT+EVENT_TO_DECK) 
@@ -112,7 +112,7 @@ function s.tnop(e,tp,eg,ep,ev,re,r,rp)
         e1:SetRange(LOCATION_MZONE)
         e1:SetHintTiming(TIMING_DAMAGE_STEP)
         e1:SetCondition(s.atkcon)
-        e1:SetCost(s.atkcost)
+        e1:SetCost(Cost.DetachFromSelf(1))
         e1:SetTarget(s.atktg)
         e1:SetOperation(s.atkop)
         e1:SetReset(RESET_EVENT+EVENT_TO_DECK) 
@@ -152,11 +152,6 @@ end
 
 function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
 	return (Duel.GetCurrentPhase()~=PHASE_DAMAGE or not Duel.IsDamageCalculated()) and Duel.GetAttacker()==e:GetHandler()
-end
-function s.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if chk==0 then return c:CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	c:RemoveOverlayCard(tp,1,1,REASON_COST)
 end
 function s.filter(c,att)
 	return c:IsFaceup() and bit.band(att,c:GetAttribute())~=0 and c:GetDefense()>0

@@ -25,7 +25,7 @@ function c381.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function c381.spfilter(c,e,tp)
-	return c:IsSetCard(0x505) and not c:IsCode(381) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(IsAstral) and not c:IsCode(381) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c381.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_GRAVE) and c381.spfilter(chkc,e,tp) end
@@ -50,7 +50,7 @@ function c381.spop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.RegisterEffect(e1,tp)
 end
 function c381.splimit(e,c)
-	return not c:IsSetCard(0x505)
+	return not c:IsSetCard(IsAstral)
 end
 function c381.atkcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

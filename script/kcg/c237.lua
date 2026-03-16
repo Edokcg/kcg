@@ -159,10 +159,6 @@ function s.sdop2(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
-function s.ocost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
-end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	if chk==0 then return Duel.GetAttacker():IsDestructable() end

@@ -28,10 +28,6 @@ end
 s.listed_series={0x900}
 s.material_setcode={0x900}
 
-function s.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
-end
 function s.damfilter(c)
 	return c:IsFaceup()
 end

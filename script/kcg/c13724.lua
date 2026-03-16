@@ -2,16 +2,28 @@
 local s,id=GetID()
 function s.initial_effect(c)
 	--special summon
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e1:SetType(EFFECT_TYPE_ACTIVATE)
+	e1:SetCode(EVENT_BATTLE_DAMAGE)
+	e1:SetCondition(s.condition)
+	e1:SetTarget(s.target)
+	e1:SetOperation(s.activate)
+	c:RegisterEffect(e1)
+	
 	local e2=Effect.CreateEffect(c)
-	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e2:SetType(EFFECT_TYPE_ACTIVATE)
-	e2:SetCode(EVENT_BATTLE_DAMAGE)
-	e2:SetCondition(s.condition)
-	e2:SetTarget(s.target)
-	e2:SetOperation(s.activate)
+	e2:SetDescription(aux.Stringid(id,1))
+	e2:SetCategory(CATEGORY_TOHAND)
+	e2:SetType(EFFECT_TYPE_IGNITION)
+	e2:SetRange(LOCATION_GRAVE)
+	e2:SetCost(Cost.SelfBanish)
+	e2:SetTarget(s.thtg)
+	e2:SetOperation(s.thop)
 	c:RegisterEffect(e2)
 end
+s.listed_series={0x1048,0x48,0x901}
 
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	local a=Duel.GetAttacker()
@@ -20,7 +32,7 @@ function s.condition(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.filter1(c,e,tp)
 	local no=c.xyz_number
-	return no>=101 and no<=107
+	return no>=101 and no<=107 and c:IsSetCard(0x48)
 	and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -58,4 +70,28 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	Duel.SpecialSummonComplete()
 	sc:CompleteProcedure() 
 	sc2:CompleteProcedure() 
+end
+
+function s.thfilter(c)
+	return c:IsSetCard(0x901) and c:IsSpellTrap() and c:IsAbleToHand()
+end
+function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,e:GetHandler()) end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
+end
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,e:GetHandler())
+	if #g>0 then
+		Duel.SendtoHand(g,nil,REASON_EFFECT)
+		Duel.ConfirmCards(1-tp,g)
+		--act qp in hand
+		local e0=Effect.CreateEffect(e:GetHandler())
+		e0:SetType(EFFECT_TYPE_SINGLE)
+		e0:SetCode(EFFECT_QP_ACT_IN_NTPHAND)
+		e0:SetRange(LOCATION_HAND)
+		e0:SetTargetRange(LOCATION_HAND,0)
+		e0:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+		g:GetFirst():RegisterEffect(e0)
+	end
 end

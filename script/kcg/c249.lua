@@ -15,7 +15,7 @@ function s.initial_effect(c)
 
 	--negate
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(68396121,0))
+	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetProperty(EFFECT_FLAG_DAMAGE_STEP)
 	e1:SetCategory(CATEGORY_DISABLE)
 	e1:SetType(EFFECT_TYPE_QUICK_O)
@@ -51,10 +51,6 @@ function s.indes(e,c)
 	  and not e:GetHandler():GetBattleTarget():IsSetCard(0x1048) and not e:GetHandler():GetBattleTarget():IsSetCard(0x2048)
 end
 
-function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
-end
 function s.filter(c)
 	return c:IsFaceup() and not c:IsDisabled()
 end

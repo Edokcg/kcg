@@ -46,10 +46,6 @@ end
 	  and not c:IsStatus(STATUS_CHAINING) 
 	  and Duel.GetAttacker()~=nil and Duel.GetAttacker():CanAttack() and not Duel.GetAttacker():IsStatus(STATUS_ATTACK_CANCELED) 
 end
-function s.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
-end
 function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.NegateAttack()
 end

@@ -21,10 +21,10 @@ function s.initial_effect(c)
 	e2:SetOperation(s.posop)
 	c:RegisterEffect(e2)
 end
-s.listed_series={0x505}
+s.listed_series={IsAstral}
 
 function s.filter(c,e,tp)
-	return c:IsSetCard(0x505) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(IsAstral) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.filter(chkc,e,tp) end

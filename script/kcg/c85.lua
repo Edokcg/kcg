@@ -133,7 +133,7 @@ if not DestinyDraw then
                 local b7 = (Duel.GetMatchingGroupCount(Card.IsType, ttp, LOCATION_DECK, 0, nil, TYPE_FIELD) > 0)
                 local nog = Duel.GetMatchingGroup(Card.IsSetCard, ttp, LOCATION_EXTRA, 0, nil, 0x48)
                 local b8 = (nog:GetClassCount(Card.GetCode) >= 100 
-                    and Duel.GetMatchingGroupCount(Card.IsSetCard, ttp, LOCATION_DECK + LOCATION_HAND, 0, nil, 0x505) > 9) --astral
+                    and Duel.GetMatchingGroupCount(Card.IsSetCard, ttp, LOCATION_DECK + LOCATION_HAND, 0, nil, IsAstral) > 9) --astral
                 local b9 = (Duel.GetMatchingGroupCount(Card.IsSetCard, ttp, LOCATION_DECK + LOCATION_HAND, 0, nil, 0x5) > 9) --acardia
                 local b10 = (Duel.GetMatchingGroupCount(Card.IsSetCard, ttp, LOCATION_DECK + LOCATION_HAND, 0, nil, 0x9f) + Duel.GetMatchingGroupCount(Card.IsSetCard, ttp, LOCATION_DECK + LOCATION_HAND, 0, nil, 0xf8) > 9) --yuya
                 local b11 = (Duel.GetMatchingGroupCount(DestinyDraw.linkcyber, ttp, LOCATION_EXTRA, 0, nil) > 9) --playmaker
@@ -631,7 +631,7 @@ function Duel.SelectMatchingCard(sel_player, f, tp, s, o, mint, maxt, cancel, ex
             elseif tgc.xyz_number and not aux.notoclist[tgc.xyz_number] and not tgc:IsCode(4997565) then
                 token = Duel.CreateToken(tp, 28)
                 tokencode = 28
-                tokenset = 0xcf
+                tokenset = 0x1048
             end
             if token then
                 Duel.SendtoDeck(token, tp, 0, REASON_RULE)
@@ -756,7 +756,7 @@ function Duel.SelectMatchingCard(sel_player, f, tp, s, o, mint, maxt, cancel, ex
                             end
                             e1:SetDescription(table.unpack(desc))
                         end
-                        e1:SetCost(DestinyDraw.cost)
+                        e1:SetCost(Cost.DetachFromSelf(1))
                     elseif efftype[i]==1 then
                         e1:SetType(EFFECT_TYPE_SINGLE)
                         e1:SetRange(LOCATION_MZONE)
@@ -905,10 +905,6 @@ function Duel.SelectMatchingCard(sel_player, f, tp, s, o, mint, maxt, cancel, ex
         selectc(sel_player, function(c)
             return f(c, table.unpack(params)) and not c:IsCode(27) and not c:IsCode(28) and not c:IsCode(29) and not c:IsCode(36)
         end, tp, s, o, mint, maxt, cancel, ex) end
-end
-function DestinyDraw.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
 end
 function DestinyDraw.wkeffs(effop,e1,prop,desc)
     if effop==0 then

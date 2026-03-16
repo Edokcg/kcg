@@ -15,7 +15,7 @@ function s.initial_effect(c)
 
 	--damage
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(85121942,0))
+	e1:SetDescription(aux.Stringid(id,1))
 	e1:SetCategory(CATEGORY_DAMAGE)
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
 	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
@@ -28,7 +28,7 @@ function s.initial_effect(c)
 	--destroy
 	local e2=Effect.CreateEffect(c)
 	e2:SetCategory(CATEGORY_DESTROY+CATEGORY_DAMAGE)
-	e2:SetDescription(aux.Stringid(85121942,1))
+	e2:SetDescription(aux.Stringid(id,0))
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e2:SetCountLimit(1)
@@ -74,10 +74,6 @@ end
 
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():GetFlagEffect(253)~=0
-end
-function s.descost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
 end
 function s.filter(c)
 	return c:IsDestructable()

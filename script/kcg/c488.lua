@@ -27,13 +27,13 @@ function s.initial_effect(c)
 		Duel.RegisterEffect(ge2,0)
 	end
 end
-s.listed_series={0x505}
+s.listed_series={IsAstral}
 
 function s.checkop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=eg:GetFirst()
 	while tc do
 		local pos=tc:GetPosition()
-		if tc:IsSetCard(0x505) and tc:IsLocation(LOCATION_GRAVE) and tc:IsReason(REASON_BATTLE)
+		if tc:IsSetCard(IsAstral) and tc:IsLocation(LOCATION_GRAVE) and tc:IsReason(REASON_BATTLE)
 			and tc:GetControler()==tc:GetPreviousControler() then
 			s[tc:GetControler()]=true
 		end

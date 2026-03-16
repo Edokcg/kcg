@@ -16,10 +16,7 @@ function c380.initial_effect(c)
 	e1:SetOperation(c380.operation)
 	c:RegisterEffect(e1)
 end
-function c380.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
-end
+
 function c380.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
 	if e:GetHandler():IsDefensePos() then

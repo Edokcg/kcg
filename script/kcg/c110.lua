@@ -71,26 +71,18 @@ end
 
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then return c:CheckRemoveOverlayCard(tp,2,REASON_COST)
-		and Duel.GetCustomActivityCount(id,tp,ACTIVITY_SPSUMMON)==0 end
-	c:RemoveOverlayCard(tp,2,2,REASON_COST)
-	aux.RegisterClientHint(e:GetHandler(),EFFECT_FLAG_OATH,tp,1,0,aux.Stringid(id,2),nil)
+	if chk==0 then return Duel.GetCustomActivityCount(id,tp,ACTIVITY_SPSUMMON)==0 end
 	local ge1=Effect.CreateEffect(c)
+	ge1:SetDescription(aux.Stringid(id,2))
 	ge1:SetType(EFFECT_TYPE_FIELD)
-	ge1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_OATH)
+	ge1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_OATH+EFFECT_FLAG_CLIENT_HINT)
 	ge1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
 	ge1:SetTargetRange(1,0)
-	ge1:SetTarget(s.splimit)
+	ge1:SetTarget(function(e,c) return c:IsLocation(LOCATION_EXTRA) and not c:IsType(TYPE_XYZ) end)
 	ge1:SetReset(RESET_PHASE+PHASE_END)
 	Duel.RegisterEffect(ge1,tp)
-	--lizard check
-	aux.addTempLizardCheck(c,tp,s.lizfilter)
-end
-function s.splimit(e,c,sump,sumtype,sumpos,targetp,se)
-	return not c:IsType(TYPE_XYZ) and c:IsLocation(LOCATION_EXTRA)
-end
-function s.lizfilter(e,c)
-	return not c:IsOriginalType(TYPE_XYZ)
+	--"Clock Lizard" check
+	aux.addTempLizardCheck(c,tp,function(e,c) return not c:IsOriginalType(TYPE_XYZ) end)
 end
 
 function s.filter(c,e,tp,rp)

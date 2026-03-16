@@ -38,7 +38,7 @@ function s.initial_effect(c)
 	e3:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_END_PHASE)
 	c:RegisterEffect(e3)
 end
-s.listed_series={0x48, 0xcf}
+s.listed_series={0x48,0x1073,0x1048}
 s.listed_names={34876719}
 
 function s.ovfilter(c,tp,lc)
@@ -101,7 +101,7 @@ end
 
 function s.con(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return c:IsSetCard(0xcf) and c:IsType(TYPE_XYZ)
+	return (c:IsSetCard(0x1073) or c:IsSetCard(0x1048)) and c:IsType(TYPE_XYZ)
 	and (Duel.GetCurrentPhase()==PHASE_MAIN1 or Duel.GetCurrentPhase()==PHASE_MAIN2)
 end
 function s.spfilter2(c)

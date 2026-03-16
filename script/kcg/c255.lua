@@ -25,7 +25,7 @@ function s.initial_effect(c)
 
 	--disable
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(3606728,1))
+	e3:SetDescription(aux.Stringid(id,2))
 	e3:SetCategory(CATEGORY_ATKCHANGE+CATEGORY_DISABLE)
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetRange(LOCATION_MZONE)
@@ -56,7 +56,7 @@ end
 function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	  local count=e:GetHandler():GetOverlayCount()
 	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,count,REASON_EFFECT) end
-	if Duel.SelectYesNo(tp,aux.Stringid(67173574,0)) then
+	if Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
 		if e:GetHandler():RemoveOverlayCard(tp,count,count,REASON_EFFECT)>0 then
 			  Duel.SetTargetPlayer(1-tp)
 			Duel.SetTargetParam(e:GetHandler():GetAttack())
@@ -69,10 +69,6 @@ function s.repop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Damage(p,d,REASON_EFFECT)
 end
 
-function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
-end
 function s.filter(c)
 	return c:IsFaceup() and (c:GetAttack()>0 or not c:IsDisabled())
 end

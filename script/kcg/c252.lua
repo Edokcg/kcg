@@ -15,14 +15,13 @@ function s.initial_effect(c)
 	--attack up
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(59627393,0))
-	e1:SetProperty(0)		
+	e1:SetCategory(CATEGORY_DISABLE)
 	e1:SetType(EFFECT_TYPE_QUICK_O)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetHintTiming(TIMING_BATTLE_PHASE)
 	e1:SetCondition(s.condition)
-	e1:SetCost(s.cost)
-	e1:SetTarget(s.target)
+	e1:SetCost(Cost.DetachFromSelf(1))
 	e1:SetOperation(s.operation)
 	c:RegisterEffect(e1)
 end
@@ -35,48 +34,36 @@ function s.indes(e,c)
 end
 
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
-	local a=Duel.GetAttacker()
-	local at=Duel.GetAttackTarget()
-	return Duel.GetCurrentPhase()==PHASE_BATTLE and at and ((a:IsControler(tp) and a:IsOnField() and a:IsSetCard(0x84))
-		or (at:IsControler(tp) and at:IsOnField() and at:IsFaceup() and at:IsSetCard(0x84)))
-end
-function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetFlagEffect(tp,252)==0 and e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
-	Duel.RegisterFlagEffect(tp,252,RESET_PHASE+PHASE_DAMAGE,0,1)
-end
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
-	Duel.SetTargetCard(Duel.GetAttacker())
-	Duel.SetTargetCard(Duel.GetAttackTarget())
+	local bc1,bc2=Duel.GetBattleMonster(tp)
+	return bc1 and bc2 and bc1:IsSetCard(SET_BATTLIN_BOXER) and bc1:IsFaceup()
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local a=Duel.GetAttacker()
-	local at=Duel.GetAttackTarget()
-	if at:IsControler(tp) then a,at=at,a end
-	if a:IsFacedown() or not a:IsRelateToEffect(e) or not at:IsRelateToEffect(e) then return end
-	local e1=Effect.CreateEffect(e:GetHandler())
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
-	e1:SetValue(1)
-	e1:SetReset(RESET_PHASE+PHASE_DAMAGE)
-	a:RegisterEffect(e1,true)
-	local e2=Effect.CreateEffect(e:GetHandler())
-	e2:SetType(EFFECT_TYPE_SINGLE)
-	e2:SetCode(EFFECT_REFLECT_BATTLE_DAMAGE)
-	e2:SetValue(1)
-	e2:SetReset(RESET_PHASE+PHASE_DAMAGE)
-	a:RegisterEffect(e2,true)
-	if at:IsType(TYPE_EFFECT) then
-		local e3=Effect.CreateEffect(e:GetHandler())
-		e3:SetType(EFFECT_TYPE_SINGLE)
-		e3:SetCode(EFFECT_DISABLE)
-		e3:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
-		at:RegisterEffect(e3)
-		local e4=Effect.CreateEffect(e:GetHandler())
-		e4:SetType(EFFECT_TYPE_SINGLE)
-		e4:SetCode(EFFECT_DISABLE_EFFECT)
-		e4:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
-		at:RegisterEffect(e4)
+	local bc1,bc2=Duel.GetBattleMonster(tp)
+	if bc2:IsRelateToBattle() and bc2:IsNegatableMonster() then
+		--Negate the effects of that opponent's monster while it is face-up until the end of this turn
+		bc2:NegateEffects(c,RESET_PHASE|PHASE_END)
 	end
+	if bc1:IsRelateToBattle() then
+		--That monster you control cannot be destroyed by that battle
+		local e1=Effect.CreateEffect(c)
+		e1:SetDescription(3000)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetProperty(EFFECT_FLAG_CLIENT_HINT)
+		e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
+		e1:SetValue(1)
+		e1:SetReset(RESET_PHASE|PHASE_DAMAGE)
+		bc1:RegisterEffect(e1,true)
+		--Also your opponent takes any battle damage you would have taken from that battle
+		local e2=e1:Clone()
+		e2:SetDescription(3112)
+		e2:SetCode(EFFECT_REFLECT_BATTLE_DAMAGE)
+		bc1:RegisterEffect(e2,true)
+	end
+	--Battle cannot be negated
+	local e2=Effect.CreateEffect(c)
+	e2:SetType(EFFECT_TYPE_SINGLE)
+	e2:SetCode(EFFECT_UNSTOPPABLE_ATTACK)
+	e2:SetReset(RESET_PHASE|PHASE_DAMAGE)
+	Duel.GetAttacker():RegisterEffect(e2)
 end

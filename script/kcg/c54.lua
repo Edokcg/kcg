@@ -577,12 +577,6 @@ function s.spfilter2(c,e,tp)
 	if c:IsLocation(LOCATION_HAND) then return Duel.GetLocationCount(tp,LOCATION_MZONE, tp, LOCATION_REASON_TOFIELD, zone)>0
 	else return Duel.GetLocationCountFromEx(tp,tp,nil,type, zone)>0 end
 end
-function s.ctcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,e:GetHandler():GetOverlayCount(),e:GetHandler():GetOverlayCount(),REASON_COST)
-	local ct=Duel.GetOperatedGroup():GetCount()
-	e:SetLabel(ct)
-end
 function s.cttg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.spfilter2,tp,LOCATION_HAND+LOCATION_EXTRA,0,1,nil,e,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,e:GetLabel(),tp,LOCATION_HAND+LOCATION_EXTRA)

@@ -93,12 +93,6 @@ function s.beatktg(e,c)
 	return c~=e:GetHandler()
 end
 
-function s.atkcost1(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if chk==0 then return c:CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	c:RemoveOverlayCard(tp,1,1,REASON_COST)
-end
-
 function s.cfilter(c,tp,code)
 	return c:IsCode(code) and c:GetPreviousControler()==tp and c:IsReason(REASON_DESTROY)
 end

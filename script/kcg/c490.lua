@@ -32,10 +32,10 @@ function s.initial_effect(c)
 	e4:SetOperation(s.indop)
 	c:RegisterEffect(e4)
 end
-s.listed_series={0x505}
+s.listed_series={IsAstral}
 
 function s.cfilter(c)
-	return c:IsFaceup() and c:IsSetCard(0x505)
+	return c:IsFaceup() and c:IsSetCard(IsAstral)
 end
 function s.damcon(e)
 	return Duel.IsExistingMatchingCard(s.cfilter,e:GetHandlerPlayer(),LOCATION_MZONE,0,2,nil)

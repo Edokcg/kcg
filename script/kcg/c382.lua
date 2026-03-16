@@ -10,11 +10,11 @@ function s.initial_effect(c)
 	e1:SetCondition(s.spcon)
 	c:RegisterEffect(e1)
 end
-s.listed_series={0x505}
+s.listed_series={IsAstral}
 s.listed_names={id}
 
 function s.filter(c)
-	return c:IsFaceup() and c:IsSetCard(0x505) and not c:IsCode(id)
+	return c:IsFaceup() and c:IsSetCard(IsAstral) and not c:IsCode(id)
 end
 function s.spcon(e,c)
 	if c==nil then return true end

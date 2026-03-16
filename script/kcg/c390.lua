@@ -20,7 +20,7 @@ function c390.spfilter(c,e,tp)
 	return c:IsType(TYPE_XYZ) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false) 
 end
 function c390.spfilter2(c)
-	return c:IsSetCard(0x505) and c:IsType(TYPE_MONSTER) 
+	return c:IsSetCard(IsAstral) and c:IsType(TYPE_MONSTER) 
 end
 function c390.checkop(e,tp,eg,ep,ev,re,r,rp)
 	if eg:IsExists(c390.filter12,1,nil,tp) and Duel.IsExistingMatchingCard(c390.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp)

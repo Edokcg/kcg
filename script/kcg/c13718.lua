@@ -35,7 +35,7 @@ function s.initial_effect(c)
     e1:SetCode(511001363)
     c:RegisterEffect(e1)
     aux.GlobalCheck(s, function()
-        local ge = Effect.GlobalEffect()
+        local ge = Effect.CreateEffect(c)
         ge:SetType(EFFECT_TYPE_FIELD + EFFECT_TYPE_CONTINUOUS)
         ge:SetCode(EVENT_ADJUST)
         ge:SetCondition(s.con)
@@ -44,15 +44,14 @@ function s.initial_effect(c)
     end)
 
 	--copy
-	-- local e4=Effect.CreateEffect(c)
-	-- e4:SetDescription(aux.Stringid(67926903,1))
-	-- e4:SetType(EFFECT_TYPE_IGNITION)
-	-- e4:SetRange(LOCATION_MZONE)
-	-- e4:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	-- e4:SetCountLimit(1)
-	-- e4:SetTarget(s.copytg)
-	-- e4:SetOperation(s.copyop)
-	-- c:RegisterEffect(e4)    
+	local e4=Effect.CreateEffect(c)
+	e4:SetDescription(aux.Stringid(id,3))
+	e4:SetType(EFFECT_TYPE_QUICK_O)
+    e4:SetCode(EVENT_FREE_CHAIN)
+	e4:SetRange(LOCATION_MZONE)
+    e4:SetCost(s.copycost2)
+	e4:SetOperation(s.copyop2)
+	c:RegisterEffect(e4)
 end
 s.listed_series = {SET_NUMBER_C}
 
@@ -76,7 +75,7 @@ function s.cfilter(c)
     local chk=false
     local effs={c:GetOwnEffects()}
     for _,te in ipairs(effs) do
-        if te:GetCode()&511001822==511001822 or te:GetLabel()==511001822 then te=te:GetLabelObject() end
+        if te:GetCode()==EFFECT_RANKUP_EFFECT then te=te:GetLabelObject() end
         if te:HasDetachCost() then chk=true end
     end
     return chk and c:GetFlagEffect(5110013630)==0
@@ -86,14 +85,14 @@ function s.op(e)
     for c in aux.Next(g) do
         local effs={c:GetOwnEffects()}
         for _,te in ipairs(effs) do
-            if te:GetCode()&511001822==511001822 or te:GetLabel()==511001822 then te=te:GetLabelObject() end
+            if te:GetCode()==EFFECT_RANKUP_EFFECT then te=te:GetLabelObject() end
             if te:HasDetachCost() then
                 local resetflag,resetcount=te:GetReset()
                 local rm,max,code,flag,hopt=te:GetCountLimit()
                 local category = te:GetCategory()
                 local prop1,prop2=te:GetProperty()
                 local label = te:GetLabel()
-                local e1 = Effect.CreateEffect(c)
+                local e1 = Effect.CreateEffect(e:GetOwner())
                 if te:GetDescription() then
                     e1:SetDescription(te:GetDescription())
                 end
@@ -132,9 +131,10 @@ function s.op(e)
 end
 function s.copycon(e, tp, eg, ep, ev, re, r, rp)
     if not e:GetLabelObject() then return false end
-    local con = e:GetLabelObject():GetCondition()
+    local te=e:GetLabelObject()
+    local con = te:GetCondition()
     return e:GetHandler():IsHasEffect(511001363) 
-    and e:GetOwner():GetFlagEffect(id) == 0 
+    and te:GetOwner():GetFlagEffect(id) == 0 
     and (not con or con(e, tp, eg, ep, ev, re, r, rp))
 end
 function s.copycost(e, tp, eg, ep, ev, re, r, rp, chk)
@@ -152,11 +152,13 @@ function s.copycost(e, tp, eg, ep, ev, re, r, rp, chk)
     Duel.Hint(HINT_CARD,0,tc:GetOriginalCode())
     local op=Duel.SelectEffect(tp,{a,aux.Stringid(81330115,0)},{b,aux.Stringid(41925941,1)})
 	if op==1 then
-		Duel.SendtoGrave(tc,REASON_COST) 
+		Duel.SendtoGrave(tc,REASON_COST)
+		Duel.RaiseSingleEvent(c,EVENT_DETACH_MATERIAL,e,0,0,0,0)
+		Duel.RaiseEvent(c,EVENT_DETACH_MATERIAL,e,REASON_EFFECT,tp,tp,0)
 	else
 		Duel.PayLPCost(tp,400)
 	end
-    tc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1)
+    tc:RegisterFlagEffect(id,RESETS_STANDARD_PHASE_END,0,1)
     if te:GetLabelObject() then
         te:SetLabelObject(te:GetLabelObject())
     end
@@ -166,28 +168,62 @@ function s.atkval(e, c)
     return c:GetOverlayCount() * 1000
 end
 
--- function s.afilter(c)
--- 	return c:IsSetCard(0x48) and c:IsType(TYPE_EFFECT)
--- end
--- function s.copytg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
--- 	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_GRAVE) and s.afilter(chkc) end
--- 	if chk==0 then return Duel.IsExistingTarget(s.afilter,tp,LOCATION_GRAVE,0,1,nil) end
--- 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
--- 	Duel.SelectTarget(tp,s.afilter,tp,LOCATION_GRAVE,0,1,1,nil)
--- end
--- function s.copyop(e,tp,eg,ep,ev,re,r,rp)
--- 	local c=e:GetHandler()
--- 	local tc=Duel.GetFirstTarget()
--- 	if c:IsRelateToEffect(e) and c:IsFaceup() and tc:IsRelateToEffect(e) then
--- 		local code=tc:GetOriginalCode()
--- 		local e1=Effect.CreateEffect(c)
--- 		e1:SetType(EFFECT_TYPE_SINGLE)
--- 		e1:SetCode(EFFECT_CHANGE_CODE)
--- 		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
--- 		e1:SetValue(code)
--- 		e1:SetLabel(tp)
--- 		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END+RESET_OPPO_TURN)
--- 		c:RegisterEffect(e1)
--- 		c:CopyEffect(code,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END+RESET_OPPO_TURN)
--- 	end
--- end
+function s.cfilter2(c)
+    return c:GetFlagEffect(id)==0 and c:IsSetCard(0x48) and c:IsType(TYPE_EFFECT)
+end
+function s.copycost2(e, tp, eg, ep, ev, re, r, rp, chk)
+    local c=e:GetHandler()
+    if chk==0 then return c:GetOverlayGroup():FilterCount(s.cfilter2,nil)>0 end
+    Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(id,5))
+	local sc=c:GetOverlayGroup():FilterSelect(tp,s.cfilter2,1,1,nil,e,tp):GetFirst()
+    Duel.SendtoGrave(sc,REASON_COST)
+	Duel.RaiseSingleEvent(c,EVENT_DETACH_MATERIAL,e,0,0,0,0)
+	Duel.RaiseEvent(c,EVENT_DETACH_MATERIAL,e,REASON_EFFECT,tp,tp,0)
+    e:SetLabelObject(sc)
+end
+function s.copyop2(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local tc=e:GetLabelObject()
+	if tc then
+		local code=tc:GetOriginalCode()
+		--This card's name becomes the target's name
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_CHANGE_CODE)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+		e1:SetValue(code)
+		e1:SetLabel(tp)
+		e1:SetReset(RESETS_STANDARD_PHASE_END|RESET_OPPO_TURN)
+		c:RegisterEffect(e1)
+		--Replace this card's effect with that monster's original effect
+		local cid=c:CopyEffect(code,RESETS_STANDARD_PHASE_END|RESET_OPPO_TURN)
+		--Reset the effects manually at the End Phase of the opponent's next turn
+		local e2=Effect.CreateEffect(c)
+		e2:SetDescription(aux.Stringid(id,4))
+		e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+		e2:SetCode(EVENT_PHASE+PHASE_END)
+		e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+		e2:SetCountLimit(1)
+		e2:SetRange(LOCATION_MZONE)
+		e2:SetCondition(s.resetcon)
+		e2:SetOperation(s.resettop)
+		e2:SetLabel(cid)
+		e2:SetLabelObject(e1)
+		e2:SetReset(RESETS_STANDARD_PHASE_END|RESET_OPPO_TURN)
+		c:RegisterEffect(e2)
+	end
+end
+function s.resetcon(e,tp,eg,ep,ev,re,r,rp)
+	local p=e:GetLabelObject():GetLabel()
+	return Duel.IsTurnPlayer(1-p)
+end
+function s.resettop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local cid=e:GetLabel()
+	c:ResetEffect(cid,RESET_COPY)
+	c:ResetEffect(RESET_DISABLE,RESET_EVENT)
+	local e1=e:GetLabelObject()
+	e1:Reset()
+	Duel.HintSelection(Group.FromCards(c))
+	Duel.Hint(HINT_OPSELECTED,1-tp,e:GetDescription())
+end

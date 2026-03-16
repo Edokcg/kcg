@@ -10,10 +10,10 @@ function s.initial_effect(c)
 	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
 end
-s.listed_series={0x505}
+s.listed_series={IsAstral}
 
 function s.filter(c,e,tp)
-	return c:IsSetCard(0x505) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(IsAstral) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0

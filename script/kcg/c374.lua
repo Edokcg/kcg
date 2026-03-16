@@ -13,10 +13,10 @@ function s.initial_effect(c)
 	e1:SetOperation(s.op)
 	c:RegisterEffect(e1)
 end
-s.listed_series={0x505}
+s.listed_series={IsAstral}
 
 function s.filter(c)
-	return c:IsFaceup() and not c:IsType(TYPE_XYZ) and c:GetLevel()<7 and c:IsSetCard(0x505)
+	return c:IsFaceup() and not c:IsType(TYPE_XYZ) and c:GetLevel()<7 and c:IsSetCard(IsAstral)
 end
 function s.tg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.filter(chkc) end

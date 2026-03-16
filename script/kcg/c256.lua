@@ -53,10 +53,6 @@ function s.condition(e,tp,eg,ep,ev,re,r,rp,chk)
 --and ph==PHASE_BATTLE
  and re:IsActiveType(TYPE_MONSTER) and Duel.IsChainNegatable(ev)
 end
-function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
-end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
 	Duel.SetOperationInfo(0,CATEGORY_NEGATE,eg,1,0,0)

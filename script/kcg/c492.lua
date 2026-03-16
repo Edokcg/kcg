@@ -203,10 +203,6 @@ function s.repop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Damage(p,d,REASON_EFFECT)
 end
 
-function s.damcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
-end
 function s.cd(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return ep==1-tp
 		 and (re and re:GetHandler()==e:GetHandler()) end

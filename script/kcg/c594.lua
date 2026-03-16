@@ -110,10 +110,6 @@ function s.atkval(e,c)
 	return c:GetOverlayCount()*100000
 end
 
-function s.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
-end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	local tg=Duel.GetAttacker()
 	if chk==0 then return tg:IsOnField() and tg:IsControler(1-tp) end

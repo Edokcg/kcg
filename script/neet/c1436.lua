@@ -27,7 +27,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function s.ovfilter(c,tp,xyzc)
-	return c:IsFaceup() and c:IsAttribute(ATTRIBUTE_WATER,xyzc,SUMMON_TYPE_XYZ,tp) and c:GetOverlayCount()==0
+	return c:IsFaceup() and c:IsAttribute(ATTRIBUTE_WATER,xyzc,SUMMON_TYPE_XYZ,tp) and c:GetOverlayCount()==0 and c:IsType(TYPE_XYZ)
 end
 function s.indcon(e)
 	return e:GetHandler():GetOverlayCount()>0

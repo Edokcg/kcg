@@ -53,7 +53,7 @@ function s.initial_effect(c)
 	e6:SetHintTiming(0,TIMING_DRAW_PHASE)
 	e6:SetCountLimit(1)
 	e6:SetCondition(s.actcon)
-	e6:SetCost(s.actcost)
+	e6:SetCost(Cost.DetachFromSelf(1))
 	e6:SetOperation(s.actop)
 	c:RegisterEffect(e6)
 end
@@ -184,10 +184,6 @@ end
 
 function s.actcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetTurnPlayer()~=tp
-end
-function s.actcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
 end
 function s.actop(e,tp,eg,ep,ev,re,r,rp)
 	local e1=Effect.CreateEffect(e:GetHandler())
