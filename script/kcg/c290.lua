@@ -84,8 +84,8 @@ function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
 	return at and at:IsFaceup() and not e:GetHandler():IsStatus(STATUS_CHAINING)
 end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.CheckReleaseGroup(tp,Card.IsType,1,e:GetHandler():GetEquipTarget(),TYPE_MONSTER) end
-	local g=Duel.SelectReleaseGroup(tp,Card.IsType,1,1,e:GetHandler():GetEquipTarget(),TYPE_MONSTER)
+	if chk==0 then return Duel.CheckReleaseGroupCost(tp,Card.IsType,1,false,nil,e:GetHandler():GetEquipTarget(),TYPE_MONSTER) end
+	local g=Duel.SelectReleaseGroupCost(tp,Card.IsType,1,1,false,nil,e:GetHandler():GetEquipTarget(),TYPE_MONSTER)
 	Duel.Release(g,REASON_COST)
 end
 function s.tar(e,tp,eg,ep,ev,re,r,rp,chk)

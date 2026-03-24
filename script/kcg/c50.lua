@@ -44,9 +44,9 @@ function s.rfilter(c)
 	return c:IsRace(RACE_DIVINE)
 end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsAbleToRemoveAsCost() and Duel.CheckReleaseGroup(tp,s.rfilter,1,nil) end
+	if chk==0 then return e:GetHandler():IsAbleToRemoveAsCost() and Duel.CheckReleaseGroupCost(tp,s.rfilter,1,false,nil,e:GetHandler()) end
 	Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_COST)
-	local g=Duel.SelectReleaseGroup(tp,s.rfilter,1,10,nil)
+	local g=Duel.SelectReleaseGroupCost(tp,s.rfilter,1,10,false,nil,e:GetHandler())
 	e:SetLabel(g:GetCount())
 	Duel.Release(g,REASON_COST)
 end

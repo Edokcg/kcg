@@ -22,6 +22,17 @@ function s.initial_effect(c)
 	e1:SetOperation(s.spop)
 	c:RegisterEffect(e1)
 	
+	local e5=Effect.CreateEffect(c)
+	e5:SetDescription(aux.Stringid(id,0))
+	e5:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH+CATEGORY_HANDES)
+	e5:SetType(EFFECT_TYPE_IGNITION)
+	e5:SetRange(LOCATION_HAND)
+	e5:SetCountLimit(1)
+	e5:SetCost(Cost.SelfReveal)
+	e5:SetTarget(s.thtg)
+	e5:SetOperation(s.thop)
+	c:RegisterEffect(e5)
+	
 	--战破怪兽时对方扣LP
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(10000014,2))
@@ -64,11 +75,11 @@ function s.initial_effect(c)
 	e115:SetValue(ATTRIBUTE_LIGHT)
 	c:RegisterEffect(e115)
 end
----------------------------------------------------------------------------------------------------------------
+s.listed_series={SET_SACRED_BEAST}
+-------------------------------------------------------------------------------------------------------------
 function s.spfilter(c)
 	return c:IsType(TYPE_SPELL) and not c:IsType(TYPE_FIELD) and c:IsAbleToGrave()
 end
-
 function s.spcon(e,c)
 	if c==nil then return true end
 	if Duel.GetLocationCount(c:GetControler(),LOCATION_MZONE)==0 then
@@ -78,7 +89,6 @@ function s.spcon(e,c)
 		return Duel.IsExistingMatchingCard(s.spfilter,c:GetControler(),LOCATION_ONFIELD,0,3,nil)
 	end
 end
-
 function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
 	if Duel.GetLocationCount(c:GetControler(),LOCATION_MZONE)==0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
@@ -101,7 +111,26 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
 		Duel.SendtoGrave(g,REASON_COST)
 	end
 end
-------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------
+function s.thfilter(c)
+	return c:IsSetCard(SET_SACRED_BEAST) and c:IsSpell() and c:IsAbleToHand()
+end
+function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
+	Duel.SetOperationInfo(0,CATEGORY_HANDES,nil,0,tp,1)
+end
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
+	if #g>0 and Duel.SendtoHand(g,nil,REASON_EFFECT)>0 then
+		Duel.ConfirmCards(1-tp,g)
+		Duel.ShuffleHand(tp)
+		Duel.BreakEffect()
+		Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT|REASON_DISCARD,nil)
+	end
+end
+
 function s.damcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local bc=c:GetBattleTarget()
@@ -133,15 +162,19 @@ function s.nocon(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.noop(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.HasFlagEffect(tp,id) then return end
+	Duel.RegisterFlagEffect(tp,id,RESET_PHASE|PHASE_END,0,1)
+	--You take no damage this turn
 	local e1=Effect.CreateEffect(e:GetHandler())
+	e1:SetDescription(aux.Stringid(id,3))
 	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetCode(EFFECT_AVOID_BATTLE_DAMAGE)
-	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CLIENT_HINT)
+	e1:SetCode(EFFECT_CHANGE_DAMAGE)
 	e1:SetTargetRange(1,0)
 	e1:SetValue(0)
-	e1:SetReset(RESET_PHASE+PHASE_END)
+	e1:SetReset(RESET_PHASE|PHASE_END)
 	Duel.RegisterEffect(e1,tp)
 	local e2=e1:Clone()
-	e2:SetCode(EFFECT_CHANGE_DAMAGE)
+	e2:SetCode(EFFECT_NO_EFFECT_DAMAGE)
 	Duel.RegisterEffect(e2,tp)
 end

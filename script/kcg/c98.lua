@@ -179,8 +179,8 @@ function s.atkfilter(c)
 	return c:GetAttackedCount()==0
 end
 function s.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.CheckReleaseGroup(tp,nil,2,e:GetHandler()) end
-	local g=Duel.SelectReleaseGroup(tp,s.atkfilter,2,2,e:GetHandler())
+	if chk==0 then return Duel.CheckReleaseGroupCost(tp,nil,2,false,nil,e:GetHandler()) end
+	local g=Duel.SelectReleaseGroupCost(tp,s.atkfilter,2,2,false,nils,e:GetHandler())
 	Duel.Release(g,REASON_COST)
 end
 function s.atktg(e,tp,eg,ep,ev,re,r,rp,chk)

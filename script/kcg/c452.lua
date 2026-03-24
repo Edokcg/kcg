@@ -22,6 +22,17 @@ function s.initial_effect(c)
 	e1:SetOperation(s.spop)
 	c:RegisterEffect(e1)
 	
+	local e5=Effect.CreateEffect(c)
+	e5:SetDescription(aux.Stringid(id,0))
+	e5:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH+CATEGORY_HANDES)
+	e5:SetType(EFFECT_TYPE_IGNITION)
+	e5:SetRange(LOCATION_HAND)
+	e5:SetCountLimit(1)
+	e5:SetCost(Cost.SelfReveal)
+	e5:SetTarget(s.thtg)
+	e5:SetOperation(s.thop)
+	c:RegisterEffect(e5)
+	
 	--对方召唤特召时特召衍生物
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(10000004,2))
@@ -59,50 +70,70 @@ function s.initial_effect(c)
 	e115:SetValue(ATTRIBUTE_DARK)
 	c:RegisterEffect(e115)
 end
+s.listed_series={SET_SACRED_BEAST}
 -----------------------------------------------------------------------
 function s.spcon(e,c)
 	if c==nil then return true end
 	return Duel.GetLocationCount(c:GetControler(),LOCATION_MZONE)>-3
 		and Duel.CheckReleaseGroup(c:GetControler(),nil,3,nil)
 end
-
 function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
 	local g=Duel.SelectReleaseGroup(c:GetControler(),nil,3,3,nil)
 	Duel.Release(g,REASON_COST)
 end
-----------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+function s.thfilter(c)
+	return c:IsSetCard(SET_SACRED_BEAST) and c:IsMonster() and c:IsAbleToHand()
+end
+function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
+	Duel.SetOperationInfo(0,CATEGORY_HANDES,nil,0,tp,1)
+end
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
+	if #g>0 and Duel.SendtoHand(g,nil,REASON_EFFECT)>0 then
+		Duel.ConfirmCards(1-tp,g)
+		Duel.ShuffleHand(tp)
+		Duel.BreakEffect()
+		Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT|REASON_DISCARD,nil)
+	end
+end
+
 function s.tkfilter(c,e,tp)
 	return c:IsControler(tp) and (not e or c:IsRelateToEffect(e))
 end
-
 function s.tkcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.tkfilter,1,nil,nil,1-tp)
 end
-
 function s.tktg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
 	Duel.SetOperationInfo(0,CATEGORY_TOKEN,nil,1,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,0,0)
 end
-
 function s.tkop(e,tp,eg,ep,ev,re,r,rp)
-	  local tc=eg:GetFirst()
-	  while tc do
-	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
-	if ft<=0 or not Duel.IsPlayerCanSpecialSummonMonster(tp,69890968,0,0x4011,1000,1000,1,RACE_FIEND,ATTRIBUTE_DARK) then return end
-	local token=Duel.CreateToken(tp,69890968)
-	Duel.SpecialSummon(token,0,tp,tp,false,false,POS_FACEUP)
-	local e1=Effect.CreateEffect(e:GetHandler())
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetCode(EFFECT_CANNOT_ATTACK_ANNOUNCE)
-	e1:SetReset(RESET_EVENT+0x1fe0000)
-	token:RegisterEffect(e1,true)
-	  tc=eg:GetNext() end
+	local tc=eg:GetFirst()
+	while tc do
+		local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+		if ft<=0 or not Duel.IsPlayerCanSpecialSummonMonster(tp,69890968,0,0x4011,1000,1000,1,RACE_FIEND,ATTRIBUTE_DARK) then return end
+		local token=Duel.CreateToken(tp,69890968)
+		Duel.SpecialSummon(token,0,tp,tp,false,false,POS_FACEUP)
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_CANNOT_ATTACK_ANNOUNCE)
+		e1:SetReset(RESET_EVENT+0x1fe0000)
+		token:RegisterEffect(e1,true)
+		tc=eg:GetNext()
+	end
 end
--------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+function s.descostfilter(c)
+	return c:IsSetCard(SET_SACRED_BEAST)
+end
 function s.atcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.CheckReleaseGroup(tp,nil,1,e:GetHandler()) end
-	local g=Duel.SelectReleaseGroup(tp,nil,1,2,e:GetHandler())
+	if chk==0 then return Duel.CheckReleaseGroupCost(tp,nil,1,false,nil,e:GetHandler()) end
+	local g=Duel.SelectReleaseGroupCost(tp,nil,1,2,false,nil,e:GetHandler())
 	local tatk=0
 	for tc in aux.Next(g) do
 	   local atk=tc:GetAttack()
@@ -110,9 +141,13 @@ function s.atcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	   tatk=tatk+atk
 	end
 	e:SetLabel(tatk)
-	Duel.Release(g,REASON_COST)
+	local ct=Duel.Release(g,REASON_COST)
+	if g:FilterCount(s.descostfilter,nil)==#g then
+		e:GetHandler():RegisterFlagEffect(id,RESET_EVENT+0x1ff0000+RESET_CHAIN,0,1)
+	end
+	Duel.SetPossibleOperationInfo(0,CATEGORY_DESTROY,g,#g,tp,0)
+	Duel.SetOperationInfo(0,CATEGORY_ATKCHANGE,e:GetHandler(),0,tp,tatk)
 end
-
 function s.atop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsFaceup() and c:IsRelateToEffect(e) then
@@ -122,5 +157,8 @@ function s.atop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetValue(e:GetLabel())
 		e1:SetReset(RESET_EVENT+0x1ff0000+RESET_PHASE+PHASE_END)
 		c:RegisterEffect(e1)
+		if c:GetFlagEffect(id)>0 then
+			Duel.Destroy(Duel.GetFieldGroup(tp,0,LOCATION_MZONE),REASON_EFFECT)
+		end
 	end
 end

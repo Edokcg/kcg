@@ -28,7 +28,7 @@ function s.initial_effect(c)
 	e3:SetCategory(CATEGORY_DISABLE+CATEGORY_DESTROY+CATEGORY_DAMAGE)
 	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_QUICK_O)
 	e3:SetCode(EVENT_CHAINING)
-	e3:SetProperty(EFFECT_FLAG_DAMAGE_STEP)
+	e3:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetCost(Cost.DetachFromSelf(1))
 	e3:SetCondition(s.descondition)
@@ -93,6 +93,7 @@ end
 
 function s.descondition(e,tp,eg,ep,ev,re,r,rp)
 	if not Duel.IsChainDisablable(ev) then return false end
+	if Duel.IsBattlePhase() and rp==1-tp and re:IsMonsterEffect() then return true end
 	local eb,tg,tc=Duel.GetOperationInfo(ev,CATEGORY_CONTROL)
 	if eb and tg and tg:IsContains(e:GetHandler()) then return true end
 	local eb,tg,tc=Duel.GetOperationInfo(ev,CATEGORY_REMOVE)

@@ -21,11 +21,11 @@ function s.cost2filter(c,tp)
 end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	e:SetLabel(1)
-	if chk==0 then return Duel.CheckLPCost(tp,1000) and Duel.CheckReleaseGroup(tp,s.cost2filter,1,nil,tp)
+	if chk==0 then return Duel.CheckLPCost(tp,1000) and Duel.CheckReleaseGroupCost(tp,s.cost2filter,1,false,nil,e:GetHandler(),tp)
 	end
 	Duel.PayLPCost(tp,1000)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
-	local rg=Duel.SelectReleaseGroup(tp,Card.IsRace,1,1,nil,RACE_WARRIOR)
+	local rg=Duel.SelectReleaseGroupCost(tp,Card.IsRace,1,1,false,nil,e:GetHandler(),RACE_WARRIOR)
 	Duel.Release(rg,REASON_COST)
 end
 function s.costfilter(c,e,tp)

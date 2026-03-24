@@ -90,9 +90,9 @@ end
 
 function s.descost(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk == 0 then
-		return Duel.CheckReleaseGroup(tp, s.ofilter, 2, e:GetHandler())
+		return Duel.CheckReleaseGroupCost(tp,s.ofilter,2,false,nil,e:GetHandler())
 	end
-	local g = Duel.SelectReleaseGroup(tp, s.ofilter, 2, 2, e:GetHandler())
+	local g = Duel.SelectReleaseGroupCost(tp,s.ofilter,2,2,false,nil,e:GetHandler())
 	Duel.Release(g, REASON_COST)
 end
 

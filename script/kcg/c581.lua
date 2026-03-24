@@ -236,8 +236,8 @@ function s.lpop2(e,tp,eg,ep,ev,re,r,rp)
 end
 --------------------------------------------------------------------------------------------------------------
 function s.otkcost2(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.CheckReleaseGroup(tp,nil,1,e:GetHandler()) end
-	local g=Duel.SelectReleaseGroup(tp,nil,1,99,e:GetHandler())
+	if chk==0 then return Duel.CheckReleaseGroupCost(tp,nil,1,false,nil,e:GetHandler()) end
+	local g=Duel.SelectReleaseGroupCost(tp,nil,1,99,false,nil,e:GetHandler())
 	local tc=g:GetFirst()
     local tatk = 0
     local tdef = 0

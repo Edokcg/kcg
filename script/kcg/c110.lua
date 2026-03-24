@@ -53,6 +53,20 @@ function s.initial_effect(c)
 	e2:SetCondition(s.atkcon)
 	e2:SetValue(0)
 	c:RegisterEffect(e2)
+	
+	--destroy
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(15240238,0))
+	e3:SetCategory(CATEGORY_DISABLE+CATEGORY_DESTROY+CATEGORY_DAMAGE)
+	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_QUICK_O)
+	e3:SetCode(EVENT_CHAINING)
+	e3:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
+	e3:SetRange(LOCATION_MZONE)
+	e3:SetCost(Cost.DetachFromSelf(1))
+	e3:SetCondition(s.descondition)
+	e3:SetTarget(s.destarget)
+	e3:SetOperation(s.desactivate)
+	c:RegisterEffect(e3)
 
 	Duel.AddCustomActivityCounter(id,ACTIVITY_SPSUMMON,s.counterfilter)
 end
@@ -109,7 +123,40 @@ end
 function s.atkcon(e)
 	local ph=Duel.GetCurrentPhase()
 	local tp=Duel.GetTurnPlayer()
-	return 
-		 tp~=e:GetHandler():GetControler() 
-		 and (ph>=PHASE_BATTLE_START and ph<=PHASE_BATTLE)
+	return tp~=e:GetHandler():GetControler() 
+		and (ph>=PHASE_BATTLE_START and ph<=PHASE_BATTLE)
+end
+
+function s.descondition(e,tp,eg,ep,ev,re,r,rp)
+	if not Duel.IsChainDisablable(ev) then return false end
+	if Duel.IsBattlePhase() and rp==1-tp and re:IsMonsterEffect() then return true end
+	local eb,tg,tc=Duel.GetOperationInfo(ev,CATEGORY_CONTROL)
+	if eb and tg and tg:IsContains(e:GetHandler()) then return true end
+	local eb,tg,tc=Duel.GetOperationInfo(ev,CATEGORY_REMOVE)
+	if eb and tg and tg:IsContains(e:GetHandler()) then return true end
+	local eb,tg,tc=Duel.GetOperationInfo(ev,CATEGORY_DESTROY)
+	if eb and tg and tg:IsContains(e:GetHandler()) then return true end
+	local eb,tg,tc=Duel.GetOperationInfo(ev,CATEGORY_TODECK)
+	if eb and tg and tg:IsContains(e:GetHandler()) then return true end
+	local eb,tg,tc=Duel.GetOperationInfo(ev,CATEGORY_TOGRAVE)
+	if eb and tg and tg:IsContains(e:GetHandler()) then return true end
+	local eb,tg,tc=Duel.GetOperationInfo(ev,CATEGORY_TOHAND)
+	if eb and tg and tg:IsContains(e:GetHandler()) then return true end
+	return eb and tg and tg:IsContains(e:GetHandler())
+end
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return true end
+	local sg=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_MZONE,LOCATION_MZONE,e:GetHandler())
+	Duel.SetOperationInfo(0,CATEGORY_DISABLE,eg,1,0,0)
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,sg,#sg,0,0)
+	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,1-tp,0)
+end
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+	Duel.NegateEffect(ev)
+	local sg=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_MZONE,LOCATION_MZONE,e:GetHandler())
+	if Duel.Destroy(sg,REASON_EFFECT)>0 then
+		local dg=Duel.GetOperatedGroup()
+		local sum=dg:GetSum(Card.GetAttack)
+		Duel.Damage(1-tp,sum,REASON_EFFECT)
+	end
 end

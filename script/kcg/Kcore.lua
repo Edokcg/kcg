@@ -1509,9 +1509,9 @@ end
 
 function aux.otkcost2(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk==0 then
-		return Duel.CheckReleaseGroup(tp, nil, 1, e:GetHandler())
+		return Duel.CheckReleaseGroupCost(tp, nil, 1,false,nil,e:GetHandler())
 	end
-	local g = Duel.SelectReleaseGroup(tp, nil, 1, 99, e:GetHandler())
+	local g = Duel.SelectReleaseGroupCost(tp, nil, 1, 99,false,nil,e:GetHandler())
 	local tc = g:GetFirst()
 	local tatk = 0
 	local tdef = 0
@@ -1885,9 +1885,9 @@ end
 -----------------------------------------------------------------------------------------------------------------
 function aux.odescost(e, tp, eg, ep, ev, re, r, rp, chk)
     if chk == 0 then
-        return Duel.CheckReleaseGroup(tp, nil, 2, e:GetHandler())
+        return Duel.CheckReleaseGroupCost(tp, nil, 2,false,nil,e:GetHandler())
     end
-    local g = Duel.SelectReleaseGroup(tp, nil, 2, 2, e:GetHandler())
+    local g = Duel.SelectReleaseGroupCost(tp, nil, 2, 2,false,nil,e:GetHandler())
     Duel.Release(g, REASON_COST)
 end
 
@@ -1925,9 +1925,9 @@ function aux.oatkcon(e, tp, eg, ep, ev, re, r, rp)
 end
 function aux.oatkcost(e, tp, eg, ep, ev, re, r, rp, chk)
     if chk == 0 then
-        return Duel.CheckReleaseGroup(tp, Card.IsAttribute, 2, e:GetHandler(), ATTRIBUTE_DIVINE)
+        return Duel.CheckReleaseGroupCost(tp, Card.IsAttribute,2,false,nil,e:GetHandler(),ATTRIBUTE_DIVINE)
     end
-    local g = Duel.SelectReleaseGroup(tp, Card.IsAttribute, 2, 2, e:GetHandler(), ATTRIBUTE_DIVINE)
+    local g = Duel.SelectReleaseGroupCost(tp, Card.IsAttribute,2,2,false,nil,e:GetHandler(),ATTRIBUTE_DIVINE)
     Duel.Release(g, REASON_COST)
     local e1 = Effect.CreateEffect(e:GetHandler())
     e1:SetType(EFFECT_TYPE_FIELD)
