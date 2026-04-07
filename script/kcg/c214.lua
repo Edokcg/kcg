@@ -60,7 +60,6 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local rg=e:GetLabelObject()
 	if not rg then return end
 	local ocode=rg:GetOriginalCode()
-	local acode=rg:GetOriginalAlias()
 	if tc:IsOriginalCode(213) and not aux.burstlist[code] then
 		local level=math.min(12,rg:GetOriginalLevel()+2)
 		local ss={rg:GetOriginalSetCard()}
@@ -73,8 +72,8 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		local effcode=ocode
 		local rrealcode,orcode,rrealalias=rg:GetRealCode()
 		if rrealcode>0 then 
+			code=rrealalias
 			ocode=orcode
-			acode=orcode
 			effcode=0
 		elseif rg:IsOriginalType(TYPE_NORMAL) then
 			effcode=0
@@ -157,20 +156,16 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
             e1:SetValue(0x104f)
             tc:RegisterEffect(e1)
         end
-		aux.CopyCardTable(tc,"listed_names",CARD_ASSAULT_MODE,acode)
-		tc.__index.assault_mode=acode
+		aux.CopyCardTable(tc,"listed_names",CARD_ASSAULT_MODE,code)
+		tc.__index.assault_mode=code
 		--Special summon
 		local e4=Effect.CreateEffect(tc)
-		e4:SetDescription(aux.Stringid(213,0),true,0,0,0,0,rg:GetOriginalAlias())
+		e4:SetDescription(aux.Stringid(213,0),true,0,0,0,0,code)
 		e4:SetType(EFFECT_TYPE_TRIGGER_O+EFFECT_TYPE_SINGLE)
 		e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
 		e4:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_CLIENT_HINT)
 		e4:SetCode(EVENT_DESTROYED)
-		if rrealcode>0 then 
-            e4:SetLabel(rrealalias)
-        else
-            e4:SetLabel(acode)
-        end
+		e4:SetLabel(code)
 		e4:SetCondition(s.spcon2)
 		e4:SetTarget(s.sptg2)
 		e4:SetOperation(s.spop2)

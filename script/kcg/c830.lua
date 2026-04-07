@@ -12,6 +12,7 @@ function s.initial_effect(c)
 	e1:SetTarget(s.sptg)
 	e1:SetOperation(s.spop)
 	c:RegisterEffect(e1)
+
 	--cannot be destroyed by battle
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE)
@@ -20,6 +21,7 @@ function s.initial_effect(c)
 	e2:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
 	e2:SetValue(1)
 	c:RegisterEffect(e2)
+
 	--avoid battle damage
 	local e3=Effect.CreateEffect(c)
 	e3:SetType(EFFECT_TYPE_FIELD)
@@ -28,6 +30,7 @@ function s.initial_effect(c)
 	e3:SetValue(1)
 	e3:SetCondition(s.con2)
 	c:RegisterEffect(e3)
+
 	--to deck
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id,1))
@@ -40,19 +43,34 @@ function s.initial_effect(c)
 	e4:SetTarget(s.tdtg)
 	e4:SetOperation(s.tdop)
 	c:RegisterEffect(e4)
+
 	--Return itself to the hand
 	local e5=Effect.CreateEffect(c)
-	e5:SetDescription(aux.Stringid(id,1))
+	e5:SetDescription(aux.Stringid(id,2))
 	e5:SetCategory(CATEGORY_TOHAND)
 	e5:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e5:SetCode(EVENT_PHASE+PHASE_STANDBY)
-	e5:SetRange(LOCATION_HAND)
+	e5:SetRange(LOCATION_MZONE)
 	e5:SetCountLimit(1)
 	e5:SetCondition(s.thcon3)
 	e5:SetCost(s.cost)
 	e5:SetOperation(s.thop3)
 	c:RegisterEffect(e5)
+
+	local e6=Effect.CreateEffect(c)
+	e6:SetDescription(aux.Stringid(id,3))
+	e6:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e6:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e6:SetCode(EVENT_SUMMON_SUCCESS)
+	e6:SetProperty(EFFECT_FLAG_DELAY)
+	e6:SetTarget(s.sptg2)
+	e6:SetOperation(s.spop2)
+	c:RegisterEffect(e6)
+	local e7=e6:Clone()
+	e7:SetCode(EVENT_SPSUMMON_SUCCESS)
+	c:RegisterEffect(e7)
 end
+
 function s.con(e,tp,eg,ep,ev,re,r,rp)
 	return ep==1-tp
 end
@@ -124,4 +142,21 @@ function s.checkop(e,tp,eg,ep,ev,re,r,rp)
 	local fid=eg:GetFirst():GetFieldID()
 	e:GetHandler():RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1)
 	e:GetLabelObject():SetLabel(fid)
+end
+
+function s.lspfilter(c)
+	return c:IsSetCard(0x577) and c:IsType(TYPE_LINK) and c:IsLinkSummonable()
+end
+function s.sptg2(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.lspfilter,tp,LOCATION_EXTRA,0,1,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
+end
+function s.spop2(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local g=Duel.GetMatchingGroup(s.lspfilter,tp,LOCATION_EXTRA,0,nil)
+	if #g>0 then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+		local sg=g:Select(tp,1,1,nil)
+		Duel.LinkSummon(tp,sg:GetFirst())
+	end
 end

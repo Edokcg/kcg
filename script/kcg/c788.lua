@@ -1,196 +1,149 @@
---觉醒驱动大蛇帝 (KCG)
+--アローザル・ハイドライブ・モナーク
 local s,id=GetID()
 function s.initial_effect(c)
-    c:EnableCounterPermit(0x577)
-    --Link summon
-	Link.AddProcedure(c,s.mfilter,4)
+	c:EnableCounterPermit(0x577)
+	--Link Summon
 	c:EnableReviveLimit()
+	Link.AddProcedure(c,s.matfilter,4,4)
 
-    --Attribute
+	--Place Hydradrive Counters when Special Summoned from the Extra Deck
 	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetCode(EFFECT_ADD_ATTRIBUTE)
-	e1:SetRange(LOCATION_MZONE)
-	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-	e1:SetValue(0xe)
+	e1:SetCategory(CATEGORY_COUNTER)
+	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e1:SetProperty(EFFECT_FLAG_DELAY)
+	e1:SetCondition(s.ctcon)
+	e1:SetTarget(s.cttg)
+	e1:SetOperation(s.ctop)
 	c:RegisterEffect(e1)
 
-    --Disable
-	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_FIELD)
-	e2:SetCode(EFFECT_DISABLE)
-	e2:SetRange(LOCATION_MZONE)
-	e2:SetTargetRange(LOCATION_ONFIELD,LOCATION_ONFIELD)
-	e2:SetTarget(s.distarget)
-	c:RegisterEffect(e2)
+	--Players can only Normal/Special Summon in Attack Position
+	local e2a=Effect.CreateEffect(c)
+	e2a:SetType(EFFECT_TYPE_FIELD)
+	e2a:SetCode(EFFECT_FORCE_SPSUMMON_POSITION)
+	e2a:SetRange(LOCATION_MZONE)
+	e2a:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e2a:SetTarget(s.sumlimit)
+	e2a:SetTargetRange(1,1)
+	e2a:SetValue(POS_FACEUP_ATTACK)
+	c:RegisterEffect(e2a)
+	local e2b=e2a:Clone()
+	e2b:SetCode(EFFECT_FORCE_NORMAL_SUMMON_POSITION)
+	c:RegisterEffect(e2b)
 
-    --Prevent summon
+	--Send to GY/Damage effect for each monster of rolled Attribute
 	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_FIELD)
+	e3:SetCategory(CATEGORY_DICE+CATEGORY_TOGRAVE+CATEGORY_DAMAGE)
+	e3:SetType(EFFECT_TYPE_QUICK_O)
+	e3:SetCode(EVENT_FREE_CHAIN)
 	e3:SetRange(LOCATION_MZONE)
-	e3:SetCode(EFFECT_CANNOT_MSET)
-	e3:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CANNOT_DISABLE)
-	e3:SetTargetRange(1,1)
-	e3:SetTarget(s.tglimit1)
-	e3:SetValue(POS_FACEUP_ATTACK)
+	e3:SetCost(s.dicecost)
+	e3:SetCondition(s.dicecon)
+	e3:SetTarget(s.dicetg)
+	e3:SetOperation(s.diceop)
 	c:RegisterEffect(e3)
-	local e4=e3:Clone()
-	e4:SetCode(EFFECT_FORCE_SPSUMMON_POSITION)
-	c:RegisterEffect(e4)
 
-    --Attack
-	local e5=Effect.CreateEffect(c)
-	e5:SetType(EFFECT_TYPE_FIELD)
-	e5:SetCode(EFFECT_SET_ATTACK_FINAL)
-	e5:SetRange(LOCATION_MZONE)
-    e5:SetValue(0)
-	e5:SetTargetRange(LOCATION_ONFIELD,LOCATION_ONFIELD)
-	e5:SetTarget(s.distarget)
-	c:RegisterEffect(e5)
-
-    --Place hydradrive counters when summoned
-	local e6=Effect.CreateEffect(c)
-	e6:SetCategory(CATEGORY_COUNTER)
-	e6:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
-	e6:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e6:SetProperty(EFFECT_FLAG_DELAY)
-	e6:SetCondition(s.ctcon)
-	e6:SetTarget(s.cttg)
-	e6:SetOperation(s.ctop)
-	c:RegisterEffect(e6)
-
-    --SendtoGrave
-    local e7=Effect.CreateEffect(c)
-	e7:SetCategory(CATEGORY_TOGRAVE)
-	e7:SetType(EFFECT_TYPE_QUICK_O)
-	e7:SetCode(EVENT_FREE_CHAIN)
-	e7:SetRange(LOCATION_MZONE)
-	e7:SetCost(s.cost)
-	e7:SetTarget(s.tg)
-	e7:SetOperation(s.op)
-	c:RegisterEffect(e7)
+	--Negate effects/0 ATK of all other monsters with same Attribute
+	local e4a=Effect.CreateEffect(c)
+	e4a:SetType(EFFECT_TYPE_FIELD)
+	e4a:SetCode(EFFECT_DISABLE)
+	e4a:SetRange(LOCATION_MZONE)
+	e4a:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
+	e4a:SetTarget(s.distg)
+	c:RegisterEffect(e4a)
+	local e4b=e4a:Clone()
+	e4b:SetCode(EFFECT_SET_ATTACK_FINAL)
+	e4b:SetValue(0)
+	c:RegisterEffect(e4b)
 end
 s.listed_series={0x577}
 
-function s.mfilter(c,lc,sumtype,tp)
-	return c:IsSetCard(0x577) and c:IsType(TYPE_LINK,lc,sumtype,tp)
+function s.matfilter(c,lc,sumtype,tp)
+	return c:IsSetCard(0x577) and c:IsType(TYPE_LINK)
 end
 
-function s.attop(e,tp,eg,ep,ev,re,r,rp)
+function s.attcon(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():IsPosition(POS_FACEUP) and e:GetHandler():IsLocation(LOCATION_MZONE)
+end
+
+function s.ctcon(e)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) and c:IsFaceup() then
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_ADD_ATTRIBUTE)
-		e1:SetRange(LOCATION_MZONE)
-		e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-		e1:SetValue(0xe)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_DISABLE)
-		c:RegisterEffect(e1)
-	end
+	return c:IsSummonLocation(LOCATION_EXTRA) and c:GetControler()==e:GetHandlerPlayer()
 end
-
-function s.distarget(e,c)
-	return c:IsAttribute(e:GetHandler():GetAttribute()) and c:IsType(TYPE_EFFECT) and not c:IsCode(788)
-end
-
-function s.tglimit1(e,c)
-	return c:IsAttribute(e:GetHandler():GetAttribute()) and c:IsType(TYPE_MONSTER)
-end
-
-function s.ctcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsPreviousLocation(LOCATION_EXTRA)
-end
-
 function s.cttg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
 	Duel.SetOperationInfo(0,CATEGORY_COUNTER,nil,4,0,0x577)
+	local g=Duel.GetFieldGroup(tp,LOCATION_EXTRA,0)
+	local att=0
+	local aat=0
+	if #g>0 then
+		Duel.ConfirmCards(1-tp,g)
+		for tc in aux.Next(g) do
+			att=att|tc:GetAttribute()
+		end
+		if att>0 then
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATTRIBUTE)
+			aat=Duel.AnnounceAttribute(tp,3,att)
+		end
+		Duel.ShuffleExtra(tp)
+	end
+	e:SetLabel(aat)
 end
-
 function s.ctop(e,tp,eg,ep,ev,re,r,rp)
-	if e:GetHandler():IsRelateToEffect(e) then
-		e:GetHandler():AddCounter(0x577,4)
+	local c=e:GetHandler()
+	if c:IsRelateToEffect(e) and c:IsFaceup() then
+		c:AddCounter(0x577,4)
+		local att=e:GetLabel()
+		if att>0 then
+			local e1=Effect.CreateEffect(c)
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetCode(EFFECT_ADD_ATTRIBUTE)
+			e1:SetRange(LOCATION_MZONE)
+			e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+			e1:SetValue(att)
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_DISABLE)
+			c:RegisterEffect(e1)
+		end
 	end
 end
 
-function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.sumlimit(e,c,sump,sumtype,sumpos,targetp)
+   return (c:GetAttribute()&e:GetHandler():GetAttribute())~=0
+end
+
+function s.dicecon(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():GetCounter(0x577)>0 and Duel.IsMainPhase() and Duel.GetFieldGroupCount(tp,0,LOCATION_MZONE)>0
+end
+function s.sgfilter(c,att)
+	return c:IsAbleToGrave() and c:IsAttribute(att)
+end
+function s.dicecost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsCanRemoveCounter(tp,0x577,1,REASON_COST) end
 	e:GetHandler():RemoveCounter(tp,0x577,1,REASON_COST)
 end
-
-function s.filter1(c,e,tp)
-	return c:IsType(TYPE_MONSTER) and c:IsAttribute(ATTRIBUTE_EARTH)
-end
-
-function s.filter2(c,e,tp)
-	return c:IsType(TYPE_MONSTER) and c:IsAttribute(ATTRIBUTE_WATER)
-end
-
-function s.filter3(c,e,tp)
-	return c:IsType(TYPE_MONSTER) and c:IsAttribute(ATTRIBUTE_FIRE)
-end
-
-function s.filter4(c,e,tp)
-	return c:IsType(TYPE_MONSTER) and c:IsAttribute(ATTRIBUTE_WIND)
-end
-
-function s.filter5(c,e,tp)
-	return c:IsType(TYPE_MONSTER) and c:IsAttribute(ATTRIBUTE_LIGHT)
-end
-
-function s.filter6(c,e,tp)
-	return c:IsType(TYPE_MONSTER) and c:IsAttribute(ATTRIBUTE_DARK)
-end
-
-function s.tg(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.dicetg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
-	Duel.SetOperationInfo(0,CATEGORY_DICE,nil,0,tp,1)
-	local g1=Duel.GetMatchingGroup(s.filter1,tp,0,LOCATION_ONFIELD,nil)
-	local g2=Duel.GetMatchingGroup(s.filter2,tp,0,LOCATION_ONFIELD,nil)
-    local g3=Duel.GetMatchingGroup(s.filter3,tp,0,LOCATION_ONFIELD,nil)
-    local g4=Duel.GetMatchingGroup(s.filter4,tp,0,LOCATION_ONFIELD,nil)
-    local g5=Duel.GetMatchingGroup(s.filter5,tp,0,LOCATION_ONFIELD,nil)
-    local g6=Duel.GetMatchingGroup(s.filter6,tp,0,LOCATION_ONFIELD,nil)
-	if g1:GetCount()~=0
-    and g2:GetCount()~=0
-    and g3:GetCount()~=0
-    and g4:GetCount()~=0
-    and g5:GetCount()~=0
-    and g6:GetCount()~=0 then
-		g1:Merge(g2)
-        g1:Merge(g3)
-        g1:Merge(g4)
-        g1:Merge(g5)
-        g1:Merge(g6)
-		Duel.SetOperationInfo(0,CATEGORY_DESTROY,g1,1,0,0)
+	local sg=Duel.GetMatchingGroup(Card.IsAbleToGrave,tp,0,LOCATION_MZONE,nil)
+	Duel.SetPossibleOperationInfo(0,CATEGORY_TOGRAVE,sg,#sg,tp,0)
+	Duel.SetPossibleOperationInfo(0,CATEGORY_DAMAGE,0,0,1-tp,#sg*500)
+end
+function s.diceop(e,tp,eg,ep,ev,re,r,rp)
+	local dice=Duel.TossDice(tp,1)
+	local att
+	if dice==1 then att=ATTRIBUTE_EARTH end
+	if dice==2 then att=ATTRIBUTE_WATER end
+	if dice==3 then att=ATTRIBUTE_FIRE end
+	if dice==4 then att=ATTRIBUTE_WIND end
+	if dice==5 then att=ATTRIBUTE_LIGHT end
+	if dice==6 then att=ATTRIBUTE_DARK end
+	local g=Duel.GetMatchingGroup(s.sgfilter,tp,0,LOCATION_ONFIELD,nil,att)
+	if Duel.SendtoGrave(g,REASON_EFFECT)>0 then
+		Duel.BreakEffect()
+		local dc=Duel.GetOperatedGroup()
+		Duel.Damage(1-tp,#dc*500,REASON_EFFECT)
 	end
 end
 
-function s.op(e,tp,eg,ep,ev,re,r,rp)
-	local d=Duel.TossDice(tp,1)
-	if d==1 then
-		local g=Duel.GetMatchingGroup(s.filter1,tp,0,LOCATION_ONFIELD,e:GetHandler())
-		Duel.SendtoGrave(g,REASON_EFFECT)
-        Duel.Damage(1-tp,g:GetCount()*500,REASON_EFFECT)
-	elseif d==2 then
-		local g=Duel.GetMatchingGroup(s.filter2,tp,0,LOCATION_ONFIELD,e:GetHandler())
-		Duel.SendtoGrave(g,REASON_EFFECT)
-        Duel.Damage(1-tp,g:GetCount()*500,REASON_EFFECT)
-    elseif d==3 then
-		local g=Duel.GetMatchingGroup(s.filter3,tp,0,LOCATION_ONFIELD,e:GetHandler())
-		Duel.SendtoGrave(g,REASON_EFFECT)
-        Duel.Damage(1-tp,g:GetCount()*500,REASON_EFFECT)
-    elseif d==4 then
-		local g=Duel.GetMatchingGroup(s.filter4,tp,0,LOCATION_ONFIELD,e:GetHandler())
-		Duel.SendtoGrave(g,REASON_EFFECT)
-        Duel.Damage(1-tp,g:GetCount()*500,REASON_EFFECT)
-    elseif d==5 then
-		local g=Duel.GetMatchingGroup(s.filter5,tp,0,LOCATION_ONFIELD,e:GetHandler())
-		Duel.SendtoGrave(g,REASON_EFFECT)
-        Duel.Damage(1-tp,g:GetCount()*500,REASON_EFFECT)
-	else
-		local g=Duel.GetMatchingGroup(s.filter6,tp,0,LOCATION_ONFIELD,e:GetHandler())
-		Duel.SendtoGrave(g,REASON_EFFECT)
-        Duel.Damage(1-tp,g:GetCount()*500,REASON_EFFECT)
-	end
+function s.distg(e,c)
+	return c:IsAttribute(e:GetHandler():GetAttribute()) and c~=e:GetHandler()
 end

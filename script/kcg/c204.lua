@@ -48,8 +48,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
             c:SetEntityCode(code,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
         else
             local code=tc:GetCode()
-            local ocode=tc:GetOriginalCode()
-            local acode=tc:GetOriginalAlias()
+            local ocode=tc:GetOriginalCode()=
             local ss={tc:GetOriginalSetCard()}
             local addset=false
             if #ss>3 then
@@ -62,8 +61,8 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
             local effcode=ocode
             local rrealcode,orcode,rrealalias=tc:GetRealCode()
             if rrealcode>0 then 
-                ocode=orcode
-                acode=orcode
+				code=rrealalias
+                ocode=orcode=
                 effcode=0
             end
             if rrealcode>0 then
@@ -107,7 +106,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
                 e1:SetValue(0x23)
                 c:RegisterEffect(e1,true)
             end
-            aux.CopyCardTable(c,"listed_names",27564031,acode)
+            aux.CopyCardTable(c,"listed_names",27564031,code)
             local e1=Effect.CreateEffect(c)
             e1:SetDescription(aux.Stringid(102,gtype+1),true,0,0,0,0,code,true)
             e1:SetType(EFFECT_TYPE_FIELD)

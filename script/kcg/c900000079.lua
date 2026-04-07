@@ -164,15 +164,13 @@ function s.cartoonize(e,tp,g)
             local type=tc:GetOriginalType()
             local lv=tc:GetOriginalLevel()
             local code=tc:GetOriginalCode()
-            local acode=tc:GetOriginalAlias()
             local ttcode=0
             local piccode=0
 			local tcode=tc:GetCode()
             local effcode=code
             local rrealcode,orcode,rrealalias=tc:GetRealCode()
 			if rrealcode>0 then 
-				code=orcode
-				acode=orcode
+				code=rrealalias
 				tcode=rrealalias
                 effcode=0
 			elseif tc:IsOriginalType(TYPE_NORMAL) then

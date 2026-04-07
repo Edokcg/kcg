@@ -75,7 +75,6 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
     local ttcode=0
 	local code=gc:GetCode()
     local ocode=gc:GetOriginalCode()
-    local acode=gc:GetOriginalAlias()
     local tcode=s.list[code]
     if tcode then 
 		ttcode=tcode
@@ -100,8 +99,8 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
             local effcode=ocode
             local rrealcode,orcode,rrealalias=gc:GetRealCode()
             if rrealcode>0 then 
+				code=rrealalias
                 ocode=orcode
-                acode=orcode
                 effcode=0
 			elseif gc:IsOriginalType(TYPE_NORMAL) then
                 effcode=0
@@ -188,12 +187,6 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
                                 tc:RegisterEffect(te2, true)
                             end
                         end
-                        -- local e1=Effect.CreateEffect(tc)
-                        -- e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
-                        -- e1:SetDescription(aux.Stringid(id,8),true,0,0,0,0,code)
-                        -- e1:SetType(EFFECT_TYPE_SINGLE)
-                        -- e1:SetCode(id)
-                        -- tc:RegisterEffect(e1)
                     end
                 -- end
             end

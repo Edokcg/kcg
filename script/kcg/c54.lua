@@ -82,7 +82,7 @@ function s.initial_effect(c)
 	e16:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
 	e16:SetCode(EFFECT_IMMUNE_EFFECT)
 	e16:SetRange(LOCATION_MZONE)
-	e16:SetTargetRange(LOCATION_MZONE+LOCATION_GRAVE,0)
+	e16:SetTargetRange(LOCATION_MZONE,0)
 	e16:SetValue(s.efilter)
 	c:RegisterEffect(e16)		
 	
@@ -144,16 +144,6 @@ function s.initial_effect(c)
 	--e12:SetTarget(s.pentg)
 	e12:SetOperation(s.penop)
 	c:RegisterEffect(e12)
-
-	--special summon
-	-- local e13=Effect.CreateEffect(c)
-	-- e13:SetType(EFFECT_TYPE_FIELD)
-	-- e13:SetCode(EFFECT_SPSUMMON_PROC)
-	-- e13:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-	-- e13:SetRange(LOCATION_EXTRA)
-	-- e13:SetCondition(s.spcon)
-	-- e13:SetOperation(s.spop2)
-	-- c:RegisterEffect(e13)
 
 	--SpecialSummon
 	local e14=Effect.CreateEffect(c)
@@ -415,7 +405,7 @@ end
 function s.efilter(e,te)
 	--local tc=te:GetHandler()
 	return te:GetOwnerPlayer()~=e:GetHandlerPlayer() 
-	--and (te:IsActiveType(TYPE_XYZ+TYPE_FUSION+TYPE_SYNCHRO+TYPE_PENDULUM+TYPE_RITUAL+TYPE_LINK))
+	and (te:IsActiveType(TYPE_XYZ+TYPE_FUSION+TYPE_SYNCHRO+TYPE_PENDULUM+TYPE_RITUAL+TYPE_LINK))
 end
 
 function s.ndcfilter(c)
@@ -533,33 +523,6 @@ function s.penop(e,tp,eg,ep,ev,re,r,rp)
 		if not Duel.CheckLocation(tp,LOCATION_PZONE,0) and not Duel.CheckLocation(tp,LOCATION_PZONE,1) then return end
 		Duel.MoveToField(c,tp,tp,LOCATION_PZONE,POS_FACEUP,true)
 	end
-end
-
-function s.zackfilter(c)
-	return c:IsRace(RACE_DRAGON) and (c:IsType(TYPE_FUSION) or c:IsType(TYPE_SYNCHRO) or c:IsType(TYPE_XYZ) or c:IsType(TYPE_PENDULUM)) and c:IsAbleToRemoveAsCost()
-end
-function s.hofilter(c,tp,xyzc)
-    return c:IsCanBeXyzMaterial(xyzc) and (c:IsCode(703) or c:IsCode(511009441) and not c:IsCode(54))
-end
-function s.spcheck(sg,e,tp)
-	return aux.ChkfMMZ(1)(sg,e,tp,nil) and sg:GetClassCount(Card.GetType)==#sg
-end
-function s.spcon(e,c)
-	if c==nil then return true end
-	local tp=c:GetControler()
-	local g=Duel.GetMatchingGroup(s.zackfilter,tp,LOCATION_HAND+LOCATION_DECK+LOCATION_ONFIELD+LOCATION_GRAVE+LOCATION_EXTRA,0,e:GetHandler())
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<0 then return false end
-	return aux.SelectUnselectGroup(g,e,tp,4,4,s.spcheck,0) and Duel.IsExistingMatchingCard(s.hofilter,tp,LOCATION_ONFIELD,0,1,nil,tp,c)
-end
-function s.spop2(e,tp,eg,ep,ev,re,r,rp,c)
-	local tp=c:GetControler()
-	local mg=Duel.GetMatchingGroup(s.hofilter,tp,LOCATION_ONFIELD,0,nil,tp,c)
-    if mg:GetCount()<0 then return end
-    c:SetMaterial(mg)
-    Duel.Overlay(c, mg)
-	local g=Duel.GetMatchingGroup(s.zackfilter,tp,LOCATION_HAND+LOCATION_DECK+LOCATION_ONFIELD+LOCATION_GRAVE+LOCATION_EXTRA,0,e:GetHandler())
-	local sg=aux.SelectUnselectGroup(g,e,tp,4,4,s.spcheck,1,tp,HINTMSG_REMOVE)
-	Duel.Remove(sg,POS_FACEUP,REASON_COST)
 end
 
 function s.spfilter2(c,e,tp)

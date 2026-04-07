@@ -57,8 +57,8 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
 	if #tg<1 then return end
 	if Duel.SendtoGrave(tg,REASON_COST)>0 then
 		local g=tg:GetFirst()
+        local code=g:GetCode()
         local ocode=g:GetOriginalCode()
-        local acode=g:GetOriginalAlias()
 		local ss={g:GetOriginalSetCard()}
         local addset=false
         if #ss>3 then
@@ -71,8 +71,8 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
         local effcode=ocode
         local rrealcode,orcode,rrealalias=g:GetRealCode()
         if rrealcode>0 then 
+            code=rrealalias
             ocode=orcode
-            acode=orcode
             effcode=0
         elseif g:IsOriginalType(TYPE_NORMAL) then
             effcode=0
@@ -107,10 +107,10 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
                     c:RegisterEffect(te2,true)
                 end
             end
-        elseif not aux.sinlist[acode] then
+        elseif not aux.sinlist[code] then
             c:SetEntityCode(ocode,nil,ss,TYPE_MONSTER+TYPE_EFFECT+TYPE_SPSUMMON,nil,nil,nil,nil,nil,nil,nil,nil,true,id,effcode,102)
         else
-            c:SetEntityCode(aux.sinlist[acode],nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
+            c:SetEntityCode(aux.sinlist[code],nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
             if c:IsCode(9433350) then Duel.SetLP(0,1) end
             return
         end
@@ -122,14 +122,14 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
             e1:SetValue(0x23)
             c:RegisterEffect(e1,true)
         end
-        aux.CopyCardTable(c,"listed_names",27564031,acode)
+        aux.CopyCardTable(c,"listed_names",27564031,code)
 		local e1=Effect.CreateEffect(c)
-		e1:SetDescription(aux.Stringid(id,gtype+1),true,0,0,0,0,acode,true)
+		e1:SetDescription(aux.Stringid(id,gtype+1),true,0,0,0,0,code,true)
 		e1:SetType(EFFECT_TYPE_FIELD)
 		e1:SetCode(EFFECT_SPSUMMON_PROC)
 		e1:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT)
 		e1:SetRange(LOCATION_HAND)
-		e1:SetLabel(acode)
+		e1:SetLabel(code)
 		e1:SetCondition(s.spcon2)
 		e1:SetOperation(s.spop2)
 		c:RegisterEffect(e1,true)
@@ -211,10 +211,8 @@ function s.thop2(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if re and re:GetHandler()==e:GetOwner() then return end
 	local announce_filter={RACE_DRAGON, OPCODE_ISRACE, 6, OPCODE_ISLEVELLARGER, OPCODE_AND, 11, OPCODE_ISLEVELSMALLER, OPCODE_AND, OPCODE_ALLOW_ALIASES}
-	local code=Duel.AnnounceCard(tp, table.unpack(announce_filter))
-	local g=Duel.CreateToken(tp,code)
-    local ocode=g:GetOriginalCode()
-    local acode=g:GetOriginalAlias()
+	local ocode=Duel.AnnounceCard(tp, table.unpack(announce_filter))
+	local g=Duel.CreateToken(tp,ocode)
     local ss={g:GetOriginalSetCard()}
     local addset=false
     if #ss>3 then
@@ -224,11 +222,12 @@ function s.thop2(e,tp,eg,ep,ev,re,r,rp)
     end
     local gtype=0
     if (g:GetOriginalType() & TYPE_EXTRA) then gtype=1 end
+	local code=g:GetCode()
     local effcode=ocode
     local rrealcode,orcode,rrealalias=g:GetRealCode()
     if rrealcode>0 then 
+        code=rrealalias
         ocode=orcode
-        acode=orcode
         effcode=0
     end
     if rrealcode>0 then
@@ -261,10 +260,10 @@ function s.thop2(e,tp,eg,ep,ev,re,r,rp)
                 c:RegisterEffect(te2,true)
             end
         end
-    elseif not aux.sinlist[acode] then
+    elseif not aux.sinlist[code] then
         c:SetEntityCode(ocode,nil,ss,TYPE_MONSTER+TYPE_EFFECT+TYPE_SPSUMMON,nil,nil,nil,nil,nil,nil,nil,nil,true,id,effcode,102)
     else
-        c:SetEntityCode(aux.sinlist[acode],nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
+        c:SetEntityCode(aux.sinlist[code],nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
         return
     end
     if addset then
@@ -275,14 +274,14 @@ function s.thop2(e,tp,eg,ep,ev,re,r,rp)
         e1:SetValue(0x23)
         c:RegisterEffect(e1,true)
     end
-    aux.CopyCardTable(c,"listed_names",27564031,acode)
+    aux.CopyCardTable(c,"listed_names",27564031,code)
     local e1=Effect.CreateEffect(c)
-    e1:SetDescription(aux.Stringid(id,gtype+1),true,0,0,0,0,acode,true)
+    e1:SetDescription(aux.Stringid(id,gtype+1),true,0,0,0,0,code,true)
     e1:SetType(EFFECT_TYPE_FIELD)
     e1:SetCode(EFFECT_SPSUMMON_PROC)
     e1:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT)
     e1:SetRange(LOCATION_HAND)
-    e1:SetLabel(acode)
+    e1:SetLabel(code)
     e1:SetCondition(s.spcon2)
     e1:SetOperation(s.spop2)
     c:RegisterEffect(e1,true)

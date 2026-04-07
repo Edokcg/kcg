@@ -70,7 +70,6 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 	local ttcode=0
 	local code=gc:GetCode()
 	local ocode=gc:GetOriginalCode()
-    local acode=gc:GetOriginalAlias()
 	local tcode=s.list[code]
 	if tcode then 
 		if type(tcode)=="table" and #tcode>1 then
@@ -118,8 +117,8 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
             local effcode=ocode
             local rrealcode,orcode,rrealalias=gc:GetRealCode()
             if rrealcode>0 then 
+				code=rrealalias
                 ocode=orcode
-                acode=orcode
                 effcode=0
 			elseif gc:IsOriginalType(TYPE_NORMAL) then
                 effcode=0

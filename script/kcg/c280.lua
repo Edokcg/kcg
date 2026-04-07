@@ -62,7 +62,6 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
     if rg:GetFirst():IsFacedown() then Duel.ConfirmCards(tp,rg:GetFirst()) end
     local ttcode=0
 	local code=rg:GetFirst():GetCode()
-    local acode=rg:GetFirst():GetOriginalAlias()
     local ocode=rg:GetFirst():GetOriginalCode()
     local tcode=s.list[code]
     if tcode then
@@ -87,8 +86,8 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
             end
             local rrealcode,orcode,rrealalias=rg:GetFirst():GetRealCode()
             if rrealcode>0 then 
+				code=rrealalias
                 ocode=orcode
-                acode=orcode
             end
             if rrealcode>0 then
                 tc:SetEntityCode(ocode,nil,ss,TYPE_MONSTER+TYPE_FUSION+TYPE_EFFECT,8,ATTRIBUTE_LIGHT,RACE_DRAGON,2800,2500,nil,nil,nil,false,43,43,43,rg:GetFirst())

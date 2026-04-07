@@ -14,6 +14,7 @@ function s.initial_effect(c)
 	e1:SetTarget(s.distg)
 	e1:SetOperation(s.disop)
 	c:RegisterEffect(e1)
+
 	--Special summon itself from GY
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
@@ -26,9 +27,23 @@ function s.initial_effect(c)
 	e2:SetTarget(s.sptg)
 	e2:SetOperation(s.spop)
 	c:RegisterEffect(e2)
+	
+	local e6=Effect.CreateEffect(c)
+	e6:SetDescription(aux.Stringid(id,2))
+	e6:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e6:SetProperty(EFFECT_FLAG_DELAY)
+	e6:SetCode(EVENT_BE_MATERIAL)
+	e6:SetCondition(s.condition2)
+	e6:SetTarget(s.target2)
+	e6:SetOperation(s.operation2)
+	c:RegisterEffect(e6)
 end
+s.listed_series={0x577}
+
 function s.discon(e,tp,eg,ep,ev,re,r,rp)
-	return rp==1-tp and Duel.IsExistingMatchingCard(Card.IsSetCard,tp,LOCATION_MZONE,0,1,nil,0x577) and re:IsHasCategory(CATEGORY_RELEASE) and Duel.IsChainNegatable(ev)
+	return rp==1-tp and Duel.IsExistingMatchingCard(Card.IsSetCard,tp,LOCATION_MZONE,0,1,nil,0x577) 
+	-- and re:IsHasCategory(CATEGORY_RELEASE) 
+	and Duel.IsChainNegatable(ev)
 end
 function s.discost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsAbleToGraveAsCost() end
@@ -46,6 +61,7 @@ function s.disop(e,tp,eg,ep,ev,re,r,rp)
 	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
 	Duel.Damage(p,d,REASON_EFFECT) end
 end
+
 function s.cfilter(c,tp)
 	return c:IsSetCard(0x577) and c:IsControler(tp)
 end
@@ -69,5 +85,35 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetReset(RESET_EVENT+RESETS_REDIRECT)
 		e1:SetValue(LOCATION_REMOVED)
 		c:RegisterEffect(e1,true)
+	end
+end
+
+function s.condition2(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():IsLocation(LOCATION_GRAVE) and r & REASON_LINK == REASON_LINK
+end
+function s.sfilter(c,e,tp)
+	return c:IsSetCard(0x577) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsCode(id)
+end
+function s.target2(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>0 end
+	Duel.SetOperationInfo(0,CATEGORY_LEAVE_GRAVE,e:GetHandler(),1,tp,0)
+end
+function s.operation2(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:IsRelateToEffect(e) and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 then
+		Duel.MoveToField(c,tp,tp,LOCATION_SZONE,POS_FACEUP,true)
+		--treated as Link Spell
+		local e1=Effect.CreateEffect(c)
+		e1:SetCode(EFFECT_CHANGE_TYPE)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+		e1:SetValue(TYPE_SPELL+TYPE_LINK)
+		c:RegisterEffect(e1)
+		local e2=Effect.CreateEffect(c)
+		e2:SetCode(EFFECT_ADD_LINKMARKER)
+		e2:SetType(EFFECT_TYPE_SINGLE)
+		e2:SetReset(RESET_EVENT+RESETS_STANDARD)
+		e2:SetValue(LINK_MARKER_LEFT)
+		c:RegisterEffect(e2)
 	end
 end

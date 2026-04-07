@@ -2,6 +2,7 @@
 local s,id=GetID()
 function s.initial_effect(c)
 	c:EnableReviveLimit()
+
 	--special summon
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
@@ -13,17 +14,32 @@ function s.initial_effect(c)
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.operation)
 	c:RegisterEffect(e1)
+
 	--Targeted monster cannot activate its effects
 	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(id,2))
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetTarget(s.target1)
 	e2:SetOperation(s.operation1)
 	c:RegisterEffect(e2)
+	
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id,3))
+	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e3:SetProperty(EFFECT_FLAG_DELAY)
+	e3:SetCode(EVENT_BE_MATERIAL)
+	e3:SetCondition(s.condition2)
+	e3:SetTarget(s.target2)
+	e3:SetOperation(s.operation2)
+	c:RegisterEffect(e3)
 end
+s.listed_series={0x577}
+s.listed_names={id}
+
 function s.filter(c)
-	return c:IsAbleToHandAsCost() and c:IsType(TYPE_CONTINUOUS+TYPE_TRAP) and c:IsFaceup()
+	return c:IsAbleToHandAsCost() and c:IsSpellTrap() and c:IsFaceup()
 end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
@@ -49,7 +65,7 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
 end
 function s.stfilter(c)
-	return c:IsType(TYPE_CONTINUOUS+TYPE_TRAP) and c:IsSSetable()
+	return c:IsSpellTrap() and c:IsSSetable()
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -75,6 +91,7 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 		end
 	end
 end
+
 function s.target1(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsFaceup() end
 	if chk==0 then return Duel.IsExistingTarget(Card.IsFaceup,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
@@ -94,5 +111,26 @@ function s.operation1(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetValue(tcc)
 		e1:SetReset(RESET_EVENT|RESETS_STANDARD)
 		c:RegisterEffect(e1)
+	end
+end
+
+function s.condition2(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():IsLocation(LOCATION_GRAVE) and r & REASON_LINK == REASON_LINK
+end
+function s.sfilter(c,e,tp)
+	return c:IsSetCard(0x577) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsCode(id)
+end
+function s.target2(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.IsExistingMatchingCard(aux.NecroValleyFilter(s.sfilter),tp,LOCATION_GRAVE,0,1,nil,e,tp) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE)
+end
+function s.operation2(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.sfilter),tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
+	local tc=g:GetFirst()
+	if tc then
+		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
 	end
 end

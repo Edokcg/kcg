@@ -129,7 +129,6 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 	local ttcode=841
 	local code=gc:GetCode()
 	local ocode=gc:GetOriginalCode()
-    local acode=gc:GetOriginalAlias()
 	local ralias=0
 	local tc=Duel.CreateToken(tp,ttcode,nil,nil,nil,nil,nil,nil)
 	local fg=rg
@@ -160,8 +159,8 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
             local effcode=ocode
             local rrealcode,orcode,rrealalias=gc:GetRealCode()
             if rrealcode>0 then 
+				code=rrealalias
                 ocode=orcode
-                acode=orcode
                 effcode=0
 				ralias=rrealalias
 			elseif gc:IsOriginalType(TYPE_NORMAL) then
