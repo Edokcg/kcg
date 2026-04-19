@@ -17,24 +17,26 @@ function s.efop(e,tp,eg,ep,ev,re,r,rp)
 	if not (Duel.GetLocationCount(ep,LOCATION_MZONE)>0 and eqc
 	  and Duel.IsPlayerCanSpecialSummonMonster(ep,347,0,eqc:GetOriginalType(),eqc:GetBaseAttack()+100,eqc:GetBaseDefense(),eqc:GetOriginalLevel(),eqc:GetOriginalRace(),eqc:GetOriginalAttribute())) then return end
 	local tc2=Duel.CreateToken(ep,347)
-	local ocode=eqc:GetOriginalCode()
+	local code, code2=eqc:GetCodeAlias()
+    local oc=Duel.CreateToken(tp,code)
+	local ocode=oc:GetOriginalCode()
 	if Duel.SpecialSummonStep(tc2,0,ep,ep,true,false,POS_FACEUP) then
         local effcode=ocode
         local rrealcode,orcode,rrealalias=eqc:GetRealCode()
         if rrealcode>0 then 
             ocode=orcode
             effcode=0
-        elseif eqc:IsOriginalType(TYPE_NORMAL) then
+        elseif oc:IsOriginalType(TYPE_NORMAL) then
             effcode=0
         end
         if rrealcode>0 then
-            tc2:SetEntityCode(ocode,nil,eqc:GetOriginalSetCard(),eqc:GetOriginalType()|TYPE_TOKEN|TYPE_EFFECT&~TYPE_NORMAL,nil,nil,nil,nil,nil,nil,nil,nil,false,347,effcode,347,eqc)
-            local te1={eqc:GetFieldEffect()}
-            local te2={eqc:GetTriggerEffect()}
+            tc2:SetEntityCode(ocode,nil,oc:GetOriginalSetCard(),oc:GetOriginalType()|TYPE_TOKEN|TYPE_EFFECT&~TYPE_NORMAL,nil,nil,nil,nil,nil,nil,nil,nil,false,347,effcode,347,eqc)
+            local te1={oc:GetFieldEffect()}
+            local te2={oc:GetTriggerEffect()}
             for _,te in ipairs(te1) do
                 local resetflag,resetcount=te:GetReset()
                 local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
-                if te:GetOwner()==eqc and selfeffect then
+                if te:GetOwner()==oc and selfeffect then
                     local te2=te:Clone()
                     te2:SetOwner(tc2)
                     if te:IsHasProperty(EFFECT_FLAG_CLIENT_HINT) then
@@ -47,7 +49,7 @@ function s.efop(e,tp,eg,ep,ev,re,r,rp)
             for _,te in ipairs(te2) do
                 local resetflag,resetcount=te:GetReset()
                 local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
-                if te:GetOwner()==eqc and selfeffect then
+                if te:GetOwner()==oc and selfeffect then
                     local te2=te:Clone()
                     te2:SetOwner(tc2)
                     if te:IsHasProperty(EFFECT_FLAG_CLIENT_HINT) then
@@ -58,14 +60,14 @@ function s.efop(e,tp,eg,ep,ev,re,r,rp)
                 end
             end
         else
-            tc2:SetEntityCode(ocode,nil,eqc:GetOriginalSetCard(),eqc:GetOriginalType()|TYPE_TOKEN|TYPE_EFFECT&~TYPE_NORMAL,nil,nil,nil,nil,nil,nil,nil,nil,true,347,effcode,347)
+            tc2:SetEntityCode(ocode,nil,oc:GetOriginalSetCard(),oc:GetOriginalType()|TYPE_TOKEN|TYPE_EFFECT&~TYPE_NORMAL,nil,nil,nil,nil,nil,nil,nil,nil,true,347,effcode,347)
         end
         --aux.CopyCardTable(eqc,tc2)
-		local mt=eqc:GetMetatable()
+		local mt=oc:GetMetatable()
 		local e0=Effect.CreateEffect(tc2)
 		e0:SetType(EFFECT_TYPE_SINGLE)
 		e0:SetCode(EFFECT_SET_BASE_ATTACK)
-		e0:SetValue(math.max(eqc:GetBaseAttack(),0)+100)
+		e0:SetValue(math.max(oc:GetBaseAttack(),0)+100)
 		e0:SetReset(RESET_EVENT+RESETS_STANDARD)
 		tc2:RegisterEffect(e0,true)  
         if tc2:IsType(TYPE_XYZ) then

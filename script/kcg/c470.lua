@@ -2,25 +2,29 @@
 --Comic Hand
 local s,id=GetID()
 function s.initial_effect(c)
-	aux.AddEquipProcedure(c,1,aux.CheckStealEquip,s.eqlimit,nil,s.target,nil,s.condition)
+	aux.AddEquipProcedure(c,1,aux.CheckStealEquip,s.eqlimit,nil,s.target,s.operation,s.condition)
+
 	--Take control
 	local e3=Effect.CreateEffect(c)
 	e3:SetType(EFFECT_TYPE_EQUIP)
 	e3:SetCode(EFFECT_SET_CONTROL)
 	e3:SetValue(s.cval)
 	c:RegisterEffect(e3)
+
 	--Equipped monster is treated as a Toon
 	local e4=Effect.CreateEffect(c)
 	e4:SetType(EFFECT_TYPE_EQUIP)
 	e4:SetCode(EFFECT_ADD_TYPE)
 	e4:SetValue(TYPE_TOON)
 	c:RegisterEffect(e4)
+
 	--Can attack directly if the opponent controls no Toons
 	local e5=Effect.CreateEffect(c)
 	e5:SetType(EFFECT_TYPE_EQUIP)
 	e5:SetCode(EFFECT_DIRECT_ATTACK)
 	e5:SetCondition(s.dircon)
 	c:RegisterEffect(e5)
+
 	--Self destruction
 	local e6=Effect.CreateEffect(c)
 	e6:SetType(EFFECT_TYPE_SINGLE)
@@ -31,12 +35,21 @@ function s.initial_effect(c)
 	c:RegisterEffect(e6)
 end
 s.listed_names={15259703}
+
 function s.cfilter(c)
 	return c:IsFaceup() and c:IsCode(15259703)
 end
 function s.condition(e,tp,eg,ep,ev,re,r,rp,chk)
 	return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_ONFIELD,0,1,nil)
 end
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local tc=Duel.GetFirstTarget()
+	if c:IsRelateToEffect(e) and tc and tc:IsRelateToEffect(e) and tc:IsFaceup() then
+		aux.cartoonize(e,tp,Group.FromCards(tc),EFFECT_FLAG_OWNER_RELATE,RESET_EVENT+RESETS_STANDARD)
+	end
+end
+
 function s.target(e,tp,eg,ep,ev,re,r,rp,tc)
 	Duel.SetOperationInfo(0,CATEGORY_CONTROL,tc,1,0,0)
 end

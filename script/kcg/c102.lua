@@ -57,120 +57,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
 	if #tg<1 then return end
 	if Duel.SendtoGrave(tg,REASON_COST)>0 then
 		local g=tg:GetFirst()
-        local code=g:GetCode()
-        local ocode=g:GetOriginalCode()
-		local ss={g:GetOriginalSetCard()}
-        local addset=false
-        if #ss>3 then
-            addset=true
-        else
-            table.insert(ss,0x23)
-        end
-		local gtype=0
-		if (g:GetOriginalType() & TYPE_EXTRA) then gtype=1 end
-        local effcode=ocode
-        local rrealcode,orcode,rrealalias=g:GetRealCode()
-        if rrealcode>0 then 
-            code=rrealalias
-            ocode=orcode
-            effcode=0
-        elseif g:IsOriginalType(TYPE_NORMAL) then
-            effcode=0
-        end
-        if rrealcode>0 then
-            c:SetEntityCode(ocode,nil,ss,TYPE_MONSTER+TYPE_EFFECT+TYPE_SPSUMMON,nil,nil,nil,nil,nil,nil,nil,nil,false,id,effcode,102,g)
-            local te1={g:GetFieldEffect()}
-            local te2={g:GetTriggerEffect()}
-            for _,te in ipairs(te1) do
-                local resetflag,resetcount=te:GetReset()
-                local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
-                if te:GetOwner()==g and selfeffect then
-                    local te2=te:Clone()
-                    te2:SetOwner(c)
-                    if te:IsHasProperty(EFFECT_FLAG_CLIENT_HINT) then
-                        local prop=te:GetProperty()
-                        te2:SetProperty(prop&~EFFECT_FLAG_CLIENT_HINT)
-                    end
-                    c:RegisterEffect(te2,true)
-                end
-            end
-            for _,te in ipairs(te2) do
-                local resetflag,resetcount=te:GetReset()
-                local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
-                if te:GetOwner()==g and selfeffect then
-                    local te2=te:Clone()
-                    te2:SetOwner(c)
-                    if te:IsHasProperty(EFFECT_FLAG_CLIENT_HINT) then
-                        local prop=te:GetProperty()
-                        te2:SetProperty(prop&~EFFECT_FLAG_CLIENT_HINT)
-                    end
-                    c:RegisterEffect(te2,true)
-                end
-            end
-        elseif not aux.sinlist[code] then
-            c:SetEntityCode(ocode,nil,ss,TYPE_MONSTER+TYPE_EFFECT+TYPE_SPSUMMON,nil,nil,nil,nil,nil,nil,nil,nil,true,id,effcode,102)
-        else
-            c:SetEntityCode(aux.sinlist[code],nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,true)
-            if c:IsCode(9433350) then Duel.SetLP(0,1) end
-            return
-        end
-        if addset then
-            local e1=Effect.CreateEffect(c)
-            e1:SetType(EFFECT_TYPE_SINGLE)
-            e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-            e1:SetCode(EFFECT_ADD_SETCODE)
-            e1:SetValue(0x23)
-            c:RegisterEffect(e1,true)
-        end
-        aux.CopyCardTable(c,"listed_names",27564031,code)
-		local e1=Effect.CreateEffect(c)
-		e1:SetDescription(aux.Stringid(id,gtype+1),true,0,0,0,0,code,true)
-		e1:SetType(EFFECT_TYPE_FIELD)
-		e1:SetCode(EFFECT_SPSUMMON_PROC)
-		e1:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT)
-		e1:SetRange(LOCATION_HAND)
-		e1:SetLabel(code)
-		e1:SetCondition(s.spcon2)
-		e1:SetOperation(s.spop2)
-		c:RegisterEffect(e1,true)
-		local e2=Effect.CreateEffect(c)
-        e2:SetDescription(aux.Stringid(id,0),true,0,0,0,0,0,true)
-		e2:SetType(EFFECT_TYPE_SINGLE)
-		e2:SetProperty(EFFECT_FLAG_SINGLE_RANGE+EFFECT_FLAG_CLIENT_HINT)
-		e2:SetRange(LOCATION_MZONE)
-		e2:SetCode(EFFECT_SELF_DESTROY)
-		e2:SetCondition(s.descon)
-		c:RegisterEffect(e2,true)
-        local e3=Effect.CreateEffect(c)
-		e3:SetProperty(EFFECT_FLAG_UNCOPYABLE)
-		e3:SetType(EFFECT_TYPE_SINGLE)
-		e3:SetCode(EFFECT_UNSUMMONABLE_CARD)
-		c:RegisterEffect(e3,true)
-        local te1={c:GetFieldEffect()}
-        for _,te in ipairs(te1) do
-            if (te:GetRange()&LOCATION_PZONE)~=0 then
-                te:Reset()
-            end
-            if (te:GetCode()==EFFECT_INDESTRUCTABLE or te:GetCode()==EFFECT_INDESTRUCTABLE_EFFECT or te:GetCode()==EFFECT_INDESTRUCTABLE_COUNT) and (not te:GetRange() or (te:GetRange()&LOCATION_MZONE)~=0) then
-                local e1=te:Clone()
-                local val=te:GetValue()
-                e1:SetValue(function (ate,atre,...)
-                    if type(val)=="function" then
-                        return val(ate,atre,...) and atre~=e2
-                    else
-                        if val==1 then return atre~=e2 end
-                    end
-                end)
-                c:RegisterEffect(e1)
-                te:Reset()
-            end
-        end
-        local te2={c:GetTriggerEffect()}
-        for _,te in ipairs(te2) do
-            if (te:GetRange()&LOCATION_PZONE)~=0 or te:IsHasType(EFFECT_TYPE_ACTIVATE) then
-                te:Reset()
-            end
-        end
+        aux.sinspop(tp,c,g)
 	end
 end
 
@@ -193,15 +80,6 @@ end
 
 function s.descon(e)
 	return not (Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,27564031),e:GetHandlerPlayer(),LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) or Duel.IsEnvironment(27564031))
-end
-
-function s.sumlimit(e,c)
-	return c:IsSetCard(0x23)
-end
-
-function s.efilter(e,te)
-    local rrealcode=e:GetHandler():GetRealCode()
-	return te:GetHandler()==e:GetHandler()
 end
 
 function s.recon2(e,tp,eg,ep,ev,re,r,rp)

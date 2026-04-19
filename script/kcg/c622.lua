@@ -127,8 +127,9 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 	local gc=rg:GetFirst()
 	if gc:IsFacedown() then Duel.ConfirmCards(tp,gc) end
 	local ttcode=841
-	local code=gc:GetCode()
-	local ocode=gc:GetOriginalCode()
+	local code, code2=gc:GetCodeAlias()
+    local oc=Duel.CreateToken(tp,code)
+	local ocode=oc:GetOriginalCode()
 	local ralias=0
 	local tc=Duel.CreateToken(tp,ttcode,nil,nil,nil,nil,nil,nil)
 	local fg=rg
@@ -136,15 +137,15 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 	local og=gc:GetOverlayGroup()
 	if Duel.SendtoDeck(tc,tp,0,REASON_RULE+REASON_EFFECT)>0 then
 		tc:SetMaterial(fg)
-		if gc:IsType(TYPE_XYZ) and #og>0 then
+		if oc:IsType(TYPE_XYZ) and #og>0 then
 			Duel.Overlay(tc,og)
 		end
 		Duel.SendtoGrave(fg,REASON_EFFECT+REASON_MATERIAL+REASON_FUSION)
 		Duel.BreakEffect()
 		if tc:IsCode(841) then
-			local atk=gc:GetTextAttack()
+			local atk=oc:GetTextAttack()
 			if atk<0 then atk=0 end
-			local ss={gc:GetOriginalSetCard()}
+			local ss={oc:GetOriginalSetCard()}
 			for index,value in pairs(ss) do
 				if value==0xa1 then
 					table.remove(ss,index)
@@ -163,17 +164,17 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
                 ocode=orcode
                 effcode=0
 				ralias=rrealalias
-			elseif gc:IsOriginalType(TYPE_NORMAL) then
+			elseif oc:IsOriginalType(TYPE_NORMAL) then
                 effcode=0
             end
             if rrealcode>0 then
-                tc:SetEntityCode(ocode,nil,ss,(gc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION)&~TYPE_NORMAL&~TYPE_SPSUMMON,nil,nil,nil,atk+500,nil,nil,nil,nil,false,841,effcode,841,gc)
-                local te1={gc:GetFieldEffect()}
-                local te2={gc:GetTriggerEffect()}
+                tc:SetEntityCode(ocode,nil,ss,(oc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION)&~TYPE_NORMAL&~TYPE_SPSUMMON,nil,nil,nil,atk+500,nil,nil,nil,nil,false,841,effcode,841,gc)
+                local te1={oc:GetFieldEffect()}
+                local te2={oc:GetTriggerEffect()}
                 for _,te in ipairs(te1) do
                     local resetflag,resetcount=te:GetReset()
                     local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
-                    if te:GetOwner()==gc and selfeffect then
+                    if te:GetOwner()==oc and selfeffect then
                         local te2=te:Clone()
                         te2:SetOwner(tc)
                         if te:IsHasProperty(EFFECT_FLAG_CLIENT_HINT) then
@@ -186,7 +187,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
                 for _,te in ipairs(te2) do
                     local resetflag,resetcount=te:GetReset()
                     local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
-                    if te:GetOwner()==gc and selfeffect then
+                    if te:GetOwner()==oc and selfeffect then
                         local te2=te:Clone()
                         te2:SetOwner(tc)
                         if te:IsHasProperty(EFFECT_FLAG_CLIENT_HINT) then
@@ -197,7 +198,7 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
                     end
                 end
             else
-                tc:SetEntityCode(ocode,nil,ss,(gc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION)&~TYPE_NORMAL&~TYPE_SPSUMMON,nil,nil,nil,atk+500,nil,nil,nil,nil,true,841,effcode,841)
+                tc:SetEntityCode(ocode,nil,ss,(oc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION)&~TYPE_NORMAL&~TYPE_SPSUMMON,nil,nil,nil,atk+500,nil,nil,nil,nil,true,841,effcode,841)
             end
             if addset then
                 local e1=Effect.CreateEffect(tc)
@@ -207,8 +208,8 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
                 e1:SetValue(0x10a1)
                 tc:RegisterEffect(e1)
             end
-            aux.CopyCardTable(tc,"listed_names",id,code)
-            tc.__index.material={code,id}
+            aux.CopyCardTable(tc,"listed_names",id,code2)
+            tc.__index.material={code2,id}
 
 			local strong_eff_att={false,false,false}
 			local strong_eff_immu1={false,false,false}
@@ -223,8 +224,8 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 			local effcount=1
 			local effcounttype=0
 
-			local lv=math.max(gc:GetOriginalLevel(),gc:GetOriginalRank(),gc:GetLinkMarker())
-			if gc:IsOriginalType(TYPE_FUSION) and gc:GetLevel()<3 then lv=lv+3 end
+			local lv=math.max(oc:GetOriginalLevel(),oc:GetOriginalRank(),oc:GetLinkMarker())
+			if oc:IsOriginalType(TYPE_FUSION) and oc:GetLevel()<3 then lv=lv+3 end
 			local effno=1
 			if lv>6 then effno=2 
 			elseif lv>9 then effno=3 end

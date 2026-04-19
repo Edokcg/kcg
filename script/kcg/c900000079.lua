@@ -37,40 +37,13 @@ function s.initial_effect(c)
 	e11:SetOperation(s.moperation2)
 	c:RegisterEffect(e11)
 	
-	local e12=Effect.CreateEffect(c)
-	e12:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
-	e12:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_DAMAGE_CAL+EFFECT_FLAG_DAMAGE_CAL+EFFECT_FLAG_DELAY)
-	e12:SetCode(EVENT_ENTITY_RESET)
-	e12:SetOperation(s.moperation22)
-	c:RegisterEffect(e12)
-	-- local e2=Effect.CreateEffect(c)
-	-- e2:SetType(EFFECT_TYPE_FIELD)
-	-- e2:SetRange(LOCATION_SZONE)
-	-- e2:SetTargetRange(LOCATION_MZONE,0)
-	-- e2:SetCode(EFFECT_ADD_TYPE)
-	-- e2:SetValue(TYPE_TOON)
-	-- -- c:RegisterEffect(e2)
+	-- local e12=Effect.CreateEffect(c)
+	-- e12:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
+	-- e12:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_DAMAGE_CAL+EFFECT_FLAG_DAMAGE_CAL+EFFECT_FLAG_DELAY)
+	-- e12:SetCode(EVENT_ENTITY_RESET)
+	-- e12:SetOperation(s.moperation22)
+	-- c:RegisterEffect(e12)
 
-	-- local e4=Effect.CreateEffect(c)
-	-- e4:SetType(EFFECT_TYPE_FIELD)
-	-- e4:SetRange(LOCATION_SZONE)
-	-- e4:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
-	-- e4:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
-	-- e4:SetTarget(s.toontarget)
-	-- e4:SetValue(s.indes)
-	-- c:RegisterEffect(e4)
-	-- local e5=e4:Clone()
-	-- e5:SetCode(EFFECT_AVOID_BATTLE_DAMAGE)
-	-- c:RegisterEffect(e5)
-	-- local e6=Effect.CreateEffect(c)
-	-- e6:SetType(EFFECT_TYPE_FIELD)
-	-- e6:SetRange(LOCATION_SZONE)
-	-- e6:SetTargetRange(LOCATION_MZONE,0)
-	-- e6:SetTarget(s.toontarget)
-	-- e6:SetCondition(s.dircon)
-	-- e6:SetCode(EFFECT_DIRECT_ATTACK)
-	-- c:RegisterEffect(e6)
-	
 	local e8=Effect.CreateEffect(c)
 	e8:SetType(EFFECT_TYPE_SINGLE)
 	e8:SetCode(EFFECT_CANNOT_DISABLE)
@@ -142,265 +115,26 @@ function s.mtarget2(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.SelectTarget(tp,s.filter3,tp,LOCATION_MZONE,0,1,20,nil)
 end
 function s.moperation2(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
-	s.cartoonize(e,tp,g)
-end
-function s.moperation22(e,tp,eg,ep,ev,re,r,rp)
-	Duel.SetTargetCard(eg)
-	s.cartoonize(e,tp,eg)
-end
-function s.cartoonize(e,tp,g)
 	local c=e:GetHandler()
-	for tc in aux.Next(g) do
-        if c:IsRelateToEffect(e) and tc:IsRelateToEffect(e) and not tc:IsImmuneToEffect(e) then
-			if tc:ListsCode(CARD_BLUEEYES_W_DRAGON) then Duel.SetLP(0,1) end
-            local ss={tc:GetOriginalSetCard()}
-            local addset=false
-            if #ss>3 then
-                addset=true
-            else
-                table.insert(ss,0x62)
-            end
-            local type=tc:GetOriginalType()
-            local lv=tc:GetOriginalLevel()
-            local code=tc:GetOriginalCode()
-            local ttcode=0
-            local piccode=0
-			local tcode=tc:GetCode()
-            local effcode=code
-            local rrealcode,orcode,rrealalias=tc:GetRealCode()
-			if rrealcode>0 then 
-				code=rrealalias
-				tcode=rrealalias
-                effcode=0
-			elseif tc:IsOriginalType(TYPE_NORMAL) then
-                effcode=0
-            end
-			if aux.cartoonlist[tcode] then piccode=aux.cartoonlist[tcode] end
-			if rrealcode>0 then
-				tc:SetEntityCode(code,nil,piccode,ss,TYPE_MONSTER|TYPE_EFFECT|TYPE_TOON,nil,nil,nil,nil,nil,nil,nil,nil,EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_OWNER_RELATE,RESET_EVENT+RESETS_STANDARD,c,false,838,effcode,838,tc)
-				local te1={tc:GetFieldEffect()}
-				local te2={tc:GetTriggerEffect()}
-				for _,te in ipairs(te1) do
-                    local resetflag,resetcount=te:GetReset()
-                    local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
-					if te:GetOwner()==tc and selfeffect then
-						local te2=te:Clone()
-						if te:IsHasProperty(EFFECT_FLAG_CLIENT_HINT) then
-							local prop=te:GetProperty()
-							te2:SetProperty(prop&~EFFECT_FLAG_CLIENT_HINT)
-						end
-						tc:RegisterEffect(te2,true)
-						te:Reset()
-					end
-				end
-				for _,te in ipairs(te2) do
-                    local resetflag,resetcount=te:GetReset()
-                    local selfeffect=te:GetHandler()==te:GetOwner() and resetflag==0 and resetcount==0
-					if te:GetOwner()==tc and selfeffect then
-						local te2=te:Clone()
-						if te:IsHasProperty(EFFECT_FLAG_CLIENT_HINT) then
-							local prop=te:GetProperty()
-							te2:SetProperty(prop&~EFFECT_FLAG_CLIENT_HINT)
-						end
-						tc:RegisterEffect(te2,true)
-						te:Reset()
-					end
-				end
-			else
-				tc:SetEntityCode(code,nil,piccode,ss,TYPE_MONSTER|TYPE_EFFECT|TYPE_TOON,nil,nil,nil,nil,nil,nil,nil,nil,EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_OWNER_RELATE,RESET_EVENT+RESETS_STANDARD,c,true,838,effcode,838)
+	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(Card.IsRelateToEffect,nil,e)
+	if c:IsRelateToEffect(e) and #g>0 then
+		aux.cartoonize(e,tp,g,EFFECT_FLAG_OWNER_RELATE,RESET_EVENT+RESETS_STANDARD)
+		for tc in aux.Next(g) do
+			if not tc:IsImmuneToEffect(e) then
+				c:SetCardTarget(tc)
 			end
-			c:SetCardTarget(tc)
-			if addset then
-				local e1=Effect.CreateEffect(c)
-				e1:SetType(EFFECT_TYPE_SINGLE)
-				e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_OWNER_RELATE)
-				e1:SetCode(EFFECT_ADD_SETCODE)
-				e1:SetValue(0x62)
-				e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-				tc:RegisterEffect(e1,true)
-			end
-			aux.CopyCardTable(tc,"listed_names",15259703)
-            local e4=Effect.CreateEffect(c)
-            e4:SetType(EFFECT_TYPE_SINGLE)
-            e4:SetDescription(aux.Stringid(838,4),true,0,0,0,0,0,true)
-            e4:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_OWNER_RELATE)
-            e4:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
-            e4:SetValue(s.indes)
-			e4:SetReset(RESET_EVENT+RESETS_STANDARD)
-            local e5=e4:Clone()
-            e5:SetProperty(EFFECT_FLAG_UNCOPYABLE)
-            e5:SetCode(EFFECT_AVOID_BATTLE_DAMAGE)
-            local e6=Effect.CreateEffect(c)
-            e6:SetDescription(aux.Stringid(838,5),true,0,0,0,0,0,true)
-            e6:SetType(EFFECT_TYPE_SINGLE)
-            e6:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_OWNER_RELATE)
-            e6:SetCondition(s.dircon)
-            e6:SetCode(EFFECT_DIRECT_ATTACK)
-			e6:SetReset(RESET_EVENT+RESETS_STANDARD)
-            local e7=Effect.CreateEffect(c)
-            e7:SetDescription(aux.Stringid(838,6),true,0,0,0,0,0,true)
-            e7:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_OWNER_RELATE)
-            e7:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-            e7:SetRange(LOCATION_MZONE)
-            e7:SetCode(EVENT_LEAVE_FIELD)
-            e7:SetCondition(s.sdescon)
-            e7:SetOperation(s.sdesop)
-			e7:SetReset(RESET_EVENT+RESETS_STANDARD)
-            tc:RegisterEffect(e7,true)
-            tc:RegisterEffect(e6,true)
-            tc:RegisterEffect(e5,true)
-            tc:RegisterEffect(e4,true)
-            
-            if bit.band(type,TYPE_RITUAL)~=0 then
-                local e1=Effect.CreateEffect(c)
-                e1:SetDescription(aux.Stringid(838,0),true,0,0,0,0,0,true)
-                e1:SetType(EFFECT_TYPE_FIELD)
-                e1:SetCode(EFFECT_SPSUMMON_PROC)
-                e1:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_OWNER_RELATE)
-                e1:SetRange(LOCATION_HAND)
-                e1:SetCondition(s.spconr)
-                e1:SetTarget(s.sptgr)
-                e1:SetOperation(s.spopr)
-				e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-                tc:RegisterEffect(e1,true)
-            end
-            if bit.band(type,TYPE_NORMAL)~=0 then
-                local e1=Effect.CreateEffect(c)
-                e1:SetType(EFFECT_TYPE_FIELD)
-                e1:SetCode(EFFECT_SPSUMMON_PROC)
-                e1:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_OWNER_RELATE)
-                e1:SetRange(LOCATION_HAND)
-                if lv<5 then
-                    e1:SetDescription(aux.Stringid(838,1),true,0,0,0,0,0,true)
-                    e1:SetCondition(s.spcon0)
-                    e1:SetTarget(s.sptg0)
-                end
-                if lv>4 and lv<7 then
-                    e1:SetDescription(aux.Stringid(838,2),true,0,0,0,0,0,true)
-                    e1:SetCondition(s.spcon1)
-                    e1:SetTarget(s.sptg1)
-                    e1:SetOperation(s.spopn)
-                end
-                if lv>6 then
-                    e1:SetDescription(aux.Stringid(838,3),true,0,0,0,0,0,true)
-                    e1:SetCondition(s.spcon2)
-                    e1:SetTarget(s.sptg2)
-                    e1:SetOperation(s.spopn)
-                end
-				e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-                tc:RegisterEffect(e1,true)
-            end
-        end
-    end
-end
-
-function s.spfilterr(c)
-	return c:IsMonster() and c:IsType(TYPE_TOON) and c:HasLevel() and c:IsLevelAbove(1) and c:IsReleasable()
-end
-function s.rescon(sg,e,tp,mg)
-	if #sg>1 then
-		return aux.ChkfMMZ(1)(sg,e,tp,mg) and sg:GetSum(Card.GetLevel)>=e:GetOwner():GetOriginalLevel() and not sg:IsExists(Card.IsLevelAbove,1,nil,8)
-	else
-		return aux.ChkfMMZ(1)(sg,e,tp,mg) and sg:GetSum(Card.GetLevel)>=e:GetOwner():GetOriginalLevel()
+		end
 	end
 end
-function s.spconr(e,c)
-	if c==nil then return true end
-	local tp=c:GetControler()
-	local rg=Duel.GetMatchingGroup(s.spfilterr,tp,LOCATION_HAND+LOCATION_MZONE,0,e:GetHandler())
-	return aux.SelectUnselectGroup(rg,e,tp,1,99,s.rescon,0)
-end
-function s.breakcon(sg,e,tp,mg)
-	return sg:GetSum(Card.GetLevel)>=8
-end
-function s.sptgr(e,tp,eg,ep,ev,re,r,rp,c)
-	local rg=Duel.GetMatchingGroup(s.spfilterr,tp,LOCATION_HAND+LOCATION_MZONE,0,e:GetHandler())
-	local mg=aux.SelectUnselectGroup(rg,e,tp,1,99,s.rescon,1,tp,HINTMSG_RELEASE,s.breakcon,s.breakcon,true)
-	if #mg>0 then
-		mg:KeepAlive()
-		e:SetLabelObject(mg)
-		return true
-	end
-	return false
-end
-function s.spopr(e,tp,eg,ep,ev,re,r,rp,c)
-	local g=e:GetLabelObject()
-	if not g then return end
-	Duel.Release(g,REASON_COST)
-	g:DeleteGroup()
-end
-
-function s.spcon0(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,15259703),tp,LOCATION_ONFIELD,0,1,nil)
-end
-function s.sptg0(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
-end
-
-function s.spcon1(e,c)
-	if c==nil then return true end
-	return Duel.CheckReleaseGroup(c:GetControler(),aux.TRUE,1,false,1,true,c,c:GetControler(),nil,false,nil)
-		and Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,15259703),c:GetControler(),LOCATION_ONFIELD,0,1,nil)
-end
-function s.sptg1(e,tp,eg,ep,ev,re,r,rp,c)
-	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
-	local g=Duel.SelectReleaseGroup(tp,aux.TRUE,1,1,false,true,true,c,nil,nil,false,nil)
-	if g then
-		g:KeepAlive()
-		e:SetLabelObject(g)
-	return true
-	end
-	return false
-end
-function s.spcon2(e,c)
-	if c==nil then return true end
-	return Duel.CheckReleaseGroup(c:GetControler(),aux.TRUE,2,false,2,true,c,c:GetControler(),nil,false,nil)
-		and Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,15259703),c:GetControler(),LOCATION_ONFIELD,0,1,nil)
-end
-function s.sptg2(e,tp,eg,ep,ev,re,r,rp,c)
-	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
-	local g=Duel.SelectReleaseGroup(tp,aux.TRUE,2,2,false,true,true,c,nil,nil,false,nil)
-	if g then
-		g:KeepAlive()
-		e:SetLabelObject(g)
-	return true
-	end
-	return false
-end
-function s.spopn(e,tp,eg,ep,ev,re,r,rp,c)
-	local g=e:GetLabelObject()
-	if not g then return end
-	Duel.Release(g,REASON_COST)
-	g:DeleteGroup()
-end
-
-function s.toontarget(e,c)
-	return c:IsType(TYPE_TOON)
-end
-function s.indes(e,c)
-	return not c or not c:IsType(TYPE_TOON)
-end
-
-function s.cfilter1(c)
-	return c:IsFaceup() and c:IsCode(15259703)
-end
-function s.cfilter2(c)
-	return c:IsFaceup() and c:IsType(TYPE_TOON)
-end
-function s.dircon(e)
-	local tp=e:GetHandlerPlayer()
-	return Duel.IsExistingMatchingCard(s.cfilter1,tp,LOCATION_ONFIELD,0,1,nil)
-		and not Duel.IsExistingMatchingCard(s.cfilter2,tp,0,LOCATION_MZONE,1,nil)
-end
-
-function s.sfilter(c)
-	return c:IsReason(REASON_DESTROY) and c:IsPreviousPosition(POS_FACEUP) and c:GetPreviousCodeOnField()==15259703 and c:IsPreviousLocation(LOCATION_ONFIELD)
-end
-function s.sdescon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(s.sfilter,1,nil)
-end
-function s.sdesop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Destroy(e:GetHandler(),REASON_EFFECT)
-end
+-- function s.moperation22(e,tp,eg,ep,ev,re,r,rp)
+-- 	local c=e:GetHandler()
+-- 	Duel.SetTargetCard(eg)
+-- 	if c:IsRelateToEffect(e) and #eg>0 then
+-- 		aux.cartoonize(e,tp,eg,EFFECT_FLAG_OWNER_RELATE,RESET_EVENT+RESETS_STANDARD)
+-- 		for tc in aux.Next(eg) do
+-- 			if not tc:IsImmuneToEffect(e) then
+-- 				c:SetCardTarget(tc)
+-- 			end
+-- 		end
+-- 	end
+-- end

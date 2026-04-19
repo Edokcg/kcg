@@ -71,10 +71,11 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
     local rg=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_MZONE,0,1,1,nil,e,tp)
     if #rg<1 then return end
     local gc=rg:GetFirst()
-    if gc:IsFacedown() then Duel.ConfirmCards(tp, gc) end
+    if gc:IsFacedown() then Duel.ConfirmCards(tp,gc) end
     local ttcode=0
-	local code=gc:GetCode()
-    local ocode=gc:GetOriginalCode()
+	local code, code2=gc:GetCodeAlias()
+    local oc=Duel.CreateToken(tp,code)
+	local ocode=oc:GetOriginalCode()
     local tcode=s.list[code]
     if tcode then 
 		ttcode=tcode
@@ -89,7 +90,7 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
         Duel.SendtoGrave(fg, REASON_EFFECT + REASON_MATERIAL + REASON_FUSION)
         Duel.BreakEffect()
         if tc:IsCode(44) then
-            local ss={gc:GetOriginalSetCard()}
+            local ss={oc:GetOriginalSetCard()}
             local addset=false
             if #ss>3 then
                 addset=true
@@ -102,13 +103,13 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
 				code=rrealalias
                 ocode=orcode
                 effcode=0
-			elseif gc:IsOriginalType(TYPE_NORMAL) then
+			elseif oc:IsOriginalType(TYPE_NORMAL) then
                 effcode=0
             end
             if rrealcode>0 then
-                tc:SetEntityCode(ocode,nil,ss,(gc:GetOriginalType()|TYPE_MONSTER|TYPE_EFFECT|TYPE_FUSION|TYPE_SPELL|TYPE_EQUIP)&~TYPE_NORMAL&~TYPE_SPSUMMON,tc:GetOriginalLevel(),gc:GetOriginalAttribute(),gc:GetOriginalRace(),gc:GetTextAttack(),gc:GetTextDefense(),0,0,0,false,44,effcode,44,gc)
+                tc:SetEntityCode(ocode,nil,ss,(oc:GetOriginalType()|TYPE_MONSTER|TYPE_EFFECT|TYPE_FUSION|TYPE_SPELL|TYPE_EQUIP)&~TYPE_NORMAL&~TYPE_SPSUMMON,tc:GetOriginalLevel(),oc:GetOriginalAttribute(),oc:GetOriginalRace(),oc:GetTextAttack(),oc:GetTextDefense(),0,0,0,false,44,effcode,44,gc)
             else
-                tc:SetEntityCode(ocode,nil,ss,(gc:GetOriginalType()|TYPE_MONSTER|TYPE_EFFECT|TYPE_FUSION|TYPE_SPELL|TYPE_EQUIP)&~TYPE_NORMAL&~TYPE_SPSUMMON,tc:GetOriginalLevel(),gc:GetOriginalAttribute(),gc:GetOriginalRace(),gc:GetTextAttack(),gc:GetTextDefense(),0,0,0,false,44,effcode,44)
+                tc:SetEntityCode(ocode,nil,ss,(oc:GetOriginalType()|TYPE_MONSTER|TYPE_EFFECT|TYPE_FUSION|TYPE_SPELL|TYPE_EQUIP)&~TYPE_NORMAL&~TYPE_SPSUMMON,tc:GetOriginalLevel(),oc:GetOriginalAttribute(),oc:GetOriginalRace(),oc:GetTextAttack(),oc:GetTextDefense(),0,0,0,false,44,effcode,44)
             end
             if addset then
                 local e1=Effect.CreateEffect(tc)
@@ -118,7 +119,7 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
                 e1:SetValue(0xa1)
                 tc:RegisterEffect(e1)
             end
-            aux.CopyCardTable(tc,"listed_names",id,code)
+            aux.CopyCardTable(tc,"listed_names",id,code2)
 			local ran=0
 			if s.efflist[code]~=nil then
 				ran=s.efflist[code]
@@ -126,13 +127,13 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
 				ran=Duel.GetRandomNumber(0,1)
 				s.efflist={[code]=ran}
 			end
-            if not gc:IsOriginalType(TYPE_EFFECT) then
+            if not oc:IsOriginalType(TYPE_EFFECT) then
                 if ran==1 then
                     local e2 = Effect.CreateEffect(tc)
                     e2:SetType(EFFECT_TYPE_EQUIP)
                     e2:SetCode(EFFECT_UPDATE_ATTACK)
                     e2:SetValue(s.value)
-                    e2:SetLabelObject(gc)
+                    e2:SetLabelObject(oc)
                     tc:RegisterEffect(e2,true)
                     local e1=Effect.CreateEffect(tc)
                     e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
@@ -145,7 +146,6 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
                     e2:SetType(EFFECT_TYPE_EQUIP)
                     e2:SetCode(EFFECT_ATTACK_ALL)
                     e2:SetValue(1)
-                    e2:SetLabelObject(gc)
                     tc:RegisterEffect(e2,true)
                     local e1=Effect.CreateEffect(tc)
                     e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
@@ -169,7 +169,7 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
                     e3:SetOperation(s.act)
                     tc:RegisterEffect(e3,true)
                 -- else
-                    local tec2 = {gc:GetTriggerEffect()}
+                    local tec2 = {oc:GetTriggerEffect()}
                     if tec2 then
                         local count=0
                         for _, te in ipairs(tec2) do

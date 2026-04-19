@@ -61,8 +61,9 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
     if #rg<1 then return end
     if rg:GetFirst():IsFacedown() then Duel.ConfirmCards(tp,rg:GetFirst()) end
     local ttcode=0
-	local code=rg:GetFirst():GetCode()
-    local ocode=rg:GetFirst():GetOriginalCode()
+	local code, code2=rg:GetFirst():GetCodeAlias()
+    local oc=Duel.CreateToken(tp,code)
+    local ocode=oc:GetOriginalCode()
     local tcode=s.list[code]
     if tcode then
 		ttcode=tcode
@@ -77,7 +78,7 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
         Duel.SendtoGrave(fg,REASON_EFFECT+REASON_MATERIAL+REASON_FUSION)
         Duel.BreakEffect()
         if tc:IsCode(43) then
-            local ss={rg:GetFirst():GetOriginalSetCard()}
+            local ss={oc:GetOriginalSetCard()}
             local addset=false
             if #ss>3 then
                 addset=true
@@ -102,10 +103,10 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
                 e1:SetValue(0xa1)
                 tc:RegisterEffect(e1)
             end
-            aux.CopyCardTable(tc,"listed_names",id,code)
-            tc.__index.material_trap=code
+            aux.CopyCardTable(tc,"listed_names",id,code2)
+            tc.__index.material_trap=code2
             local tequip=false
-            local tec = {rg:GetFirst():GetTriggerEffect()}
+            local tec = {oc:GetTriggerEffect()}
             if tec then
                 for _, te in ipairs(tec) do
                     local resetflag,resetcount=te:GetReset()
@@ -155,7 +156,7 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
                 end
             end
             if tequip then
-                local tec2 = {rg:GetFirst():GetEquipEffect()}
+                local tec2 = {oc:GetEquipEffect()}
                 for _, te in ipairs(tec2) do
                     local te2 = te:Clone()
                     te2:SetOwner(tc)
