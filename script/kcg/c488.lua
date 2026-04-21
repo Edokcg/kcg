@@ -1,4 +1,5 @@
 --ガガガバック
+Duel.LoadScript("c420.lua")
 local s,id=GetID()
 function s.initial_effect(c)
 	--Activate
@@ -27,13 +28,13 @@ function s.initial_effect(c)
 		Duel.RegisterEffect(ge2,0)
 	end
 end
-s.listed_series={IsAstral}
+s.listed_series={0x505}
 
 function s.checkop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=eg:GetFirst()
 	while tc do
 		local pos=tc:GetPosition()
-		if tc:IsSetCard(IsAstral) and tc:IsLocation(LOCATION_GRAVE) and tc:IsReason(REASON_BATTLE)
+		if tc:IsAstral() and tc:IsLocation(LOCATION_GRAVE) and tc:IsReason(REASON_BATTLE)
 			and tc:GetControler()==tc:GetPreviousControler() then
 			s[tc:GetControler()]=true
 		end

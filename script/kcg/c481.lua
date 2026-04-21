@@ -1,4 +1,5 @@
 --ガガガラッシュ
+Duel.LoadScript("c420.lua")
 local s,id=GetID()
 function s.initial_effect(c)
 	--Activate
@@ -11,10 +12,10 @@ function s.initial_effect(c)
 	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
 end
-s.listed_series={IsAstral}
+s.listed_series={0x505}
 
 function s.filter(c,tp)
-	return c:IsFaceup() and c:IsControler(tp) and c:IsLocation(LOCATION_MZONE) and c:IsSetCard(IsAstral)
+	return c:IsFaceup() and c:IsControler(tp) and c:IsLocation(LOCATION_MZONE) and c:IsAstral()
 end
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	return rp~=tp and re:IsActiveType(TYPE_MONSTER) and eg:IsExists(s.filter,1,nil,tp) and Duel.IsChainDisablable(ev)

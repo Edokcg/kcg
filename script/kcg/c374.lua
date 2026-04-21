@@ -1,4 +1,5 @@
 --ガガガマジシャン
+Duel.LoadScript("c420.lua")
 local s,id=GetID()
 function s.initial_effect(c)
 	--lv change
@@ -13,10 +14,10 @@ function s.initial_effect(c)
 	e1:SetOperation(s.op)
 	c:RegisterEffect(e1)
 end
-s.listed_series={IsAstral}
+s.listed_series={0x505}
 
 function s.filter(c)
-	return c:IsFaceup() and not c:IsType(TYPE_XYZ) and c:GetLevel()<7 and c:IsSetCard(IsAstral)
+	return c:IsFaceup() and not c:IsType(TYPE_XYZ) and c:GetLevel()<7 and c:IsAstral()
 end
 function s.tg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.filter(chkc) end

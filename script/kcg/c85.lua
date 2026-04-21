@@ -1,3 +1,4 @@
+Duel.LoadScript("c420.lua")
 local selfs={}
 if self_table then
 	function self_table.initial_effect(c) table.insert(selfs,c) end
@@ -133,7 +134,7 @@ if not DestinyDraw then
                 local b7 = (Duel.GetMatchingGroupCount(Card.IsType, ttp, LOCATION_DECK, 0, nil, TYPE_FIELD) > 0)
                 local nog = Duel.GetMatchingGroup(Card.IsSetCard, ttp, LOCATION_EXTRA, 0, nil, 0x48)
                 local b8 = (nog:GetClassCount(Card.GetCode) >= 100 
-                    and Duel.GetMatchingGroupCount(Card.IsSetCard, ttp, LOCATION_DECK + LOCATION_HAND, 0, nil, IsAstral) > 9) --astral
+                    and Duel.GetMatchingGroupCount(Card.IsAstral, ttp, LOCATION_DECK + LOCATION_HAND, 0, nil) > 9) --astral
                 local b9 = (Duel.GetMatchingGroupCount(Card.IsSetCard, ttp, LOCATION_DECK + LOCATION_HAND, 0, nil, 0x5) > 9) --acardia
                 local b10 = (Duel.GetMatchingGroupCount(Card.IsSetCard, ttp, LOCATION_DECK + LOCATION_HAND, 0, nil, 0x9f) + Duel.GetMatchingGroupCount(Card.IsSetCard, ttp, LOCATION_DECK + LOCATION_HAND, 0, nil, 0xf8) > 9) --yuya
                 local b11 = (Duel.GetMatchingGroupCount(DestinyDraw.linkcyber, ttp, LOCATION_EXTRA, 0, nil) > 9) --playmaker

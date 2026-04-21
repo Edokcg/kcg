@@ -1,4 +1,5 @@
 --ガガガキッド
+Duel.LoadScript("c420.lua")
 local s,id=GetID()
 function s.initial_effect(c)
 	--special summon
@@ -23,11 +24,11 @@ function s.initial_effect(c)
 	e2:SetOperation(s.lvop)
 	c:RegisterEffect(e2)
 end
-s.listed_series={IsAstral}
+s.listed_series={0x505}
 s.listed_names={id}
 
 function s.filter(c)
-	return c:IsFaceup() and c:IsSetCard(IsAstral) and not c:IsCode(id)
+	return c:IsFaceup() and c:IsAstral() and not c:IsCode(id)
 end
 function s.spcon(e,c)
 	if c==nil then return true end
@@ -50,7 +51,7 @@ end
 
 function s.lvfilter(c,lv)
 	local clv=c:GetLevel()
-	return c:IsFaceup() and c:IsSetCard(IsAstral) and clv>0 and clv~=lv
+	return c:IsFaceup() and c:IsAstral() and clv>0 and clv~=lv
 end
 function s.lvtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.lvfilter(chkc,e:GetHandler():GetLevel()) end

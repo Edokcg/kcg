@@ -1,4 +1,5 @@
 --ガガガガール
+Duel.LoadScript("c420.lua")
 local s,id=GetID()
 function s.initial_effect(c)
 	--lvchange
@@ -19,7 +20,7 @@ function s.initial_effect(c)
 	e2:SetOperation(s.efop)
 	c:RegisterEffect(e2)
 end
-s.listed_series={IsAstral}
+s.listed_series={0x505}
 s.listed_names={374}
 
 function s.lvfilter(c,lv)
@@ -45,7 +46,7 @@ function s.lvop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.ffilter(c)
-	return not c:IsSetCard(IsAstral)
+	return not c:IsAstral()
 end
 function s.efcon(e,tp,eg,ep,ev,re,r,rp)
 	local ec=e:GetHandler():GetReasonCard()

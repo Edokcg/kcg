@@ -144,14 +144,14 @@ function s.descondition(e,tp,eg,ep,ev,re,r,rp)
 	if eb and tg and tg:IsContains(e:GetHandler()) then return true end
 	return eb and tg and tg:IsContains(e:GetHandler())
 end
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.destarget(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
 	local sg=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_MZONE,LOCATION_MZONE,e:GetHandler())
 	Duel.SetOperationInfo(0,CATEGORY_DISABLE,eg,1,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,sg,#sg,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,1-tp,0)
 end
-function s.activate(e,tp,eg,ep,ev,re,r,rp)
+function s.desactivate(e,tp,eg,ep,ev,re,r,rp)
 	Duel.NegateEffect(ev)
 	local sg=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_MZONE,LOCATION_MZONE,e:GetHandler())
 	if Duel.Destroy(sg,REASON_EFFECT)>0 then

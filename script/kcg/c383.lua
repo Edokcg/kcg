@@ -1,4 +1,5 @@
 --ガガガザムライ
+Duel.LoadScript("c420.lua")
 local s,id=GetID()
 function s.initial_effect(c)
 	--xyz summon
@@ -26,14 +27,14 @@ function s.initial_effect(c)
 	e2:SetOperation(s.cbop)
 	c:RegisterEffect(e2)
 end
-s.listed_series={IsAstral}
+s.listed_series={0x505}
 
 function s.atcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetTurnCount()~=1 and Duel.GetCurrentPhase()==PHASE_MAIN1
 		and not Duel.IsPlayerAffectedByEffect(tp,EFFECT_CANNOT_BP)
 end
 function s.filter(c)
-	return c:IsFaceup() and c:IsSetCard(IsAstral) and c:GetEffectCount(EFFECT_EXTRA_ATTACK)==0
+	return c:IsFaceup() and c:IsAstral() and c:GetEffectCount(EFFECT_EXTRA_ATTACK)==0
 end
 function s.attg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.filter(chkc) end

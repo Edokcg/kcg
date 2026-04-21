@@ -1,24 +1,26 @@
 --Parallel Material
-function c372.initial_effect(c)
+Duel.LoadScript("c420.lua")
+local s,id=GetID()
+function s.initial_effect(c)
 --Activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)	
-	e1:SetTarget(c372.target)
-	e1:SetOperation(c372.activate)
+	e1:SetTarget(s.target)
+	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
 end
 
-function c372.filter(c,e,tp)
-	return c:IsFaceup() and c:IsSetCard(IsAstral)
-	  --and Duel.IsExistingMatchingCard(c372.filter1,tp,LOCATION_EXTRA,0,1,nil,c:GetLevel(),e,tp,c) 
+function s.filter(c,e,tp)
+	return c:IsFaceup() and c:IsAstral()
+	  --and Duel.IsExistingMatchingCard(s.filter1,tp,LOCATION_EXTRA,0,1,nil,c:GetLevel(),e,tp,c) 
 end
-function c372.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c372.filter,tp,LOCATION_MZONE,0,1,nil,e,tp) end
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_MZONE,0,1,nil,e,tp) end
 end
-function c372.activate(e,tp,eg,ep,ev,re,r,rp)
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local g=Duel.GetMatchingGroup(c372.filter,tp,LOCATION_MZONE,0,nil,e,tp)
+	local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e,tp)
 	local tc=g:GetFirst()
 	while tc do
 	if tc then

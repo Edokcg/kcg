@@ -54,6 +54,8 @@ function s.initial_effect(c)
 	e32:SetType(EFFECT_TYPE_IGNITION)
 	e32:SetRange(LOCATION_MZONE)
 	e32:SetCondition(s.spcon22)
+	e32:SetTarget(s.sptg22)
+	e32:SetCost(Cost.SelfTribute)
 	c:RegisterEffect(e32)
 
 	local e5=Effect.CreateEffect(c)
@@ -70,12 +72,6 @@ function s.initial_effect(c)
 	e6:SetCode(EVENT_BE_BATTLE_TARGET)
 	e6:SetCondition(s.condition)
 	c:RegisterEffect(e6)
-	local chain=Duel.GetCurrentChain
-	copychain=0
-	Duel.GetCurrentChain=function()
-		if copychain==1 then copychain=0 return chain()-1
-		else return chain() end
-	end
 end
 s.listed_series={0x2066}
 s.listed_names={42023223,79418928,15502037,CARD_SHINING_SARCOPHAGUS,99785935,39256679,11549357}
@@ -205,6 +201,26 @@ end
 function s.spcon22(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,CARD_SHINING_SARCOPHAGUS),0,LOCATION_ONFIELD,0,1,nil)
 end
+function s.sptg22(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return false end
+	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	if e:GetHandler():GetSequence()<5 then ft=ft+1 end
+	if chk==0 then return ft>2
+		and Duel.IsExistingTarget(s.spfilter,tp,LOCATION_REMOVED,0,1,nil,e,tp,42023223)
+		and Duel.IsExistingTarget(s.spfilter,tp,LOCATION_REMOVED,0,1,nil,e,tp,79418928)
+		and Duel.IsExistingTarget(s.spfilter,tp,LOCATION_REMOVED,0,1,nil,e,tp,15502037)
+		and not Duel.IsPlayerAffectedByEffect(tp,CARD_BLUEEYES_SPIRIT) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local g1=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_REMOVED,0,1,1,nil,e,tp,42023223)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local g2=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_REMOVED,0,1,1,nil,e,tp,79418928)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local g3=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_REMOVED,0,1,1,nil,e,tp,15502037)
+	g1:Merge(g2)
+	g1:Merge(g3)
+	Duel.SetTargetCard(g1)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g1,3,0,0)
+end
 function s.spfilter(c,e,tp,code)
 	return c:IsFaceup() and c:IsCode(code) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
@@ -255,57 +271,31 @@ function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	return tc:IsControler(tp) and tc:IsFaceup() and Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,CARD_SHINING_SARCOPHAGUS),0,LOCATION_ONFIELD,0,1,nil)
 end
 function s.tgfilter(c,e,tp,eg,ep,ev,re,r,rp,chain,chk)
-	local te=c:GetActivateEffect()
-	if not c:IsTrap() or Duel.GetLocationCount(tp,LOCATION_SZONE)<1 then return end
-	local condition=te:GetCondition()
-	local cost=te:GetCost()
-	local target=te:GetTarget()
-	if te:GetCode()==EVENT_CHAINING then
-		if chain<=0 then return false end
-		local te2=Duel.GetChainInfo(chain,CHAININFO_TRIGGERING_EFFECT)
-		local tc=te2:GetHandler()
-		local g=Group.FromCards(tc)
-		local p=tc:GetControler()
-		return (not condition or condition(e,tp,g,p,chain,te2,REASON_EFFECT,p)) and (not cost or cost(e,tp,g,p,chain,te2,REASON_EFFECT,p,0)) 
-			and (not target or target(e,tp,g,p,chain,te2,REASON_EFFECT,p,0))
-	elseif (te:GetCode()==EVENT_FREE_CHAIN and e:GetCode()==EVENT_FREE_CHAIN) 
-		or (te:GetCode()==EVENT_SPSUMMON and e:GetCode()==EVENT_SPSUMMON) then
-		if te:GetCode()==EVENT_SPSUMMON and chk then copychain=1 end
-		return (not condition or condition(e,tp,eg,ep,ev,re,r,rp)) and (not cost or cost(e,tp,eg,ep,ev,re,r,rp,0))
-			and (not target or target(e,tp,eg,ep,ev,re,r,rp,0))
-	else
-		return false
-	end
+	return c:IsTrap() and c:CheckActivateEffect(false,true,false)~=nil
 end
 function s.numtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local chain=Duel.GetCurrentChain()
-	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_HAND+LOCATION_DECK,0,1,nil,e,tp,eg,ep,ev,re,r,rp,chain) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_HAND+LOCATION_DECK,0,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
+	local g=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_HAND+LOCATION_DECK,0,1,1,nil)
+	local te,ceg,cep,cev,cre,cr,crp=g:GetFirst():CheckActivateEffect(false,true,true)
+	Duel.MoveToField(g:GetFirst(),tp,tp,LOCATION_SZONE,POS_FACEUP,true)
+	Duel.Hint(HINT_CARD,tp,g:GetFirst():GetOriginalCode())
+	Duel.Hint(HINT_CARD,1-tp,g:GetFirst():GetOriginalCode())
+	e:SetProperty(te:GetProperty())
+    Duel.ClearOperationInfo(0)
+    e:SetCategory(te:GetCategory())
+	local tg=te:GetTarget()
+	if tg then tg(e,tp,ceg,cep,cev,cre,cr,crp,1) end
+	te:SetLabelObject(e:GetLabelObject())
+	e:SetLabelObject(g:GetFirst())
 end
 function s.numop(e,tp,eg,ep,ev,re,r,rp)
-	local chain=Duel.GetCurrentChain()-1
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
-	local g=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_HAND+LOCATION_DECK,0,1,1,nil,e,tp,eg,ep,ev,re,r,rp,chain,true)
-	local tc=g:GetFirst()
-	copychain=0
-	if tc and Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,true) then
-		local te=tc:GetActivateEffect()
-		local cost=te:GetCost()
-		local tg=te:GetTarget()
-		local op=te:GetOperation()
-		e:SetCategory(te:GetCategory())
-		e:SetProperty(te:GetProperty())
-		if te:GetCode()==EVENT_CHAINING then
-			local te2=Duel.GetChainInfo(chain,CHAININFO_TRIGGERING_EFFECT)
-			local tc=te2:GetHandler()
-			local g=Group.FromCards(tc)
-			local p=tc:GetControler()
-			if co then co(e,tp,g,p,chain,te2,REASON_EFFECT,p,1) end
-			if tg then tg(e,tp,g,p,chain,te2,REASON_EFFECT,p,1) end
-			if op then op(e,tp,g,p,chain,te2,REASON_EFFECT,p) end
-		else
-			if cost then cost(e,tp,eg,ep,ev,re,r,rp,1) end
-			if tg then tg(e,tp,eg,ep,ev,re,r,rp,1) end
-			if op then op(e,tp,eg,ep,ev,re,r,rp) end
-		end
-	end
+	local tc=e:GetLabelObject()
+	local te=tc:CheckActivateEffect(false,true,true)
+	if not te then return end
+	e:SetLabelObject(te:GetLabelObject())
+	local op=te:GetOperation()
+	if op then op(e,tp,eg,ep,ev,re,r,rp) end
+	Duel.SendtoGrave(tc,REASON_RULE)
 end

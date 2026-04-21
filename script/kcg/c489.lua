@@ -1,4 +1,5 @@
 --ガガガリベンジ
+Duel.LoadScript("c420.lua")
 local s,id=GetID()
 function s.initial_effect(c)
 	--Activate
@@ -26,10 +27,10 @@ function s.initial_effect(c)
 	e3:SetOperation(s.atkop)
 	c:RegisterEffect(e3)
 end
-s.listed_series={IsAstral}
+s.listed_series={0x505}
 
 function s.filter(c,e,tp)
-	return c:IsSetCard(IsAstral) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsAstral() and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.filter(chkc,e,tp) end

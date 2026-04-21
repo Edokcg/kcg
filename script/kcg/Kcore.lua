@@ -533,8 +533,8 @@ function Auxiliary.spopr(e,tp,eg,ep,ev,re,r,rp,c)
 	g:DeleteGroup()
 end
 
-function Auxiliary.spcon0(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(Auxiliary.FaceupFilter(Card.IsCode,15259703),tp,LOCATION_ONFIELD,0,1,nil)
+function Auxiliary.spcon0(e,c)
+	return Duel.IsExistingMatchingCard(Auxiliary.FaceupFilter(Card.IsCode,15259703),c:GetControler(),LOCATION_ONFIELD,0,1,nil)
 end
 function Auxiliary.sptg0(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end

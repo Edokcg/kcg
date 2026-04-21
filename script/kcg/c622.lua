@@ -615,6 +615,7 @@ function s.strongatkoperation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	for tc in aux.Next(Duel.GetMatchingGroup(s.atkfilter,tp,0,LOCATION_MZONE,nil)) do
 		local e1=Effect.CreateEffect(c)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_SET_ATTACK)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
@@ -682,7 +683,7 @@ function s.soperation1(e,tp,eg,ep,ev,re,r,rp)
 		effcount=effcount-1
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
 		local g=Duel.SelectMatchingCard(tp,s.sfilter1,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
-		if not g then return end
+		if not g or #g<1 then return end
 		Duel.Remove(g,nil,REASON_EFFECT)
 	until effcount<1
 	or not Duel.SelectYesNo(tp,210)
@@ -701,7 +702,7 @@ function s.soperation2(e,tp,eg,ep,ev,re,r,rp)
 		effcount=effcount-1
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 		local g=Duel.SelectMatchingCard(tp,s.sfilter2,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
-		if not g then return end
+		if not g or #g<1 then return end
 		Duel.Destroy(g,REASON_EFFECT)
 	until effcount<1
 	or not Duel.SelectYesNo(tp,210)
@@ -718,7 +719,7 @@ function s.soperation3(e,tp,eg,ep,ev,re,r,rp)
 		effcount=effcount-1
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
 		local g=Duel.SelectMatchingCard(tp,s.wkenfilter,tp,0,LOCATION_ONFIELD,1,1,nil)
-		if not g then return end
+		if not g or #g<1 then return end
 		local tc=g:GetFirst()
 		if tc and tc:IsFaceup() and not tc:IsDisabled() then
 			local e1=Effect.CreateEffect(c)
@@ -758,11 +759,12 @@ function s.soperation4(e,tp,eg,ep,ev,re,r,rp)
 		effcount=effcount-1
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
 		local g=Duel.SelectMatchingCard(tp,s.sfilter4,tp,0,LOCATION_MZONE,1,1,nil)
-		if not g then return end
+		if not g or #g<1 then return end
 		local tc=g:GetFirst()
 		local atk=tc:GetAttack()
 		if tc and tc:IsFaceup() and atk>0 then
 			local e1=Effect.CreateEffect(c)
+			e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 			e1:SetType(EFFECT_TYPE_SINGLE)
 			e1:SetCode(EFFECT_SET_ATTACK)
 			e1:SetReset(RESET_EVENT+RESETS_STANDARD)

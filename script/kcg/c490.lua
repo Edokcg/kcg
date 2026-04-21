@@ -1,4 +1,5 @@
 --ゴゴゴ護符
+Duel.LoadScript("c420.lua")
 local s,id=GetID()
 function s.initial_effect(c)
 	--Activate
@@ -32,10 +33,10 @@ function s.initial_effect(c)
 	e4:SetOperation(s.indop)
 	c:RegisterEffect(e4)
 end
-s.listed_series={IsAstral}
+s.listed_series={0x505}
 
 function s.cfilter(c)
-	return c:IsFaceup() and c:IsSetCard(IsAstral)
+	return c:IsFaceup() and c:IsAstral()
 end
 function s.damcon(e)
 	return Duel.IsExistingMatchingCard(s.cfilter,e:GetHandlerPlayer(),LOCATION_MZONE,0,2,nil)

@@ -1,4 +1,5 @@
 --ガガガカイザー
+Duel.LoadScript("c420.lua")
 local s,id=GetID()
 function s.initial_effect(c)
 	--atklimit
@@ -24,10 +25,10 @@ function s.initial_effect(c)
 	e3:SetOperation(s.lvop)
 	c:RegisterEffect(e3)
 end
-s.listed_series={IsAstral}
+s.listed_series={0x505}
 
 function s.cfilter(c)
-	return c:IsFaceup() and c:IsSetCard(IsAstral)
+	return c:IsFaceup() and c:IsAstral()
 end
 function s.atkcon(e)
 	return not Duel.IsExistingMatchingCard(s.cfilter,e:GetHandlerPlayer(),LOCATION_MZONE,0,1,e:GetHandler())
@@ -39,7 +40,7 @@ function s.rfilter(c,tp)
 end
 function s.tfilter(c,clv)
 	local lv=c:GetLevel()
-	return lv>0 and lv~=clv and c:IsFaceup() and c:IsSetCard(IsAstral)
+	return lv>0 and lv~=clv and c:IsFaceup() and c:IsAstral()
 end
 function s.lvcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.rfilter,tp,LOCATION_GRAVE,0,1,nil,tp) end
