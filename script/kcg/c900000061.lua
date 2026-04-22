@@ -1,4 +1,5 @@
 local s,id=GetID()
+Duel.EnableUnofficialProc(PROC_STATS_CHANGED)
 function s.initial_effect(c)
     local e114 = Effect.CreateEffect(c)
     e114:SetType(EFFECT_TYPE_SINGLE)
@@ -175,17 +176,18 @@ end
 
 function s.damcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
+	local val=0
 	if c:GetFlagEffect(584)>0 then val=c:GetFlagEffectLabel(584) end
 	return eg:IsContains(c) and c:GetLevel()~=val
 end
 function s.lvop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:GetLevel()>=7 then c:SetCardData(CARDDATA_PICCODE,37267041,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD,c)
-	elseif c:GetLevel()>=5 then c:SetCardData(CARDDATA_PICCODE,74388798,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD,c)
-	elseif c:GetLevel()>=4 then c:SetCardData(CARDDATA_PICCODE,15180041,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD,c)
-	elseif c:GetLevel()>=3 then c:SetCardData(CARDDATA_PICCODE,1995985,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD,c)
-	elseif c:GetLevel()>=1 then c:SetCardData(CARDDATA_PICCODE,39321065,EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD,c) end
-	c:SetCardData(CARDDATA_LEVEL,math.min(12,c:GetLevel()),EFFECT_FLAG_CANNOT_DISABLE,RESET_EVENT+RESETS_STANDARD,c)
+	if c:GetLevel()>=7 then c:SetCardData(CARDDATA_PICCODE,37267041,EFFECT_FLAG_CANNOT_DISABLE,0,c)
+	elseif c:GetLevel()>=5 then c:SetCardData(CARDDATA_PICCODE,74388798,EFFECT_FLAG_CANNOT_DISABLE,0,c)
+	elseif c:GetLevel()>=4 then c:SetCardData(CARDDATA_PICCODE,15180041,EFFECT_FLAG_CANNOT_DISABLE,0,c)
+	elseif c:GetLevel()>=3 then c:SetCardData(CARDDATA_PICCODE,1995985,EFFECT_FLAG_CANNOT_DISABLE,0,c)
+	elseif c:GetLevel()>=1 then c:SetCardData(CARDDATA_PICCODE,39321065,EFFECT_FLAG_CANNOT_DISABLE,0,c) end
+	c:SetCardData(CARDDATA_LEVEL,math.min(12,c:GetLevel()),EFFECT_FLAG_CANNOT_DISABLE,0,c)
 	local ae={c:IsHasEffect(EFFECT_UPDATE_LEVEL)}
 	for _, te in ipairs(ae) do
 		te:Reset()

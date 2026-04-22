@@ -94,7 +94,7 @@ function s.lactivate(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Destroy(otc,REASON_RULE)
 	end
     if not Duel.MoveToField(otoken,tp,tp,LOCATION_FZONE,POS_FACEUP,true) then return end
-	otoken:SetCardData(CARDDATA_TYPE,TYPE_SPELL+TYPE_FIELD) 
+	otoken:SetCardData(CARDDATA_TYPE,TYPE_SPELL+TYPE_FIELD)
 	local te,eg,ep,ev,re,r,rp=otoken:CheckActivateEffect(true,true,true)
 	local tep=otoken:GetControler()
 	local condition=te:GetCondition()
