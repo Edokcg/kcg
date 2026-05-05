@@ -380,7 +380,7 @@ function s.setfilter(c)
 	return c:IsFaceup() and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsSSetable(true)
 end
 function s.retg2(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_SZONE,0,1,nil) or Duel.IsExistingMatchingCard(s.setfilter,1-tp,LOCATION_SZONE,0,1,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.setfilter,0,LOCATION_SZONE,LOCATION_SZONE,1,nil) end
 end
 function s.reop2(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

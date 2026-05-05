@@ -1,7 +1,7 @@
 --ダークネス·ネオスフィア
 local s,id=GetID()
 function s.initial_effect(c)
-	c:EnableUnsummonable()
+	c:EnableReviveLimit()
 
 	--special summon
 	local e2=Effect.CreateEffect(c)
@@ -10,7 +10,6 @@ function s.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCode(EVENT_ATTACK_ANNOUNCE)
 	e2:SetRange(LOCATION_HAND)
-	e2:SetCondition(s.spcon)
 	e2:SetCost(s.spcost)
 	e2:SetTarget(s.sptg)
 	e2:SetOperation(s.spop)
@@ -61,11 +60,9 @@ function s.initial_effect(c)
 	e8:SetCountLimit(1)
 	e8:SetTarget(s.retg2)
 	e8:SetOperation(s.reop2)
-	c:RegisterEffect(e8)	
+	c:RegisterEffect(e8)
 end
-function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return ep~=tp
-end
+
 function s.cfilter1(c)
 	return c:IsFaceup() and c:IsRace(RACE_FIEND) and c:IsAbleToGraveAsCost()
 end
@@ -202,7 +199,7 @@ function s.setfilter(c)
 	return c:IsFaceup() and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsSSetable(true)
 end
 function s.retg2(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_SZONE,0,1,nil) or Duel.IsExistingMatchingCard(s.setfilter,1-tp,LOCATION_SZONE,0,1,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.setfilter,0,LOCATION_SZONE,LOCATION_SZONE,1,nil) end
 end
 function s.reop2(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -219,5 +216,5 @@ function s.reop2(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetCode(EFFECT_TRAP_ACT_IN_SET_TURN)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 		ap:RegisterEffect(e1)
-	end		
+	end
 end

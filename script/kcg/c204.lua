@@ -11,7 +11,7 @@ function s.initial_effect(c)
 end
 
 function s.filter(c,e)
-	return c:IsFaceup() and c:IsRace(RACE_DRAGON) and not c:IsImmuneToEffect(e)
+	return c:IsFaceup() and c:IsRace(RACE_DRAGON)
     and ((c:GetOriginalLevel()>=7 and c:GetOriginalLevel()<=10) or (c:GetOriginalRank()>=7 and c:GetOriginalRank()<=10))
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
