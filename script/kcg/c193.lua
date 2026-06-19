@@ -3,78 +3,67 @@ local s,id=GetID()
 function s.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_DESTROY)
-	e1:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
+	e1:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetTarget(s.destg)
-	e1:SetOperation(s.desop)
+	e1:SetCondition(s.condition)
+	e1:SetTarget(s.target)
+	e1:SetOperation(s.op)
 	c:RegisterEffect(e1)
+
+	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(id,0))
+	e2:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
+	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e2:SetCode(EVENT_CHAINING)
+	e2:SetRange(LOCATION_SZONE)
+	e2:SetCondition(s.condition2)
+	e2:SetOperation(s.cop)
+	c:RegisterEffect(e2)
 end
 s.listed_series={0x316}
 s.listed_names={511310104,511310105}
 
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,511310104),tp,LOCATION_SZONE,0,1,nil) or Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,511310105),tp,LOCATION_SZONE,0,1,nil)
+end
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.desfilter,tp,0,LOCATION_ONFIELD,1,nil) end 
+	Duel.SetChainLimit(s.climit)
+end
+function s.climit(e,lp,tp)
+	return lp==tp
+end
 function s.filter(c)
-	return c:IsFaceup() and c:IsDestructable()
+	return c:IsSetCard(0x316) and c:IsFaceup() and c:IsType(TYPE_TRAP) and c:IsType(TYPE_CONTINUOUS)
 end
-function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:GetControler()~=tp and chkc:IsOnField() and s.filter(chkc) end
-	if chk==0 then return true end
-	if Duel.IsExistingTarget(s.filter,tp,0,LOCATION_ONFIELD,1,nil) and e:GetHandler():GetFlagEffect(id)~=0 then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-		local g=Duel.SelectTarget(tp,s.filter,tp,0,LOCATION_ONFIELD,1,1,nil)
-		Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,g:GetCount(),0,0)
-	end	
+function s.desfilter(c)
+	return c:IsDestructable()
 end
-function s.darkness(c)
-	return c:IsFaceup() and c:GetFlagEffect(id)~=0 and c:IsType(TYPE_TRAP+TYPE_CONTINUOUS) and c:IsSetCard(0x316)
-end
-function s.desop(e,tp,eg,ep,ev,re,r,rp)
-	if e:GetHandler():GetFlagEffect(id)==0 then return end	
-	local tc=Duel.GetFirstTarget()
-	if tc and tc:IsRelateToEffect(e) then
-		Duel.Destroy(tc,REASON_EFFECT)
-	end
-	local g=Duel.GetMatchingGroup(s.darkness,tp,LOCATION_SZONE,0,e:GetHandler())
-	if g:GetCount()>0 then
-		while g:GetCount()>0 do
-		   local tc=g:GetFirst()
-		   s.zero(e:GetHandler(),tp)
-		   g:RemoveCard(tc)
-	    end
-	end	
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+	s.op2(e,tp,eg,ep,ev,re,r,rp)
+	e:GetHandler():RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
 end
 
-function s.zero(tc,tep)
-	local te=tc:GetActivateEffect()
-	if te==nil or tc:CheckActivateEffect(true,false,false)==nil then return end
-	local condition=te:GetCondition()
-	local cost=te:GetCost()
-	local target=te:GetTarget()
-	local operation=te:GetOperation()
-	Duel.ClearTargetCard()
-	if cost then cost(te,tep,eg,ep,ev,re,r,rp,1) end
-	if target then target(te,tep,eg,ep,ev,re,r,rp,1) end
-	tc:CreateEffectRelation(te)
-	local gg=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
-	if gg then  
-		local etc=gg:GetFirst()	
-		while etc do
-			etc:CreateEffectRelation(te)
-			etc=gg:GetNext()
-		end
+function s.condition2(e,tp,eg,ep,ev,re,r,rp)
+	if not re then return false end
+	local rc=re:GetHandler()
+	local c=e:GetHandler()
+	return rc:IsSetCard(0x316) and re:IsSpellTrapEffect() and re:IsActiveType(TYPE_CONTINUOUS) 
+	and c~=rc and c:GetFlagEffect(id)>0 and rc:IsOnField() and rc:IsControler(tp)
+end
+function s.cop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.ChangeChainOperation(ev,s.op2)
+	local rc=re:GetHandler()
+	if rc:IsContinuousSpellTrap() then
+		rc:SetStatus(STATUS_LEAVE_CONFIRMED,false)
 	end
-	if operation then 
-	 	local tc2=Duel.GetFirstTarget()
-        if tc2 and tc2:IsRelateToEffect(te) then
-		Duel.Destroy(tc2,REASON_EFFECT) end
-	end
-	tc:ReleaseEffectRelation(te)
-	if gg then  
-		local etc=gg:GetFirst()
-		while etc do
-			etc:ReleaseEffectRelation(te)
-			etc=gg:GetNext()
-		end
-	end 
+end
+function s.op2(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
+	local g=Duel.SelectMatchingCard(tp,s.desfilter,tp,0,LOCATION_ONFIELD,1,1,nil)
+	if #g<1 then return end
+	Duel.Destroy(g,REASON_EFFECT)
 end

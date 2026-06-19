@@ -10,18 +10,18 @@ function s.initial_effect(c)
 	e01:SetCode(EFFECT_SPSUMMON_CONDITION)
 	c:RegisterEffect(e01)
 
-		--special summon 
-		local e00=Effect.CreateEffect(c)  
-		e00:SetType(EFFECT_TYPE_FIELD) 
-		e00:SetCode(EFFECT_SPSUMMON_PROC)  
-		e00:SetProperty(EFFECT_FLAG_UNCOPYABLE)  
-		e00:SetRange(LOCATION_EXTRA)  
-		e00:SetCondition(s.spcon)  
-		e00:SetOperation(s.spop)  
-		e00:SetValue(SUMMON_TYPE_XYZ)
-		c:RegisterEffect(e00) 
+	--special summon 
+	local e00=Effect.CreateEffect(c)  
+	e00:SetType(EFFECT_TYPE_FIELD) 
+	e00:SetCode(EFFECT_SPSUMMON_PROC)  
+	e00:SetProperty(EFFECT_FLAG_UNCOPYABLE)  
+	e00:SetRange(LOCATION_EXTRA)  
+	e00:SetCondition(s.spcon)  
+	e00:SetOperation(s.spop)  
+	e00:SetValue(SUMMON_TYPE_XYZ)
+	c:RegisterEffect(e00) 
 
-	  --special summon
+	--special summon
 	local e02=Effect.CreateEffect(c)
 	e02:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e02:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
@@ -31,7 +31,7 @@ function s.initial_effect(c)
 	e02:SetCondition(s.sprcon)
 	e02:SetTarget(s.sprtg)
 	e02:SetOperation(s.sprop)
-	c:RegisterEffect(e02)   
+	c:RegisterEffect(e02)
 
 	--immune
 	local e1=Effect.CreateEffect(c)
@@ -44,33 +44,14 @@ function s.initial_effect(c)
 	e1:SetValue(s.efilter)
 	c:RegisterEffect(e1)
 
-	-- local e3=Effect.CreateEffect(c)
-	-- e3:SetType(EFFECT_TYPE_FIELD)
-	-- e3:SetCode(740)
-	-- e3:SetRange(LOCATION_MZONE)
-	-- e3:SetTargetRange(LOCATION_HAND,0)
-	-- e3:SetCondition(s.condition)
-	-- e3:SetTarget(s.tfilter)
-	-- c:RegisterEffect(e3) 
-
-	-- local e2=Effect.CreateEffect(c)
-	-- e2:SetDescription(aux.Stringid(100000703,0))
-	-- e2:SetType(EFFECT_TYPE_QUICK_O)
-	-- e2:SetCode(EVENT_FREE_CHAIN)
-	-- e2:SetRange(LOCATION_MZONE)
-	-- e2:SetCountLimit(1)
-	-- e2:SetCondition(s.ddcondition)
-	-- e2:SetOperation(s.operation)
-	--c:RegisterEffect(e2)
-
-	  local e4=Effect.CreateEffect(c)
-	  e4:SetType(EFFECT_TYPE_FIELD)
-	  e4:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON) 
-	  e4:SetRange(LOCATION_MZONE)
-	  e4:SetTargetRange(0,1)
-	  e4:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-	  e4:SetTarget(s.splimit)
-	  c:RegisterEffect(e4)
+	local e4=Effect.CreateEffect(c)
+	e4:SetType(EFFECT_TYPE_FIELD)
+	e4:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON) 
+	e4:SetRange(LOCATION_MZONE)
+	e4:SetTargetRange(0,1)
+	e4:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e4:SetTarget(s.splimit)
+	c:RegisterEffect(e4)
 
 	local e5=Effect.CreateEffect(c)
 	e5:SetType(EFFECT_TYPE_SINGLE)
@@ -110,21 +91,6 @@ function s.initial_effect(c)
 	e7:SetOperation(s.reoperation)
 	c:RegisterEffect(e7)
 
-	-- local e40=Effect.CreateEffect(c)
-	-- e40:SetType(EFFECT_TYPE_FIELD)
-	-- e40:SetCode(740)
-	-- e40:SetRange(LOCATION_MZONE)
-	-- e40:SetTargetRange(LOCATION_SZONE,0)
-	-- e40:SetTarget(s.tfilter2)
-	-- c:RegisterEffect(e40)
-
-	-- local e06=Effect.CreateEffect(c)
-	-- e06:SetType(EFFECT_TYPE_FIELD)
-	-- e06:SetCode(100000703)
-	-- e06:SetRange(LOCATION_MZONE)
-	-- e06:SetTargetRange(LOCATION_ONFIELD,0)
-	-- c:RegisterEffect(e06)
-
 	local e14=Effect.CreateEffect(c)
 	e14:SetDescription(aux.Stringid(185,0))
 	e14:SetType(EFFECT_TYPE_QUICK_O)
@@ -159,37 +125,37 @@ s.listed_series={0x316}
 s.listed_names={746,747,748}
 
 function s.spcon(e,c)
-		if c==nil then return true end
-		return Duel.IsExistingMatchingCard(s.ovfilter,c:GetControler(),LOCATION_MZONE,0,1,nil,c,746)
-		and Duel.IsExistingMatchingCard(s.ovfilter,c:GetControler(),LOCATION_MZONE,0,1,nil,c,747)
-		and Duel.IsExistingMatchingCard(s.ovfilter,c:GetControler(),LOCATION_MZONE,0,1,nil,c,748)
+	if c==nil then return true end
+	return Duel.IsExistingMatchingCard(s.ovfilter,c:GetControler(),LOCATION_MZONE,0,1,nil,c,746)
+	and Duel.IsExistingMatchingCard(s.ovfilter,c:GetControler(),LOCATION_MZONE,0,1,nil,c,747)
+	and Duel.IsExistingMatchingCard(s.ovfilter,c:GetControler(),LOCATION_MZONE,0,1,nil,c,748)
 end
 function s.ovfilter(c,tc,code)
 	return c:IsFaceup() and c:IsCanBeXyzMaterial(tc) and c:IsCode(code)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
-		local c=e:GetHandler()
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-		local tg1=Duel.SelectMatchingCard(tp,s.ovfilter,c:GetControler(),LOCATION_MZONE,0,1,1,nil,c,746)
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-		local tg2=Duel.SelectMatchingCard(tp,s.ovfilter,c:GetControler(),LOCATION_MZONE,0,1,1,nil,c,747)
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-		local tg3=Duel.SelectMatchingCard(tp,s.ovfilter,c:GetControler(),LOCATION_MZONE,0,1,1,nil,c,748)
-		local tg=Group.CreateGroup()
-		tg:Merge(tg1) tg:Merge(tg2) tg:Merge(tg3)
-		local ag=tg
-		local tc=tg:GetFirst()
-		while tc do
-		local ttc=tc:GetOverlayGroup()
-		if ttc~=nil then
-		local btc=ttc:GetFirst()
-		while btc do
-		Duel.Overlay(e:GetHandler(),btc)
-		btc=ttc:GetNext() end end
-		Duel.Overlay(e:GetHandler(),tc)
-		ag:Merge(ttc)
-		tc=tg:GetNext() end
-		c:SetMaterial(tg)
+	local c=e:GetHandler()
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
+	local tg1=Duel.SelectMatchingCard(tp,s.ovfilter,c:GetControler(),LOCATION_MZONE,0,1,1,nil,c,746)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
+	local tg2=Duel.SelectMatchingCard(tp,s.ovfilter,c:GetControler(),LOCATION_MZONE,0,1,1,nil,c,747)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
+	local tg3=Duel.SelectMatchingCard(tp,s.ovfilter,c:GetControler(),LOCATION_MZONE,0,1,1,nil,c,748)
+	local tg=Group.CreateGroup()
+	tg:Merge(tg1) tg:Merge(tg2) tg:Merge(tg3)
+	local ag=tg
+	local tc=tg:GetFirst()
+	while tc do
+	local ttc=tc:GetOverlayGroup()
+	if ttc~=nil then
+	local btc=ttc:GetFirst()
+	while btc do
+	Duel.Overlay(e:GetHandler(),btc)
+	btc=ttc:GetNext() end end
+	Duel.Overlay(e:GetHandler(),tc)
+	ag:Merge(ttc)
+	tc=tg:GetNext() end
+	c:SetMaterial(tg)
 end
 
 function s.cfilter(c,tp,code)
@@ -220,29 +186,18 @@ function s.efilter(e,te)
 	return te:GetOwnerPlayer()~=e:GetHandlerPlayer()
 end
 
-function s.tfilter(e,c)
-	return not c:IsType(TYPE_CONTINUOUS) and c:IsSetCard(0x316)
-end
-
-function s.ddfilter(c)
-	return not c:IsHasEffect(100000703) and c:IsFaceup() and c:IsCode(100000590)
-end
-function s.ddcondition(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(s.ddfilter,tp,LOCATION_SZONE,0,1,nil)
-end
-
 function s.rvtg(e,tp,ev,ep,ev,re,r,rp,chk)
 	if chk==0 then
 		local gdd=Duel.GetFieldGroup(tp,LOCATION_SZONE,0)
 		if gdd:GetCount()<1 then return false end
-		local gd=gdd:Filter(Card.IsFacedown,c)
+		local gd=gdd:Filter(Card.IsFacedown,nil)
 		return gd:GetCount()>0
 	end
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local gdd=Duel.GetFieldGroup(tp,LOCATION_SZONE,0)
 	if gdd:GetCount()<1 then return end
-	local gd=gdd:Filter(Card.IsFacedown,c)
+	local gd=gdd:Filter(Card.IsFacedown,nil)
 	if #gd>0 then Duel.ConfirmCards(tp, gd) end
 end
 
@@ -302,18 +257,12 @@ function s.reoperation(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
-function s.tfilter2(e,c)
-	return c:IsType(TYPE_FIELD) and c:IsSetCard(0x316)
-end
-
 function s.refilter(c)
 	return c:GetSequence()<5
 end
 function s.retg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then 
-		local gdd=Duel.GetFieldGroup(tp,LOCATION_SZONE,LOCATION_SZONE)
-		if gdd:GetCount()<1 then return false end
-		local gd=gdd:Filter(s.refilter,c)
+		local gd=Duel.GetMatchingGroup(s.refilter,tp,LOCATION_SZONE,LOCATION_SZONE,nil)
 		return gd:GetCount()>0
 	end
 end
@@ -329,9 +278,7 @@ function s.getflag(g,tp)
 end
 function s.reop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local gdd=Duel.GetFieldGroup(tp,LOCATION_SZONE,LOCATION_SZONE)
-	if gdd:GetCount()<1 then return end
-	local gd=gdd:Filter(s.refilter,c)
+	local gd=Duel.GetMatchingGroup(s.refilter,tp,LOCATION_SZONE,LOCATION_SZONE,nil)
 	if gd:GetCount()<1 then return end
 	local g=gd:Filter(Card.IsControler,c,tp)
 	local g2=gd:Filter(Card.IsControler,c,1-tp)
@@ -391,11 +338,13 @@ function s.reop2(e,tp,eg,ep,ev,re,r,rp)
 	for ap in aux.Next(p) do
 		Duel.ChangePosition(ap, POS_FACEDOWN)
 		Duel.RaiseEvent(ap,EVENT_SSET,e,REASON_EFFECT,tp,tp,0)
-		local e1=Effect.CreateEffect(c)
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
-		e1:SetCode(EFFECT_TRAP_ACT_IN_SET_TURN)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-		ap:RegisterEffect(e1)
+		if ap:IsControler(tp) then
+			local e1=Effect.CreateEffect(c)
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
+			e1:SetCode(EFFECT_TRAP_ACT_IN_SET_TURN)
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+			ap:RegisterEffect(e1)
+		end
 	end 
 end

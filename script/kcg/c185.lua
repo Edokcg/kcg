@@ -62,12 +62,13 @@ function s.initial_effect(c)
 	e8:SetOperation(s.reop2)
 	c:RegisterEffect(e8)
 end
+s.listed_series={0x316}
 
 function s.cfilter1(c)
-	return c:IsFaceup() and c:IsRace(RACE_FIEND) and c:IsAbleToGraveAsCost()
+	return c:IsFaceup() and c:IsAttribute(ATTRIBUTE_DARK) and c:IsAbleToGraveAsCost()
 end
 function s.cfilter2(c)
-	return c:IsRace(RACE_FIEND) and c:IsAbleToGraveAsCost()
+	return c:IsAttribute(ATTRIBUTE_DARK) and c:IsAbleToGraveAsCost()
 end
 function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.cfilter1,tp,LOCATION_MZONE,0,1,nil)
@@ -114,14 +115,14 @@ function s.rvtg(e,tp,ev,ep,ev,re,r,rp,chk)
 	if chk==0 then
 		local gdd=Duel.GetFieldGroup(tp,LOCATION_SZONE,0)
 		if gdd:GetCount()<1 then return false end
-		local gd=gdd:Filter(Card.IsFacedown,c)
+		local gd=gdd:Filter(Card.IsFacedown,nil)
 		return gd:GetCount()>0
 	end
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local gdd=Duel.GetFieldGroup(tp,LOCATION_SZONE,0)
 	if gdd:GetCount()<1 then return end
-	local gd=gdd:Filter(Card.IsFacedown,c)
+	local gd=gdd:Filter(Card.IsFacedown,nil)
 	if #gd>0 then Duel.ConfirmCards(tp, gd) end
 end
 
@@ -130,9 +131,7 @@ function s.refilter(c)
 end
 function s.retg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then 
-		local gdd=Duel.GetFieldGroup(tp,LOCATION_SZONE,LOCATION_SZONE)
-		if gdd:GetCount()<1 then return false end
-		local gd=gdd:Filter(s.refilter,c)
+		local gd=Duel.GetMatchingGroup(s.refilter,tp,LOCATION_SZONE,LOCATION_SZONE,nil)
 		return gd:GetCount()>0
 	end
 end
@@ -148,9 +147,7 @@ function s.getflag(g,tp)
 end
 function s.reop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local gdd=Duel.GetFieldGroup(tp,LOCATION_SZONE,LOCATION_SZONE)
-	if gdd:GetCount()<1 then return end
-	local gd=gdd:Filter(s.refilter,c)
+	local gd=Duel.GetMatchingGroup(s.refilter,tp,LOCATION_SZONE,LOCATION_SZONE,nil)
 	if gd:GetCount()<1 then return end
 	local g=gd:Filter(Card.IsControler,c,tp)
 	local g2=gd:Filter(Card.IsControler,c,1-tp)
@@ -210,11 +207,13 @@ function s.reop2(e,tp,eg,ep,ev,re,r,rp)
 	for ap in aux.Next(p) do
 	    Duel.ChangePosition(ap, POS_FACEDOWN)
 		Duel.RaiseEvent(ap,EVENT_SSET,e,REASON_EFFECT,tp,tp,0)
-		local e1=Effect.CreateEffect(c)
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
-		e1:SetCode(EFFECT_TRAP_ACT_IN_SET_TURN)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-		ap:RegisterEffect(e1)
+		if ap:IsControler(tp) then
+			local e1=Effect.CreateEffect(c)
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
+			e1:SetCode(EFFECT_TRAP_ACT_IN_SET_TURN)
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+			ap:RegisterEffect(e1)
+		end
 	end
 end

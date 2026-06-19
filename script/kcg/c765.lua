@@ -2,78 +2,83 @@
 local s,id=GetID()
 function s.initial_effect(c)
 	local e1=Effect.CreateEffect(c)
-	e1:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
-	e1:SetType(EFFECT_TYPE_ACTIVATE)
-	e1:SetCode(EVENT_FREE_CHAIN)
-	-- e1:SetTarget(s.destg)
-	e1:SetOperation(s.desop)
+	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetType(EFFECT_TYPE_IGNITION)
+	e1:SetRange(LOCATION_HAND)
+	e1:SetTarget(s.tg)
+	e1:SetOperation(s.op)
 	c:RegisterEffect(e1)
+
+	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(id,1))
+	e2:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
+	e2:SetType(EFFECT_TYPE_ACTIVATE)
+	e2:SetCode(EVENT_FREE_CHAIN)
+	e2:SetRange(LOCATION_SZONE)
+	e2:SetTarget(s.target)
+	e2:SetOperation(s.desop)
+	c:RegisterEffect(e2)
 end
 s.listed_series={0x316}
-s.listed_names={511310104,511310105}
 
-function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chk==0 then return true end
+function s.getflag(g,tp)
+    local flag = 0
+    for c in aux.Next(g) do
+        flag = flag|((1<<c:GetSequence())<<(8+(16*c:GetControler())))
+    end
+    if tp~=0 then
+        flag=((flag<<16)&0xffff)|((flag>>16)&0xffff)
+    end
+    return ~flag
+end
+function s.SelectCardByZone(g,tp,hint)
+	if hint then Duel.Hint(HINT_SELECTMSG,tp,hint) end
+	local sel=Duel.SelectFieldZone(tp,1,LOCATION_SZONE,0,s.getflag(g,tp))>>8
+	local seq=math.log(sel,2)
+	local c=Duel.GetFieldCard(tp,LOCATION_SZONE,seq)
+	return c
+end
+function s.filter(c)
+	return c:IsSetCard(0x316) and c:IsFaceup() and c:IsSpellTrap() and c:IsType(TYPE_CONTINUOUS)
+end
+function s.tg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	if chk==0 then return Duel.IsExistingTarget(s.filter,tp,LOCATION_SZONE,0,1,nil) end
+	local gdd=Duel.GetMatchingGroup(s.filter,tp,LOCATION_SZONE,0,nil)
+	local tc=s.SelectCardByZone(gdd,tp,HINTMSG_FACEUP)
+	Duel.SetTargetCard(tc)
+end
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local tc=Duel.GetFirstTarget()
+	if tc and tc:IsRelateToEffect(e) and tc:IsFaceup() and not tc:IsImmuneToEffect(e) then
+		local zone=1<<tc:GetSequence()
+		Duel.Overlay(c,tc)
+		Duel.MoveToField(c,tp,tp,LOCATION_SZONE,POS_FACEUP,true,zone)
+	end
+end
+
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_SZONE,0,1,nil) end 
+	Duel.SetChainLimit(s.climit)
+end
+function s.climit(e,lp,tp)
+	return lp==tp
 end
 function s.ofilter(c)
-	return c:IsType(TYPE_SPELL) or c:IsType(TYPE_TRAP)
-end
-function s.darkness(c)
-	return c:IsFaceup() and c:GetFlagEffect(id)~=0 and c:IsType(TYPE_TRAP+TYPE_CONTINUOUS) and c:IsSetCard(0x316)
+	return c:IsSetCard(0x316) and c:IsType(TYPE_TRAP) and c:IsType(TYPE_CONTINUOUS)
 end
 function s.desop(e,tp,eg,ep,ev,re,r,rp)
-	if e:GetHandler():GetFlagEffect(id)==0 then return end
-	if Duel.IsExistingMatchingCard(s.ofilter,tp,LOCATION_DECK+LOCATION_HAND,0,1,nil) and Duel.SelectYesNo(tp,aux.Stringid(12744567,0)) then
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
+	local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_SZONE,0,1,1,nil)
+	local tc=g:GetFirst()
+	if tc and tc:IsFaceup() and Duel.IsExistingMatchingCard(s.ofilter,tp,LOCATION_DECK+LOCATION_HAND,0,1,nil) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
 		local og=Duel.SelectMatchingCard(tp,s.ofilter,tp,LOCATION_DECK+LOCATION_HAND,0,1,1,nil):GetFirst()
 		if og and not og:IsImmuneToEffect(e) then
 			Duel.Overlay(e:GetHandler(),og)
 		end
 	end
-	local g=Duel.GetMatchingGroup(s.darkness,tp,LOCATION_SZONE,0,e:GetHandler())
-	if g:GetCount()>0 then
-		while g:GetCount()>0 do
-			local tc=g:GetFirst()
-			s.zero(e:GetHandler(),tp)
-			g:RemoveCard(tc)
-		end
-	end
-end
-
-function s.zero(tc,tep)
-	local te=tc:GetActivateEffect()
-	if te==nil or tc:CheckActivateEffect(true,false,false)==nil then return end
-	local condition=te:GetCondition()
-	local cost=te:GetCost()
-	local target=te:GetTarget()
-	local operation=te:GetOperation()
-	Duel.ClearTargetCard()
-	if cost then cost(te,tep,eg,ep,ev,re,r,rp,1) end
-	if target then target(te,tep,eg,ep,ev,re,r,rp,1) end
-	tc:CreateEffectRelation(te)
-	local gg=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
-	if gg then  
-		local etc=gg:GetFirst()	
-		while etc do
-			etc:CreateEffectRelation(te)
-			etc=gg:GetNext()
-		end
-	end
-	if operation then 
-		if Duel.IsExistingMatchingCard(s.ofilter,tep,LOCATION_DECK+LOCATION_HAND,0,1,nil) and Duel.SelectYesNo(tep,aux.Stringid(12744567,0)) then
-			Duel.Hint(HINT_SELECTMSG,tep,HINTMSG_XMATERIAL)
-			local og=Duel.SelectMatchingCard(tep,s.ofilter,tep,LOCATION_DECK+LOCATION_HAND,0,1,1,nil):GetFirst()
-			if og and not og:IsImmuneToEffect(te) then
-				Duel.Overlay(tc,og)
-			end
-		end
-	end
-	tc:ReleaseEffectRelation(te)
-	if gg then  
-		local etc=gg:GetFirst()
-		while etc do
-			etc:ReleaseEffectRelation(te)
-			etc=gg:GetNext()
-		end
-	end 
+	e:GetHandler():RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
 end
