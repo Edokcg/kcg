@@ -107,15 +107,6 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
 	else
 		ttcode=42
 	end
-	local effcode=ocode
-	local rrealcode,orcode,rrealalias=gc:GetRealCode()
-	if rrealcode>0 then 
-		code=rrealalias
-		ocode=orcode
-		effcode=0
-	elseif oc:IsOriginalType(TYPE_NORMAL) then
-		effcode=0
-	end
 	local tc=Duel.CreateToken(tp,ttcode,nil,nil,nil,nil,nil,nil)
 	local fg=rg
 	fg:AddCard(c)
@@ -137,6 +128,15 @@ function s.factivate(e,tp,eg,ep,ev,re,r,rp)
             else
                 table.insert(ss,0xa1)
             end
+			local effcode=ocode
+			local rrealcode,orcode,rrealalias=gc:GetRealCode()
+			if rrealcode>0 then 
+				code=rrealalias
+				ocode=orcode
+				effcode=0
+			elseif oc:IsOriginalType(TYPE_NORMAL) then
+				effcode=0
+			end
             if rrealcode>0 then
                 tc:SetEntityCode(ocode,nil,ss,(oc:GetOriginalType()|TYPE_EFFECT|TYPE_FUSION)&~TYPE_NORMAL&~TYPE_SPSUMMON,nil,nil,nil,atk+500,nil,nil,nil,nil,false,42,effcode,42,gc)
                 local te1={oc:GetFieldEffect()}
