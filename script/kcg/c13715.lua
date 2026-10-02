@@ -117,7 +117,7 @@ function s.filter(c, e, tp, tid)
 end
 function s.destg(e, tp, eg, ep, ev, re, r, rp, chk)
     if chk == 0 then
-        return Duel.IsExistingMatchingCard(Card.IsDestructable, tp, 0, LOCATION_MZONE, 1, nil)
+        return true
     end
     local sg = Duel.GetMatchingGroup(Card.IsDestructable, tp, 0, LOCATION_MZONE, nil)
     Duel.SetOperationInfo(0, CATEGORY_DESTROY, sg, sg:GetCount(), 0, 0)
@@ -153,7 +153,7 @@ function s.target(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
     Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_DESTROY)
     local g = Duel.SelectTarget(tp, s.filter2, tp, LOCATION_MZONE, LOCATION_MZONE, 1, 1, e:GetHandler(), e)
     Duel.SetOperationInfo(0, CATEGORY_DESTROY, g, g:GetCount(), 0, 0)
-    Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, nil, 0, 0, 0)
+    Duel.SetPossibleOperationInfo(0, CATEGORY_SPECIAL_SUMMON, nil, 0, 0, 0)
 end
 function s.operation(e, tp, eg, ep, ev, re, r, rp)
     local tc = Duel.GetFirstTarget()
